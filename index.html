@@ -59,6 +59,10 @@
   .work h3 { font-size: 18px; line-height: 1.45; }
   .work .what { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
   .work p { font-size: 14.5px; color: var(--muted); margin-top: 6px; flex: 1; }
+  .work.feature { grid-column: 1 / -1; display: grid; grid-template-columns: 1.2fr 1fr; }
+  .work.feature img { aspect-ratio: 3 / 2; align-self: center; border-bottom: 0; }
+  .work.feature .body { justify-content: center; }
+  .work.feature .body p { flex: none; }
   .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .btn { display: inline-block; font-size: 14px; font-weight: 700; text-decoration: none; padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--accent); color: var(--accent); background: var(--paper); }
   .btn.main { background: var(--accent); color: #fff; }
@@ -80,6 +84,8 @@
 
   @media (max-width: 860px) {
     .grid3, .grid2 { grid-template-columns: 1fr; }
+    .work.feature { grid-template-columns: 1fr; }
+    .work.feature img { border-bottom: 1px solid var(--line); }
     .steps { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 480px) {
@@ -138,6 +144,17 @@
     <h2>ブラウザで見られる作品</h2>
     <p class="sub">個人で作った作品です。コードは公開せず、画面の見本・設計の資料・体験版で紹介しています。データはすべて架空です。</p>
     <div class="grid2">
+      <article class="card work feature">
+        <img src="images/shoken.jpg" alt="通知表所見作成アシスタントの紹介資料" loading="lazy" width="1200" height="800">
+        <div class="body">
+          <div class="what">AIの文章作成アシスタント（Claude API）｜社外の方に提供し、実務で利用</div>
+          <h3>通知表所見作成アシスタント</h3>
+          <p>学年・教科・学期と児童のエピソードを入れると、AIが性格の違う所見案を3つ出します。先生は案を選んで手を入れるだけで、「案2をベースに…」と会話で直すこともできます。現役の教員に提供し、1クラス約40名分の所見づくりが2週間から1日になりました。</p>
+          <div class="links">
+            <a class="btn main" href="shoken/">画面の見本を触る</a>
+          </div>
+        </div>
+      </article>
       <article class="card work">
         <img src="images/equipment-agent.jpg" alt="装置トラブル対応エージェントの紹介資料" loading="lazy" width="1200" height="750">
         <div class="body">
