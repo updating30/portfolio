@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>通知表所見作成アシスタント｜画面の見本</title>
+<meta name="description" content="エピソードから通知表の所見案を3つ作るAIアシスタントの、画面の見本（モック）と仕組みの説明です。">
+<style>
+  :root {
+    --bg: #FDFAF6;
+    --side: #F8F2EC;
+    --line: #E8D9CC;
+    --line2: #EFE2D6;
+    --brown: #5C3D2E;
+    --brown2: #8B6B47;
+    --muted: #9B8B7E;
+    --green: #7FA898;
+    --green-soft: #EEF6F0;
+    --green-text: #2f7a4a;
+    --orange-text: #b8631a;
+    --red-soft: #fdeceb;
+    --red-text: #b4233c;
+    --paper: #FFFFFF;
+    --ink: #2C2C2C;
+    --accent: #1d4ed8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: #f3eee8; color: var(--ink); font-family: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif; line-height: 1.7; }
+  a { color: var(--accent); }
+  button, select, textarea, input { font: inherit; }
+
+  .demo-bar { background: #5a514a; color: #fff; font-size: 13.5px; padding: 8px 16px; text-align: center; }
+  .demo-bar a { color: #FFD98A; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  .page-head { padding: 28px 0 18px; }
+  .page-head .kicker { font-size: 13.5px; font-weight: 700; color: var(--brown2); }
+  .page-head h1 { font-size: clamp(22px, 4.4vw, 30px); color: var(--brown); line-height: 1.4; margin: 4px 0 6px; }
+  .page-head p { color: #6b5d52; font-size: 15px; max-width: 52em; }
+
+  /* ── アプリの枠 ── */
+  .app { display: grid; grid-template-columns: 270px 1fr; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 6px 24px rgba(92,61,46,.08); }
+  .sidebar { background: var(--side); border-right: 1px solid var(--line); padding: 20px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .side-heading { color: var(--brown); font-weight: 700; font-size: 14.5px; letter-spacing: .04em; }
+  .field label { display: block; color: var(--brown); font-weight: 600; font-size: 13.5px; margin-bottom: 4px; }
+  .field select, .field .fake { width: 100%; background: #fff; border: 1px solid #e3d6c9; border-radius: 8px; padding: 7px 10px; font-size: 14px; color: var(--ink); }
+  .field .fake { color: #4a4038; }
+  .side-char { text-align: center; padding: 10px 0 4px; background: #FFFBF7; border: 2px dashed #EAD8C8; border-radius: 18px; }
+  .side-char img { height: 92px; width: auto; }
+  .divider { border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+  .info { background: var(--green-soft); border-left: 4px solid #7DAD8B; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #2f5d3e; }
+  .slider { position: relative; height: 6px; background: #eadfd4; border-radius: 3px; margin: 14px 4px 6px; }
+  .slider .range { position: absolute; top: 0; bottom: 0; background: var(--green); border-radius: 3px; }
+  .slider .knob { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; background: #fff; border: 2px solid var(--green); border-radius: 50%; }
+  .caption { color: var(--muted); font-size: 12.5px; }
+  .btn-primary { width: 100%; border: 0; border-radius: 24px; padding: 10px 16px; color: #fff; font-weight: 700; letter-spacing: .06em; background: linear-gradient(135deg, #B0CBB0 0%, #7FA898 100%); box-shadow: 0 3px 10px rgba(127,168,152,.35); cursor: pointer; }
+  .btn-primary:disabled { opacity: .55; cursor: default; }
+  .btn-secondary { width: 100%; border: 1px solid #C4A882; border-radius: 20px; padding: 7px 16px; color: #8B6B47; background: transparent; cursor: pointer; }
+
+  .main { padding: 22px 26px 30px; min-width: 0; }
+  .app-header { display: flex; align-items: center; gap: 14px; padding: 12px 18px; background: linear-gradient(135deg, #FFF6F0 0%, #F4F9F2 100%); border: 2px solid #F0E0D4; border-radius: 22px; }
+  .app-header img { height: 70px; width: auto; }
+  .app-header h2 { color: var(--brown); font-size: 21px; letter-spacing: .04em; line-height: 1.3; }
+  .app-header p { color: #A08C7A; font-size: 13px; }
+
+  .examples { margin: 16px 0 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .examples .lbl { font-size: 13px; color: var(--muted); font-weight: 700; }
+  .chip { border: 1.5px solid #d9c3ae; background: #fff; color: var(--brown2); border-radius: 999px; padding: 4px 12px; font-size: 13.5px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--brown2); border-color: var(--brown2); color: #fff; }
+
+  .section-heading { font-size: 14px; font-weight: 700; color: var(--brown2); letter-spacing: .08em; margin: 16px 0 8px; }
+  textarea.episode { width: 100%; min-height: 92px; resize: none; border: 1px solid #D9C8BB; border-radius: 10px; background: #FFFDF9; padding: 10px 12px; font-size: 14.5px; line-height: 1.85; color: var(--ink); }
+  hr.sep { border: 0; border-top: 1px solid var(--line); margin: 20px 0 4px; }
+
+  .empty-state { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 26px 0 30px; }
+  .empty-state img { height: 120px; width: auto; }
+  .bubble { position: relative; background: #fff; border: 2px solid #EFDFD2; border-radius: 18px; padding: 10px 18px; color: #8A7563; font-size: 14.5px; text-align: center; }
+  .bubble::before { content: ""; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 9px solid #EFDFD2; }
+
+  .working { display: flex; align-items: center; gap: 12px; padding: 10px 16px; margin: 6px 0 10px; background: #FDF6EF; border: 2px dashed #EAD8C8; border-radius: 16px; color: #A08C7A; font-size: 14.5px; }
+  .working img { height: 58px; width: auto; }
+
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px 16px; margin-bottom: 14px; animation: fade .35s ease both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .card-head { display: flex; align-items: center; gap: 12px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2px dotted var(--line2); }
+  .card-icon { flex: 0 0 auto; width: 60px; height: 60px; display: grid; place-items: center; background: #FFF9F3; border: 2px solid #F2E4D8; border-radius: 50%; }
+  .card-icon img { max-height: 50px; max-width: 52px; }
+  .card-no { font-size: 11.5px; color: #C2A98F; font-weight: 700; letter-spacing: .14em; }
+  .card-label { font-size: 16px; font-weight: 700; color: var(--brown); line-height: 1.4; }
+  .badge { font-size: 13.5px; font-weight: 700; }
+  .badge.ok { color: var(--green-text); }
+  .badge.warn { color: var(--orange-text); }
+  .alert { background: var(--red-soft); color: var(--red-text); border-radius: 8px; padding: 6px 10px; font-size: 13.5px; margin-top: 6px; }
+  .text-box { position: relative; margin-top: 8px; border: 1px solid var(--line); border-radius: 10px; background: #FFFDF9; padding: 12px 14px 12px 14px; font-size: 14.5px; line-height: 2; white-space: pre-wrap; word-break: break-all; }
+  .copy { float: right; margin: 0 0 4px 10px; border: 1px solid var(--line); background: #fff; border-radius: 6px; font-size: 12px; padding: 2px 6px; color: var(--brown2); cursor: pointer; }
+  .btn-dl { border: 1px solid #C4A882; background: #F5EFE6; color: #6B4F32; border-radius: 20px; padding: 6px 16px; font-size: 14px; cursor: pointer; margin-top: 4px; }
+
+  .chat { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .msg .who { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: #fff; background: #c4a882; overflow: hidden; }
+  .msg .who img { max-height: 34px; max-width: 34px; }
+  .msg.ai .who { background: #FFF9F3; border: 2px solid #F2E4D8; }
+  .msg .say { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-size: 14.5px; }
+  .chat-input { display: flex; gap: 8px; margin-top: 10px; background: #f0ebe6; border-radius: 12px; padding: 8px; align-items: flex-end; }
+  .chat-input textarea { flex: 1; border: 0; background: transparent; resize: none; min-height: 44px; padding: 4px 6px; font-size: 14px; color: #6b5d52; }
+  .chat-input button { flex: 0 0 auto; border: 0; border-radius: 10px; background: var(--brown2); color: #fff; padding: 8px 14px; font-weight: 700; cursor: pointer; }
+  .chat-input button:disabled { opacity: .45; cursor: default; }
+  .hint { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid #d9c3ae; border-top-color: var(--brown2); border-radius: 50%; animation: rot 1s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+
+  /* ── 説明 ── */
+  .explain { padding: 34px 0 10px; }
+  .explain h2 { font-size: 21px; color: var(--brown); margin-bottom: 4px; }
+  .explain .sub { color: #6b5d52; font-size: 14.5px; margin-bottom: 16px; }
+  .result { background: #fff; border: 1.5px solid #cfe3d3; border-radius: 14px; padding: 18px 20px; display: grid; grid-template-columns: auto 1fr; gap: 6px 22px; align-items: center; }
+  .result .num { font-size: 30px; font-weight: 800; color: #15803d; line-height: 1.25; }
+  .result .num small { display: block; font-size: 13.5px; color: #6b5d52; font-weight: 700; }
+  .result p { color: #4a4038; font-size: 15px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+  .box { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+  .box h3 { font-size: 16px; color: var(--brown); margin-bottom: 6px; }
+  .box ul { list-style: none; display: grid; gap: 4px; }
+  .box li { font-size: 14px; color: #4a4038; padding-left: 16px; position: relative; }
+  .box li::before { content: "・"; position: absolute; left: 0; color: var(--brown2); }
+  .tech { margin-top: 14px; font-size: 14px; color: #4a4038; }
+  .tech b { color: var(--brown); }
+  .contact { margin-top: 18px; background: #fff; border: 1.5px solid var(--accent); border-radius: 14px; padding: 16px 20px; font-size: 15px; }
+  footer { color: var(--muted); font-size: 12.5px; padding: 26px 0 40px; }
+
+  @media (max-width: 820px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+    .main { padding: 18px 16px 24px; }
+    .grid3 { grid-template-columns: 1fr; }
+    .result { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">モック（動きの見本）です。AIは動いておらず、用意した例文を表示します。エピソード・所見はすべて架空です。｜<a href="../">作品集にもどる</a></div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div class="kicker">AIの文章作成アシスタント（Claude API）｜社外の方に提供し、実務で利用</div>
+    <h1>通知表所見作成アシスタント</h1>
+    <p>学年・教科・学期と、児童のエピソードを入れると、AIが所見の案を3つ出します。先生は案を選んで手を入れるだけ。「案2をベースに…」と頼めば、会話で直せます。下の画面で、例を選んで「所見を生成する」を押してみてください。</p>
+  </div>
+
+  <div class="app" id="app">
+    <aside class="sidebar">
+      <div class="side-heading">いっしょに考える子</div>
+      <div class="field"><select id="selChar" aria-label="キャラクター"></select></div>
+      <div class="side-char"><img id="imgSide" alt=""></div>
+      <hr class="divider">
+      <div class="side-heading">条件を入力</div>
+      <div class="field"><label>学年</label><div class="fake" id="fGrade"></div></div>
+      <div class="field"><label>教科</label><div class="fake" id="fSubject"></div></div>
+      <div class="field"><label>学期</label><div class="fake" id="fTerm"></div></div>
+      <div class="info" id="koki" hidden>4要素（学習面 / 生活面 / 児童の良さ / 次年度への期待）が必須です</div>
+      <div class="field">
+        <label>文字数</label>
+        <div class="slider" aria-hidden="true"><div class="range" id="sRange"></div><div class="knob" id="sKnob1"></div><div class="knob" id="sKnob2"></div></div>
+        <div class="caption" id="sCaption"></div>
+      </div>
+      <hr class="divider">
+      <button class="btn-primary" id="btnGen">✨ 所見を生成する</button>
+      <button class="btn-secondary" id="btnReset">リセット</button>
+    </aside>
+
+    <section class="main">
+      <div class="app-header"><img id="imgHead" alt=""><div><h2>通知表 所見生成ツール</h2><p>日々の観察を、温かい所見に。</p></div></div>
+
+      <div class="examples" role="group" aria-label="例を選ぶ">
+        <span class="lbl">例を選ぶ：</span>
+      </div>
+
+      <div class="section-heading">エピソード</div>
+      <textarea class="episode" id="episode" readonly aria-label="エピソード"></textarea>
+      <div class="caption" id="epCount"></div>
+
+      <div id="output"></div>
+    </section>
+  </div>
+
+  <section class="explain">
+    <h2>実際のツールのしくみ</h2>
+    <p class="sub">Python（Streamlit）と Claude API で作ったWebアプリです。コードは公開していません。</p>
+
+    <div class="result">
+      <div class="num">2週間 → 1日<small>1クラス約40名分の所見づくり</small></div>
+      <p>現役の教員に提供し、実務で使われています。一人ひとりに合った表現で案が出るので、手を抜くどころか「以前より一人ひとりに合った所見が書けるようになった」との声をいただきました。</p>
+    </div>
+
+    <div class="grid3">
+      <div class="box">
+        <h3>現場のルールを守る</h3>
+        <ul>
+          <li>低・中・高学年で文体を書き分け</li>
+          <li>道徳は「できました」などの能力評価を使わない</li>
+          <li>総合は探究の過程（課題→調べる→まとめ）を書く</li>
+          <li>後期・学年末は指導要録向け：4要素・180〜200字・「〜くれました」を使わない</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>選んで直せる形で出す</h3>
+        <ul>
+          <li>性格の違う3案（バランス型／意欲・プロセス重視／学びの深化・変容重視）</li>
+          <li>文字数の目安と、要注意の言い回しを画面で知らせる</li>
+          <li>「案2をベースに…」と会話で直せる</li>
+          <li>結果をテキストで保存できる</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>使い続けられる工夫</h3>
+        <ul>
+          <li>先生が選べるキャラクターが、いっしょに考える</li>
+          <li>AIの答えの形が崩れても、案を拾える読み取り</li>
+          <li>合言葉で入口を閉じて、Web上で使える</li>
+          <li>学年・教科を変えたら、会話をリセット</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="tech"><b>担当・技術</b>：企画・プロンプト設計・開発を個人で担当｜Python／Streamlit／Claude API（ストリーミング）｜プロンプトは「役割・出力の形・学年・教科・学期」のブロックを組み合わせて作る</p>
+
+    <div class="contact">お仕事のご相談は、このページをご覧になったサービス（クラウドソーシングなど）のメッセージ機能からお願いします。ほかの作品は<a href="../">作品集</a>にあります。</div>
+  </section>
+
+  <footer>© 2026 updating30｜キャラクターは作者の手描きをもとに作ったオリジナルです</footer>
+</div>
+
+<script>
+const DATA = {
+ "A": {
+  "title": "1年・国語・前期",
+  "grade": "1年",
+  "subject": "国語",
+  "term": "前期",
+  "chars": [
+   110,
+   140
+  ],
+  "episode": "入学当初は人見知りがありましたが、最近では大きな声で発表できています。",
+  "instruction": "案2をベースに、毎日の音読で声が出るようになった様子も入れてください",
+  "first": [
+   "入学当初は緊張して発表することが難しそうでしたが、前期の終わりには手を挙げて大きな声でしっかりと話せるようになりました。自分の言葉で伝えようとする姿がとても頼もしく、国語の学習への意欲が育っています。これからの成長がとても楽しみです。",
+   "はじめは声が小さく、発表するときに緊張している様子でしたが、毎日の学習を重ねるうちに、自分から手を挙げて大きな声で発表できるようになりました。その元気な姿に、クラスのみんなも自然と耳を傾けています。これからも自信をもって学んでほしいです。",
+   "入学当初は緊張から発表が難しい場面もありましたが、国語の学習を通じて言葉への親しみが増し、今では大きな声でいきいきと発表できるようになりました。自分の思いを声に出して伝える喜びを少しずつ知り始めているようで、日々の変容がとても輝いて見えます。"
+  ],
+  "second": [
+   "入学当初は緊張して発表することが難しそうでしたが、毎日の音読で声を出すことに慣れ、今では手を挙げて大きな声で発表できるようになりました。自分の言葉で伝えようとする姿がとても頼もしく、国語の学習への意欲が育っています。これからの成長が楽しみです。",
+   "はじめは声が小さく、発表のときには緊張している様子でしたが、毎日の音読を重ねるうちに、はきはきと読めるようになりました。今では自分から手を挙げて、大きな声で発表しています。その元気な姿に、クラスのみんなも耳を傾けています。これからも自信をもって学んでほしいです。",
+   "入学当初は発表に緊張する場面もありましたが、毎日の音読を通して言葉のリズムに親しみ、声に出して読む楽しさを味わうようになりました。今では大きな声でいきいきと発表しています。自分の思いを声に出して伝える喜びが、少しずつ育っていることを感じます。"
+  ]
+ },
+ "B": {
+  "title": "2年・総合・前期",
+  "grade": "2年",
+  "subject": "総合",
+  "term": "前期",
+  "chars": [
+   110,
+   140
+  ],
+  "episode": "九九をゲーム感覚で友達と一緒に覚えた。休み時間も元気いっぱいにサッカーを楽しんでいた。",
+  "instruction": "休み時間にサッカーを楽しむ様子も、生活面として少し入れてください",
+  "first": [
+   "総合的な学習の時間では、「どうすればもっと楽しく覚えられるか」を友達と一緒に考え、ゲームを取り入れながら学ぶ方法を工夫しました。友達と声をかけ合いながら楽しそうに取り組む姿が大変印象的でした。友達と協力して学ぶ喜びをこれからも大切にしてほしいです。",
+   "総合的な学習の時間では、「楽しく覚えるにはどうすればよいか」という課題に対して、友達と積極的にアイデアを出し合い、ゲームを使った学び方を自分たちで作り上げました。休み時間も元気いっぱいに過ごす様子を、学習の場でも存分に発揮しています。",
+   "総合的な学習の時間では、「ゲームにすれば楽しく覚えられる」というアイデアを友達と出し合い、実際に試しながら学び方を工夫しました。はじめは難しかった取り組みも、友達と協力することで「できた！」という喜びに変わっていく様子が見られ、大きな成長を感じました。"
+  ],
+  "second": [
+   "総合的な学習の時間では、「どうすればもっと楽しく覚えられるか」を友達と考え、ゲームを取り入れて九九を覚える方法を工夫しました。休み時間には友達とサッカーを楽しみ、元気いっぱいに過ごしています。友達と協力して学ぶ喜びを、これからも大切にしてほしいです。",
+   "総合的な学習の時間では、「楽しく覚えるにはどうすればよいか」という課題に対して友達とアイデアを出し合い、ゲームを使った学び方を自分たちで作り上げました。休み時間のサッカーでも友達に声をかけ、みんなで楽しもうとする姿が見られます。",
+   "総合的な学習の時間では、ゲームにすれば楽しく覚えられるというアイデアを友達と試し、学び方を工夫しました。休み時間のサッカーで育んだ仲間との関わりが学習の場でも生き、「できた！」という喜びを友達と分かち合う姿に、大きな成長を感じました。"
+  ]
+ },
+ "C": {
+  "title": "6年・社会・学年末",
+  "grade": "6年",
+  "subject": "社会",
+  "term": "学年末",
+  "chars": [
+   180,
+   200
+  ],
+  "episode": "単なる暗記にとどまらず、なぜこの時代にこの政策が行われたのかに興味を持っています。",
+  "instruction": "生活面は図書委員の活動にして、3案とも180〜200字に整えてください",
+  "first": [
+   "社会科の学習では、歴史的事象を単に暗記するにとどまらず、「なぜその時代にその政策が行われたのか」という問いを自ら立て、背景や因果関係を探究する姿が見られました。日常の係活動や学校生活においても責任感を持って取り組み、周囲への配慮を忘れない誠実さが際立っていました。中学校でもその探究心を土台に、さらに広い視点で社会を見つめていくことを期待しています。",
+   "社会科では、歴史上の政策について「なぜその時代に行われたのか」という問いを持ち続け、資料を丁寧に読み解きながら自分の考えをまとめることに意欲的に取り組みました。掃除や当番活動でも最後まで丁寧にやり遂げる粘り強さがあり、クラスの安定した支えとなっていました。自ら問いを立て深く考える力は大きな強みであり、中学校での幅広い学びにつながっていくと確信しています。",
+   "社会科の歴史学習において、事象の暗記にとどまらず、時代背景や政策の意図を分析しようとする姿勢が大きく伸びました。学習を通じて「歴史は文脈で読む」という見方を身につけ、思考の深化が見られました。学校生活でも周囲の状況を的確に捉えて行動できる判断力があり、最高学年としての役割を着実に果たしました。中学校でも培った論理的思考力をさらに発揮していくことを期待しています。"
+  ],
+  "second": [
+   "社会科の学習では、歴史的な出来事を覚えるだけでなく、「なぜその時代にその政策が行われたのか」という問いを自ら立て、背景や因果関係を探究しました。図書委員としては、本の紹介カードを工夫して作り、低学年の児童が本に親しむきっかけをつくりました。物事の理由を深く考える力は、大きな強みです。中学校でもその探究心を生かし、さらに広い視野で学んでいくことを期待しています。",
+   "社会科では、歴史上の政策について「なぜその時代に行われたのか」という問いを持ち続け、資料を丁寧に読み解きながら自分の考えをまとめました。図書委員の活動では、昼休みの貸し出し当番を最後まで責任を持ってやり遂げ、図書室を利用する下級生への温かい気配りも見られました。粘り強く考え抜く姿勢は大きな強みであり、中学校での幅広い学びにつながっていくことを期待しています。",
+   "社会科の歴史学習において、事象の暗記にとどまらず、時代背景や政策の意図を分析しようとする姿勢が大きく伸び、「歴史は文脈で読む」という見方を身につけました。図書委員としては、歴史に関する本の展示を企画し、学んだことを学校全体に広げようと、紹介文を自分で考えて書くなどの工夫を重ねました。培った論理的思考力を生かし、中学校でもさらに学びを深めていくことを期待しています。"
+  ]
+ }
+};
+const LABELS = ["案1｜標準的・バランス型", "案2｜意欲・プロセス重視", "案3｜学びの深化・変容重視"];
+const CHARS = [["usagi", "うさぎ"], ["penguin", "ペンギン"], ["panda", "パンダ"], ["shimaenaga", "シマエナガ"], ["neko", "ネコ"], ["rakko", "ラッコ"]];
+const CARD_THEME = ["benkyou", "dokusho", "undou"];
+const FORBIDDEN = { "後期": ["してくれました", "くれました"], "学年末": ["してくれました", "くれました"], "道徳": ["ができました", "できるようになりました"] };
+const RANGE_MIN = 60, RANGE_MAX = 400;
+
+const $ = (id) => document.getElementById(id);
+const len = (s) => [...s].length;
+let slug = "usagi", key = "A", stage = 0, busy = false;
+
+function img(theme) { return `img/${slug}_${theme}.webp`; }
+function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+function setChar() {
+  $("imgSide").src = img("biyou");
+  $("imgHead").src = img("benkyou");
+  document.querySelectorAll("[data-theme]").forEach((el) => { el.src = img(el.dataset.theme); });
+}
+
+function badge(text, s) {
+  const n = len(text), [lo, hi] = s.chars;
+  if (n < lo) return `<span class="badge warn">${n}文字　目安より${lo - n}字少なめ</span>`;
+  if (n > hi) return `<span class="badge warn">${n}文字　目安より${n - hi}字多め</span>`;
+  return `<span class="badge ok">${n}文字　✓ 目安内</span>`;
+}
+
+function forbidden(text, s) {
+  const found = [];
+  for (const k of [s.term, s.subject]) for (const p of (FORBIDDEN[k] || [])) if (text.includes(p)) found.push(p);
+  return found;
+}
+
+function showExample() {
+  const s = DATA[key];
+  $("fGrade").textContent = s.grade;
+  $("fSubject").textContent = s.subject;
+  $("fTerm").textContent = s.term;
+  $("koki").hidden = !(s.term === "後期" || s.term === "学年末");
+  const [lo, hi] = s.chars, pct = (v) => ((v - RANGE_MIN) / (RANGE_MAX - RANGE_MIN)) * 100;
+  $("sRange").style.left = pct(lo) + "%"; $("sRange").style.width = (pct(hi) - pct(lo)) + "%";
+  $("sKnob1").style.left = pct(lo) + "%"; $("sKnob2").style.left = pct(hi) + "%";
+  $("sCaption").textContent = `${lo}〜${hi} 文字を目安に生成します（厳密には一致しません）`;
+  $("episode").value = s.episode;
+  $("epCount").textContent = `${len(s.episode)}文字`;
+  document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.key === key)));
+  stage = 0;
+  renderEmpty();
+}
+
+function renderEmpty() {
+  $("output").innerHTML = `<div class="empty-state"><img data-theme="dokusho" src="${img("dokusho")}" alt=""><div class="bubble">エピソードを入力して<br>「所見を生成する」を押してね</div></div>`;
+}
+
+function cardsHTML(list, s) {
+  return list.map((t, i) => {
+    const f = forbidden(t, s);
+    return `<div class="card" style="animation-delay:${i * 0.18}s">
+      <div class="card-head"><div class="card-icon"><img data-theme="${CARD_THEME[i]}" src="${img(CARD_THEME[i])}" alt=""></div>
+      <div><div class="card-no">案 ${i + 1}</div><div class="card-label">${LABELS[i]}</div></div></div>
+      ${badge(t, s)}
+      ${f.length ? `<div class="alert">要注意フレーズ: 「${f.join("」「")}」</div>` : ""}
+      <div class="text-box"><button class="copy" data-i="${i}" title="コピー">コピー</button>${esc(t)}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderResult(withChat) {
+  const s = DATA[key], list = stage === 0 ? s.first : s.second;
+  let html = `<hr class="sep"><div class="section-heading">所見案</div>${cardsHTML(list, s)}
+    <button class="btn-dl" id="btnDl">📄 結果をテキストでダウンロード</button>
+    <hr class="sep"><div class="section-heading">修正・追記</div><div class="chat" id="chat">`;
+  if (withChat) {
+    html += `<div class="msg"><div class="who">先生</div><div class="say">${esc(s.instruction)}</div></div>
+      <div class="msg ai"><div class="who"><img data-theme="kenkou" src="${img("kenkou")}" alt=""></div><div class="say">所見案を更新しました。修正箇所や追加エピソードはありますか？</div></div>`;
+  }
+  html += `</div>
+    <div class="chat-input"><textarea id="chatText" readonly aria-label="修正や追加エピソード">${stage === 0 ? esc(s.instruction) : ""}</textarea><button id="btnSend" ${stage === 0 ? "" : "disabled"}>送る</button></div>
+    <div class="hint">${stage === 0 ? "モックのため、修正の依頼は例文で固定しています。「送る」を押してみてください。" : "モックの台本はここまでです。ほかの例も選んでみてください。"}</div>`;
+  $("output").innerHTML = html;
+  $("btnDl").onclick = () => download(list, s);
+  document.querySelectorAll(".copy").forEach((b) => b.onclick = () => copyText(list[b.dataset.i], b));
+  if (stage === 0) $("btnSend").onclick = refine;
+}
+
+function generate() {
+  if (busy) return;
+  busy = true; $("btnGen").disabled = true; stage = 0;
+  $("output").innerHTML = `<hr class="sep"><div class="section-heading">所見案</div><div class="working"><img data-theme="benkyou" src="${img("benkyou")}" alt=""><span>いま考えているよ…</span></div>`;
+  setTimeout(() => { renderResult(false); busy = false; $("btnGen").disabled = false; }, 1400);
+}
+
+function refine() {
+  if (busy) return;
+  busy = true;
+  const s = DATA[key];
+  $("chat").innerHTML = `<div class="msg"><div class="who">先生</div><div class="say">${esc(s.instruction)}</div></div><div class="hint"><span class="spin"></span>所見案を更新しています...</div>`;
+  $("btnSend").disabled = true; $("chatText").value = "";
+  setTimeout(() => { stage = 1; renderResult(true); busy = false; $("chat").scrollIntoView({ block: "nearest" }); }, 1500);
+}
+
+function download(list, s) {
+  const lines = ["通知表所見 生成結果", `学年：${s.grade}　教科：${s.subject}　学期：${s.term}`, `エピソード：${s.episode}`, "=".repeat(40)];
+  list.forEach((t, i) => lines.push("", LABELS[i], t, `（${len(t)}文字）`));
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/plain" }));
+  a.download = "所見案（見本）.txt"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function copyText(t, b) {
+  const done = () => { b.textContent = "✓"; setTimeout(() => (b.textContent = "コピー"), 1200); };
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, done); else done();
+}
+
+// 初期化
+for (const [s, jp] of CHARS) $("selChar").add(new Option(jp, s));
+$("selChar").onchange = (e) => { slug = e.target.value; setChar(); };
+const ex = document.querySelector(".examples");
+for (const k of Object.keys(DATA)) {
+  const b = document.createElement("button");
+  b.className = "chip"; b.dataset.key = k; b.textContent = DATA[k].title;
+  b.onclick = () => { if (!busy) { key = k; showExample(); } };
+  ex.appendChild(b);
+}
+$("btnGen").onclick = generate;
+$("btnReset").onclick = () => { if (!busy) { stage = 0; renderEmpty(); } };
+setChar();
+showExample();
+</script>
+</body>
+</html>
