@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>作品集｜製造業×AI 業務の仕組みづくり</title>
+<meta name="description" content="製造業のシステム開発に20年以上たずさわってきたエンジニアの作品集。実務で使われているAIツールの実績と、ブラウザで見られる作品を紹介します。">
+<style>
+  :root {
+    --ink: #1f2933;
+    --muted: #5b6672;
+    --line: #e3e8ee;
+    --paper: #ffffff;
+    --bg: #f6f8fb;
+    --accent: #1d4ed8;
+    --accent-soft: #eaf1ff;
+    --green: #15803d;
+    --green-soft: #ecf8f0;
+    --amber: #9a5b12;
+    --amber-soft: #fff6e6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+    line-height: 1.75; font-size: 16px;
+  }
+  a { color: var(--accent); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+  header { background: var(--paper); border-bottom: 1px solid var(--line); padding: 48px 0 40px; }
+  .kicker { font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: .04em; }
+  h1 { font-size: clamp(26px, 5vw, 38px); line-height: 1.35; margin: 8px 0 14px; }
+  .lead { color: var(--muted); max-width: 46em; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .chip { background: var(--accent-soft); color: var(--accent); font-size: 14px; font-weight: 700; padding: 4px 12px; border-radius: 999px; }
+
+  section { padding: 44px 0 8px; }
+  h2 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: var(--muted); font-size: 14.5px; margin-bottom: 18px; }
+
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; }
+
+  .result .num { font-size: 28px; font-weight: 800; color: var(--green); line-height: 1.3; }
+  .result .num small { font-size: 15px; font-weight: 700; color: var(--muted); display: block; }
+  .result h3 { font-size: 17px; margin: 10px 0 6px; }
+  .result p { font-size: 14.5px; color: var(--muted); }
+  .tag { display: inline-block; align-self: flex-start; font-size: 12.5px; font-weight: 700; padding: 2px 10px; border-radius: 999px; margin-top: 12px; }
+  .tag.out { background: var(--amber-soft); color: var(--amber); }
+  .tag.in { background: var(--green-soft); color: var(--green); }
+  .note { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+  .work { padding: 0; overflow: hidden; }
+  .work img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; display: block; border-bottom: 1px solid var(--line); background: #eef1f5; }
+  .work .body { padding: 18px 20px 20px; display: flex; flex-direction: column; flex: 1; }
+  .work h3 { font-size: 18px; line-height: 1.45; }
+  .work .what { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  .work p { font-size: 14.5px; color: var(--muted); margin-top: 6px; flex: 1; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .btn { display: inline-block; font-size: 14px; font-weight: 700; text-decoration: none; padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--accent); color: var(--accent); background: var(--paper); }
+  .btn.main { background: var(--accent); color: #fff; }
+
+  .tools { display: grid; grid-template-columns: 9em 1fr; gap: 10px 16px; font-size: 15px; }
+  .tools dt { font-weight: 700; }
+  .tools dd { color: var(--muted); }
+
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; counter-reset: s; }
+  .step { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px; font-size: 14.5px; color: var(--muted); }
+  .step b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 4px; }
+  .step b::before { counter-increment: s; content: counter(s) ". "; color: var(--accent); }
+
+  .contact { background: var(--paper); border: 1.5px solid var(--accent); border-radius: 14px; padding: 22px 24px; }
+  .contact p { color: var(--muted); }
+  .contact p strong { color: var(--ink); }
+
+  footer { color: var(--muted); font-size: 13px; padding: 40px 0 48px; }
+
+  @media (max-width: 860px) {
+    .grid3, .grid2 { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    header { padding: 32px 0 28px; }
+    .steps { grid-template-columns: 1fr; }
+    .tools { grid-template-columns: 1fr; gap: 2px; }
+    .tools dd { margin-bottom: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">作品集｜製造業 × AI</div>
+    <h1>現場の「まだ手作業」を、<br>AIで仕組みにします</h1>
+    <p class="lead">製造業のシステム開発に20年以上たずさわってきたエンジニアの作品集です。要件がまだ曖昧な段階からお話を伺い、小さく作って試していただきながら、実務で本当に使われるところまで一緒に育てます。</p>
+    <div class="chips">
+      <span class="chip">製造業のシステム開発 20年以上</span>
+      <span class="chip">生成AIを使った開発 3年</span>
+      <span class="chip">Claude・ChatGPT・Gemini</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <h2>実務で使われている実績</h2>
+    <p class="sub">社外の方の仕事や社内の業務で、実際に使われているものです。</p>
+    <div class="grid3">
+      <div class="card result">
+        <div class="num">2週間 → 1日<small>1クラス約40名分の所見づくり</small></div>
+        <h3>通知表所見作成アシスタント</h3>
+        <p>現役の教員に提供し、実務で使われています。児童一人ひとりの様子に合わせ、学年・教科別の文体で複数の案を出します。「以前より一人ひとりに合った所見が書けるようになった」との声をいただきました。</p>
+        <span class="tag out">社外の方に提供</span>
+      </div>
+      <div class="card result">
+        <div class="num">2時間 → 5分<small>専門用語や型番の調査時間</small></div>
+        <h3>社内文書のRAG検索</h3>
+        <p>社内文書をもとに、質問へ出典つきで答えます。回答の根拠を必ず示すので、内容を確かめてから使えます。企画・設計から実装、リリース、運用まで一人で担当しました。</p>
+        <span class="tag in">社内でリリースし、運用中</span>
+      </div>
+      <div class="card result">
+        <div class="num">対応漏れ ゼロ<small>案件メールの対応漏れ</small></div>
+        <h3>メール処理の自動化</h3>
+        <p>受信メールをAIが重要度5段階で自動分類し、自動で採番します。優先すべきメールだけを拾える状態にしました。企画・設計から実装、リリース、運用まで一人で担当しました。</p>
+        <span class="tag in">社内でリリースし、運用中</span>
+      </div>
+    </div>
+    <p class="note">※ 業務で使っているため、画面は公開していません。画面の見本を準備中です。</p>
+  </section>
+
+  <section>
+    <h2>ブラウザで見られる作品</h2>
+    <p class="sub">個人で作った作品です。コードは公開せず、画面の見本・設計の資料・体験版で紹介しています。データはすべて架空です。</p>
+    <div class="grid2">
+      <article class="card work">
+        <img src="images/equipment-agent.jpg" alt="装置トラブル対応エージェントの紹介資料" loading="lazy" width="1200" height="750">
+        <div class="body">
+          <div class="what">AIエージェント（Claude API の Tool Use）</div>
+          <h3>装置トラブル対応エージェント</h3>
+          <p>製造現場の担当者が装置のトラブルを質問すると、AIが設備台帳・マニュアル・保全記録を自分で調べ、根拠つきで対処を答えます。データを書き換える保全依頼だけは、人が承認してから登録します。</p>
+          <div class="links">
+            <a class="btn main" href="https://updating30.github.io/equipment-trouble-agent-demo/mock.html">画面の見本</a>
+            <a class="btn" href="https://updating30.github.io/equipment-trouble-agent-demo/design.html">仕組みと設計</a>
+          </div>
+        </div>
+      </article>
+      <article class="card work">
+        <img src="images/ai-shacho.jpg" alt="AI社長カンパニーの紹介資料" loading="lazy" width="1200" height="750">
+        <div class="body">
+          <div class="what">業務を回すAIエージェント（Claude Code）</div>
+          <h3>AI社長カンパニー</h3>
+          <p>案件選び・応募文の下書き・返信や要件の整理・納品の準備をAIに任せる仕組みです。自分の業務で毎週運用しています。AIが判断材料をつくり、決めるのも外部へ送るのも人です。</p>
+          <div class="links">
+            <a class="btn main" href="https://updating30.github.io/ai-shacho-demo/">紹介ページ</a>
+          </div>
+        </div>
+      </article>
+      <article class="card work">
+        <img src="images/github-course.jpg" alt="GitHub実務講座の紹介資料" loading="lazy" width="1200" height="750">
+        <div class="body">
+          <div class="what">教材・講座（非エンジニア向け）</div>
+          <h3>GitHub実務講座（全5回）</h3>
+          <p>IT初心者のビジネスパーソン向けに、GitHubでのファイル管理を学ぶ講座です。専門用語を仕事の言葉に置きかえ、画面操作だけで進められます。最終回は生成AI（GitHub Copilot）との共同作業です。</p>
+          <div class="links">
+            <a class="btn main" href="https://updating30.github.io/github-beginner-course/">講座ページ</a>
+          </div>
+        </div>
+      </article>
+      <article class="card work">
+        <img src="images/kotsukotsu.jpg" alt="習慣トラッカー こつこつの紹介資料" loading="lazy" width="1200" height="750">
+        <div class="body">
+          <div class="what">スマホアプリ（PWA）</div>
+          <h3>こつこつ — 習慣トラッカー</h3>
+          <p>「習慣が続かない」を「続けたくなる」に変えるアプリを、企画・デザイン・開発しました。記録・統計・ふりかえりに、仲間集めやバッジなどのしかけを組み合わせています。</p>
+          <div class="links">
+            <a class="btn main" href="https://updating30.github.io/kotsukotsu-demo/">体験版をひらく</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>進め方</h2>
+    <p class="sub">作ることやツールを入れることが目的ではなく、業務がよくなることが目的です。</p>
+    <div class="steps">
+      <div class="step"><b>お話を伺う</b>今の業務の流れと、困っていることを伺います</div>
+      <div class="step"><b>ご提案</b>AIに任せる部分と、人が判断する部分の線引きからご提案します</div>
+      <div class="step"><b>試作版</b>早めに試作版をお渡しし、触っていただきます</div>
+      <div class="step"><b>直して育てる</b>使い勝手を直しては試していただき、現場で使える形にします</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>扱えるツール</h2>
+    <dl class="tools card">
+      <dt>生成AI</dt><dd>Claude（Claude API / Claude Code）、ChatGPT、Gemini、Dify</dd>
+      <dt>開発</dt><dd>Python（pandas / openpyxl / Streamlit）、C / C++、HTML / CSS / JavaScript</dd>
+      <dt>RAG・検索</dt><dd>ChromaDB、sentence-transformers</dd>
+      <dt>業務系</dt><dd>Outlook、Excel、SharePoint</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="contact">
+      <h2>ご相談</h2>
+      <p><strong>お仕事のご相談は、このページをご覧になったサービス（クラウドソーシングなど）のメッセージ機能からお願いします。</strong>要件がまだ曖昧な段階でも大丈夫です。</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">© 2026 updating30｜記載の内容は2026年10月時点のものです</div>
+</footer>
+
+</body>
+</html>
