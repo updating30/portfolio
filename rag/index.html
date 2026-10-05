@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>社内文書のRAG検索｜画面の見本</title>
+<meta name="description" content="社内文書をもとに、質問へ出典つきで答えるRAG検索の、画面の見本（モック）と仕組みの説明です。会社・文書はすべて架空です。">
+<style>
+  :root {
+    --ink: #1f2933;
+    --muted: #5b6672;
+    --line: #e3e8ee;
+    --paper: #ffffff;
+    --bg: #f6f8fb;
+    --side: #f1f4f8;
+    --accent: #1d4ed8;
+    --accent-soft: #eaf1ff;
+    --green: #15803d;
+    --green-soft: #ecf8f0;
+    --amber: #9a5b12;
+    --amber-soft: #fff6e6;
+    --mark: #fff1a8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--ink); font-family: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif; line-height: 1.75; font-size: 16px; }
+  a { color: var(--accent); }
+  button, input { font: inherit; }
+
+  .demo-bar { background: #3b4652; color: #fff; font-size: 13.5px; padding: 8px 16px; text-align: center; }
+  .demo-bar a { color: #ffd98a; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  .page-head { padding: 28px 0 18px; }
+  .kicker { font-size: 13.5px; font-weight: 700; color: var(--accent); }
+  h1 { font-size: clamp(22px, 4.4vw, 30px); line-height: 1.4; margin: 4px 0 6px; }
+  .page-head p { color: var(--muted); font-size: 15px; max-width: 52em; }
+
+  /* アプリの枠 */
+  .app { display: grid; grid-template-columns: 260px 1fr; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 6px 24px rgba(31,41,51,.06); }
+  .sidebar { background: var(--side); border-right: 1px solid var(--line); padding: 18px 16px; display: flex; flex-direction: column; gap: 14px; font-size: 14px; }
+  .side-title { font-weight: 700; font-size: 14.5px; }
+  .docs { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .docs li { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; line-height: 1.45; }
+  .docs li small { display: block; color: var(--muted); font-size: 12.5px; }
+  .docs li.hit { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .rule { background: var(--green-soft); border-left: 4px solid var(--green); border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #1e5b34; line-height: 1.6; }
+  .rule b { display: block; }
+
+  .main { display: flex; flex-direction: column; min-height: 560px; min-width: 0; }
+  .app-header { padding: 14px 20px; border-bottom: 1px solid var(--line); }
+  .app-header h2 { font-size: 18px; }
+  .app-header p { color: var(--muted); font-size: 13.5px; }
+
+  .log { flex: 1; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; overflow-wrap: anywhere; }
+  .empty { color: var(--muted); font-size: 14.5px; background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 16px; }
+  .q { align-self: flex-end; max-width: 85%; background: var(--accent); color: #fff; border-radius: 14px 14px 4px 14px; padding: 8px 14px; }
+  .a { align-self: flex-start; max-width: 100%; width: 100%; background: var(--paper); border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; padding: 12px 16px; }
+  .status { color: var(--muted); font-size: 13.5px; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+  .answer { margin-top: 6px; }
+  .cite { display: inline-block; min-width: 1.6em; text-align: center; font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border: 1px solid #c9d8ff; border-radius: 6px; padding: 0 4px; margin: 0 2px; cursor: pointer; vertical-align: 1px; line-height: 1.6; }
+  .notfound { color: var(--amber); background: var(--amber-soft); border-radius: 8px; padding: 8px 12px; margin-top: 6px; }
+  .sources { margin-top: 12px; display: grid; gap: 8px; }
+  .sources h3 { font-size: 13.5px; color: var(--muted); }
+  .src { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 14px; background: var(--bg); transition: box-shadow .2s, border-color .2s; }
+  .src.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .src .head { font-weight: 700; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .src .head .n { color: var(--accent); }
+  .src .head small { color: var(--muted); font-weight: 400; }
+  .src blockquote { color: #3d4853; margin-top: 4px; border-left: 3px solid var(--line); padding-left: 10px; }
+  .src mark { background: var(--mark); padding: 0 1px; }
+
+  .ask { border-top: 1px solid var(--line); padding: 12px 20px 16px; background: #fbfcfe; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .chip { border: 1.5px solid var(--accent); color: var(--accent); background: var(--paper); border-radius: 999px; padding: 4px 12px; font-size: 14px; cursor: pointer; text-align: left; }
+  .chip:disabled { opacity: .45; cursor: default; }
+  .row { display: flex; gap: 8px; }
+  .row input { flex: 1; min-width: 0; border: 1px solid #cfd7e1; border-radius: 10px; padding: 9px 12px; background: #fff; }
+  .row button { border: 0; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 700; padding: 0 18px; cursor: pointer; }
+  .row button:disabled { opacity: .5; cursor: default; }
+  .hint { color: var(--muted); font-size: 12.5px; margin-top: 6px; }
+
+  /* しくみ */
+  .explain { padding: 40px 0 8px; }
+  .explain h2 { font-size: 22px; }
+  .sub { color: var(--muted); font-size: 14.5px; margin-bottom: 16px; }
+  .result { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; }
+  .result .num { font-size: 28px; font-weight: 800; color: var(--green); line-height: 1.3; }
+  .result .num small { font-size: 15px; font-weight: 700; color: var(--muted); display: block; }
+  .result p { color: var(--muted); font-size: 14.5px; margin-top: 6px; }
+  .flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; counter-reset: f; }
+  .box { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px; font-size: 14.5px; color: var(--muted); }
+  .box h3 { font-size: 16px; color: var(--ink); margin-bottom: 4px; }
+  .box h3::before { counter-increment: f; content: counter(f) ". "; color: var(--accent); }
+  .tech { font-size: 14px; color: var(--muted); margin-top: 16px; }
+  .contact { background: var(--paper); border: 1.5px solid var(--accent); border-radius: 14px; padding: 16px 20px; margin-top: 20px; font-size: 15px; }
+  footer { color: var(--muted); font-size: 13px; padding: 32px 0 44px; }
+
+  @media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+    .docs { flex-direction: row; flex-wrap: wrap; }
+    .docs li { flex: 1 1 200px; }
+    .flow { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .log, .ask, .app-header { padding-left: 14px; padding-right: 14px; }
+    .q { max-width: 92%; }
+    .row button { padding: 0 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">モック（動きの見本）です。AIは動いておらず、用意した回答を表示します。会社・文書・型番はすべて架空です。｜<a href="../">作品集にもどる</a></div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div class="kicker">画面の見本｜社内でリリースし、運用中のツールをもとにしています</div>
+    <h1>社内文書のRAG検索</h1>
+    <p>社内の文書をもとに、質問へ<strong>出典つき</strong>で答えます。下の質問例を押すと、架空の部品メーカーの文書を検索して答える流れを見られます。回答の <span class="cite" aria-hidden="true">1</span> を押すと、根拠の箇所が光ります。</p>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar" aria-label="検索の対象">
+      <div class="side-title">取り込んだ資料（架空）</div>
+      <ul class="docs" id="docs"></ul>
+      <div class="rule"><b>答え方の決まり</b>資料に書かれていることだけで答え、どの資料のどこに書いてあるかを必ず示します。</div>
+    </aside>
+
+    <section class="main">
+      <div class="app-header">
+        <h2>社内文書検索</h2>
+        <p>型番・専門用語・作業の決まりを、社内の資料から探して答えます</p>
+      </div>
+      <div class="log" id="log" aria-live="polite">
+        <div class="empty" id="empty">下の質問例を押してください。型番の違い、社内での用語の決まり、作業の基準値などを、資料から探して答えます。</div>
+      </div>
+      <div class="ask">
+        <div class="chips" id="chips"></div>
+        <form class="row" id="form">
+          <input id="input" type="text" placeholder="質問を入力（見本では、上の質問例にだけ答えます）" aria-label="質問">
+          <button id="send" type="submit">質問する</button>
+        </form>
+        <p class="hint">実際のツールは、取り込んだ文書全体から探して答えます。</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="explain">
+    <h2>実際のツールのしくみ</h2>
+    <p class="sub">本業の社内で、企画・設計から実装、リリース、運用まで一人で担当したツールです。社内のものなので、画面と資料は架空のものに置きかえています。</p>
+
+    <div class="result">
+      <div class="num">2時間 → 5分<small>専門用語や型番の調査時間</small></div>
+      <p>資料の山から該当する箇所を探して読む時間が、質問して根拠を確かめる時間に変わりました。</p>
+    </div>
+
+    <div class="flow">
+      <div class="box">
+        <h3>資料を探せる形にする</h3>
+        社内の文書を小さなまとまりに分け、意味の近さで探せるように保存します（sentence-transformers・ChromaDB）。
+      </div>
+      <div class="box">
+        <h3>質問に近い箇所を集める</h3>
+        質問の内容に近い箇所を、資料の中から探して集めます。言い回しが違っても、意味が近ければ見つかります。
+      </div>
+      <div class="box">
+        <h3>根拠つきで答える</h3>
+        集めた箇所をもとに Claude が答え、どの資料のどこに書いてあるかを示します。使う人は根拠を確かめてから使えます。
+      </div>
+    </div>
+
+    <p class="tech"><b>担当・技術</b>：企画・設計・実装・リリース・運用を一人で担当｜Python／Claude API／ChromaDB／sentence-transformers／Streamlit</p>
+
+    <div class="contact">お仕事のご相談は、このページをご覧になったサービス（クラウドソーシングなど）のメッセージ機能からお願いします。ほかの作品は<a href="../">作品集</a>にあります。</div>
+  </section>
+
+  <footer>© 2026 updating30｜画面の見本です。会社・文書・型番・数値はすべて架空です</footer>
+</div>
+
+<script>
+const DOCS = [
+  { id: "parts",  name: "部品型番一覧表 第8版", meta: "PDF・62ページ" },
+  { id: "dcn",    name: "設計変更通知 DC-0417", meta: "PDF・3ページ" },
+  { id: "terms",  name: "品質用語集",           meta: "Excel・240語" },
+  { id: "maint",  name: "設備保全マニュアル（プレス機）", meta: "PDF・118ページ" },
+  { id: "ws",     name: "作業標準書 WS-112 ねじ締結", meta: "PDF・24ページ" },
+];
+
+// 台本。answer の [n] が出典の番号になる
+const QA = [
+  {
+    q: "KX-220 と KX-220A は何が違う？ 置き換えて使える？",
+    answer: "KX-220A は KX-220 のシール材をニトリルゴム（NBR）からフッ素ゴム（FKM）に変えたもので、耐熱温度が 80℃ から 150℃ に上がっています[1]。取付寸法は同じなので置き換えて使えます[1]。なお、2025年4月以降の新規手配は KX-220A にそろえることになっています[2]。KX-220 の在庫を使う場合は、使う場所の温度が 80℃ 以下か確かめてください[1]。",
+    sources: [
+      { doc: "parts", where: "p.14「シール付きブッシュ」", text: "KX-220A：KX-220 のシール材を <mark>NBR から FKM に変更。耐熱 150℃</mark>（KX-220 は 80℃）。<mark>取付寸法は KX-220 と互換</mark>。" },
+      { doc: "dcn",   where: "1. 変更の内容", text: "<mark>2025年4月1日以降の新規手配は KX-220A とする</mark>。KX-220 は在庫限りとし、使用温度 80℃ 以下の箇所に限って使用を認める。" },
+    ],
+  },
+  {
+    q: "「チョコ停」って社内ではどう決まってる？ 記録はどこに書く？",
+    answer: "品質用語集では、設備が 10分未満 止まり、段取り替えや部品交換をせずに戻る停止を「チョコ停」としています[1]。10分以上は「ドカ停」として分けて扱います[1]。記録は保全マニュアルの様式 M-3「停止記録票」に、起きた時刻・止まった時間・現象・処置を書き、シフトの終わりに班長が確認します[2]。",
+    sources: [
+      { doc: "terms", where: "「チョコ停」の項", text: "チョコ停：<mark>設備が 10分未満停止し、段取り替え・部品交換を伴わずに復帰する停止</mark>。<mark>10分以上の停止はドカ停</mark>として区別する。" },
+      { doc: "maint", where: "5.2 停止の記録", text: "停止が発生した場合は、<mark>様式 M-3「停止記録票」に発生時刻・停止時間・現象・処置を記入</mark>する。<mark>記録票はシフト終了時に班長が確認</mark>し、押印する。" },
+    ],
+  },
+  {
+    q: "M6 ボルトの締付けトルクはいくつ？",
+    answer: "作業標準書 WS-112 では、M6（強度区分 8.8・鋼材への締結）の締付けトルクは 9.0〜11.0 N·m です[1]。トルクレンチは使う前に日常点検をして、点検記録に書いてから使います[2]。アルミの部材に締める場合は値が違うので、表 3-2 を確かめてください[1]。",
+    sources: [
+      { doc: "ws", where: "表 3-1 締付けトルク（鋼材）", text: "M5：5.0〜6.0 N·m／<mark>M6：9.0〜11.0 N·m</mark>／M8：22〜26 N·m（強度区分 8.8）。<mark>アルミ部材への締結は表 3-2 による</mark>。" },
+      { doc: "ws", where: "3.4 工具の管理", text: "<mark>トルクレンチは使用前に日常点検</mark>（ゼロ点・作動）を行い、<mark>点検記録に記入してから使用</mark>する。" },
+    ],
+  },
+  {
+    q: "来月の工場見学の日程は？",
+    notfound: true,
+    answer: "取り込んだ資料の中に、工場見学の日程について書かれた箇所は見つかりませんでした。資料に無いことは推測で答えないようにしています。担当の部署に確かめてください。",
+    sources: [],
+  },
+];
+
+const $ = (id) => document.getElementById(id);
+const docName = (id) => DOCS.find((d) => d.id === id).name;
+let busy = false;
+
+// 資料の一覧
+for (const d of DOCS) {
+  const li = document.createElement("li");
+  li.dataset.id = d.id;
+  li.innerHTML = `${d.name}<small>${d.meta}（架空）</small>`;
+  $("docs").appendChild(li);
+}
+
+// 質問例
+QA.forEach((item, i) => {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "chip";
+  b.textContent = item.q;
+  b.addEventListener("click", () => ask(i));
+  $("chips").appendChild(b);
+});
+
+$("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const text = $("input").value.trim();
+  if (!text || busy) return;
+  const i = QA.findIndex((x) => x.q === text);
+  if (i >= 0) { ask(i); return; }
+  addQuestion(text);
+  const a = bubble();
+  a.innerHTML = `<div class="notfound">見本では、下の質問例にだけ答えます。実際のツールは、取り込んだ文書全体から探して答えます。</div>`;
+  $("input").value = "";
+  scrollDown();
+});
+
+function addQuestion(text) {
+  $("empty")?.remove();
+  const q = document.createElement("div");
+  q.className = "q";
+  q.textContent = text;
+  $("log").appendChild(q);
+}
+
+function bubble() {
+  const a = document.createElement("div");
+  a.className = "a";
+  $("log").appendChild(a);
+  return a;
+}
+
+function setBusy(v) {
+  busy = v;
+  document.querySelectorAll(".chip, #send").forEach((b) => (b.disabled = v));
+}
+
+function scrollDown() {
+  const last = $("log").lastElementChild;
+  if (last && last.getBoundingClientRect().bottom > window.innerHeight) last.scrollIntoView({ behavior: "smooth", block: "end" });
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function ask(i) {
+  if (busy) return;
+  setBusy(true);
+  const item = QA[i];
+  addQuestion(item.q);
+  $("input").value = "";
+  const a = bubble();
+  const id = "a" + Date.now();
+
+  // 1. 検索している様子
+  a.innerHTML = `<div class="status"><span class="dot"></span><span>資料を検索しています…</span></div>`;
+  scrollDown();
+  const hits = [...new Set(item.sources.map((s) => s.doc))];
+  document.querySelectorAll(".docs li").forEach((li) => li.classList.remove("hit"));
+  await sleep(700);
+  hits.forEach((h) => document.querySelector(`.docs li[data-id="${h}"]`)?.classList.add("hit"));
+  a.querySelector(".status span:last-child").textContent =
+    hits.length ? `${item.sources.length} か所が見つかりました。回答を作っています…` : "関係のある箇所が見つかりません…";
+  await sleep(700);
+
+  // 2. 回答を少しずつ表示
+  a.innerHTML = `<div class="answer${item.notfound ? " notfound" : ""}" id="${id}"></div>`;
+  const box = $(id);
+  const plain = item.answer;
+  for (let n = 0; n <= plain.length; n += 3) {
+    box.textContent = plain.slice(0, n).replace(/\[\d+\]/g, "");
+    if (n % 30 === 0) scrollDown();
+    await sleep(16);
+  }
+  // 出典の印を付けて描き直す
+  box.innerHTML = plain.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]))
+    .replace(/\[(\d+)\]/g, (_, n) => `<button type="button" class="cite" data-ref="${id}-s${n}" aria-label="出典${n}を見る">${n}</button>`);
+
+  // 3. 出典
+  if (item.sources.length) {
+    const wrap = document.createElement("div");
+    wrap.className = "sources";
+    wrap.innerHTML = `<h3>出典（回答の根拠）</h3>` + item.sources.map((s, k) => `
+      <div class="src" id="${id}-s${k + 1}">
+        <div class="head"><span class="n">[${k + 1}]</span>${docName(s.doc)}<small>${s.where}</small></div>
+        <blockquote>${s.text}</blockquote>
+      </div>`).join("");
+    a.appendChild(wrap);
+  }
+  a.querySelectorAll(".cite").forEach((c) => c.addEventListener("click", () => {
+    const el = document.getElementById(c.dataset.ref);
+    if (!el) return;
+    a.querySelectorAll(".src").forEach((s) => s.classList.remove("on"));
+    el.classList.add("on");
+    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }));
+  scrollDown();
+  setBusy(false);
+}
+</script>
+</body>
+</html>

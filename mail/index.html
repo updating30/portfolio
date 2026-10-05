@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>メール処理の自動化｜画面の見本</title>
+<meta name="description" content="受信メールをAIが重要度5段階で分類し、案件のメールに自動で番号を振るツールの、画面の見本（モック）と仕組みの説明です。会社・メールはすべて架空です。">
+<style>
+  :root {
+    --ink: #1f2933;
+    --muted: #5b6672;
+    --line: #e3e8ee;
+    --paper: #ffffff;
+    --bg: #f6f8fb;
+    --side: #f1f4f8;
+    --accent: #1d4ed8;
+    --accent-soft: #eaf1ff;
+    --green: #15803d;
+    --green-soft: #ecf8f0;
+    --l5: #c62828; --l5s: #fde8e8;
+    --l4: #c25e00; --l4s: #fff0e0;
+    --l3: #8a6d00; --l3s: #fff8d6;
+    --l2: #2e7d32; --l2s: #e8f5e9;
+    --l1: #5b6672; --l1s: #eef1f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--ink); font-family: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif; line-height: 1.75; font-size: 16px; }
+  a { color: var(--accent); }
+  button, input { font: inherit; }
+
+  .demo-bar { background: #3b4652; color: #fff; font-size: 13.5px; padding: 8px 16px; text-align: center; }
+  .demo-bar a { color: #ffd98a; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  .page-head { padding: 28px 0 18px; }
+  .kicker { font-size: 13.5px; font-weight: 700; color: var(--accent); }
+  h1 { font-size: clamp(22px, 4.4vw, 30px); line-height: 1.4; margin: 4px 0 6px; }
+  .page-head p { color: var(--muted); font-size: 15px; max-width: 54em; }
+
+  /* 操作の帯 */
+  .control { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 14px 14px 0 0; border-bottom: 0; padding: 12px 16px; }
+  .btn { border: 0; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 700; padding: 9px 18px; cursor: pointer; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn.ghost { background: var(--paper); color: var(--accent); border: 1.5px solid var(--accent); padding: 7px 14px; }
+  .status { color: var(--muted); font-size: 14px; }
+  .status b { color: var(--ink); }
+
+  .panes { display: grid; grid-template-columns: 1fr 1.15fr; border: 1px solid var(--line); border-radius: 0 0 14px 14px; overflow: hidden; background: var(--paper); box-shadow: 0 6px 24px rgba(31,41,51,.06); }
+  .pane { min-width: 0; display: flex; flex-direction: column; }
+  .pane + .pane { border-left: 1px solid var(--line); }
+  .pane-head { background: var(--side); border-bottom: 1px solid var(--line); padding: 10px 14px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .pane-head h2 { font-size: 15.5px; }
+  .pane-head small { color: var(--muted); font-size: 12.5px; }
+
+  /* Outlook 風 */
+  .folders { display: flex; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .folder { flex: none; border: 0; background: transparent; border-radius: 8px; padding: 4px 10px; font-size: 13.5px; color: var(--muted); cursor: pointer; }
+  .folder.on { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .folder .c { display: inline-block; min-width: 1.5em; margin-left: 4px; font-size: 12px; font-weight: 700; color: var(--ink); background: var(--l1s); border-radius: 999px; padding: 0 6px; text-align: center; }
+  .msgs { list-style: none; flex: 1; min-height: 360px; }
+  .msg { padding: 9px 14px; border-bottom: 1px solid var(--line); cursor: pointer; display: grid; grid-template-columns: 6px 1fr auto; gap: 0 10px; }
+  .msg:hover, .msg.sel { background: #f7f9fc; }
+  .msg .bar { border-radius: 3px; background: transparent; grid-row: span 2; }
+  .msg .from { font-size: 13.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .msg .time { font-size: 12.5px; color: var(--muted); }
+  .msg .subj { font-size: 14px; grid-column: 2 / 4; overflow-wrap: anywhere; }
+  .msg .subj .no { color: var(--accent); font-weight: 700; }
+  .msg .cats { grid-column: 2 / 4; display: flex; gap: 6px; margin-top: 2px; }
+  .cat { font-size: 11.5px; font-weight: 700; border-radius: 4px; padding: 0 6px; }
+  .empty-folder { color: var(--muted); font-size: 14px; padding: 24px 14px; }
+
+  /* 分類ツール */
+  .summary { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--line); align-items: center; }
+  .lv { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 700; border-radius: 999px; padding: 1px 10px; white-space: nowrap; }
+  .filter { margin-left: auto; font-size: 13.5px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .tablewrap { overflow-x: auto; flex: 1; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; font-size: 12.5px; color: var(--muted); font-weight: 700; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; background: #fbfcfe; }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr.row { cursor: pointer; }
+  tr.row:hover, tr.row.sel { background: #f7f9fc; }
+  tr.row.new { animation: flash 1s; }
+  @keyframes flash { from { background: var(--accent-soft); } to { background: transparent; } }
+  td.no { color: var(--accent); font-weight: 700; white-space: nowrap; }
+  td.reason { color: var(--muted); min-width: 14em; }
+  td .judging { color: var(--muted); }
+  .placeholder { color: var(--muted); font-size: 14px; padding: 24px 14px; }
+
+  .detail { border-top: 1px solid var(--line); padding: 12px 14px; background: #fbfcfe; font-size: 14px; }
+  .detail h3 { font-size: 14.5px; }
+  .detail .meta { color: var(--muted); font-size: 12.5px; }
+  .detail .body { margin-top: 6px; white-space: pre-wrap; }
+  .detail .why { margin-top: 8px; background: var(--accent-soft); border-radius: 8px; padding: 6px 10px; }
+
+  /* しくみ */
+  .explain { padding: 40px 0 8px; }
+  .explain h2 { font-size: 22px; }
+  .sub { color: var(--muted); font-size: 14.5px; margin-bottom: 16px; }
+  .result { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; }
+  .result .num { font-size: 28px; font-weight: 800; color: var(--green); line-height: 1.3; }
+  .result .num small { font-size: 15px; font-weight: 700; color: var(--muted); display: block; }
+  .result p { color: var(--muted); font-size: 14.5px; margin-top: 6px; }
+  .flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; counter-reset: f; }
+  .box { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px; font-size: 14.5px; color: var(--muted); }
+  .box h3 { font-size: 16px; color: var(--ink); margin-bottom: 4px; }
+  .box h3::before { counter-increment: f; content: counter(f) ". "; color: var(--accent); }
+  .tech { font-size: 14px; color: var(--muted); margin-top: 16px; }
+  .contact { background: var(--paper); border: 1.5px solid var(--accent); border-radius: 14px; padding: 16px 20px; margin-top: 20px; font-size: 15px; }
+  footer { color: var(--muted); font-size: 13px; padding: 32px 0 44px; }
+
+  @media (max-width: 900px) {
+    .panes { grid-template-columns: 1fr; }
+    .pane + .pane { border-left: 0; border-top: 6px solid var(--bg); }
+    .msgs { min-height: 0; }
+    .flow { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .control .btn { width: 100%; }
+    .filter { margin-left: 0; }
+    td.reason { min-width: 11em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">モック（動きの見本）です。AIは動いておらず、用意した結果を表示します。会社・人・メールはすべて架空です。｜<a href="../">作品集にもどる</a></div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div class="kicker">画面の見本｜社内でリリースし、運用中のツールをもとにしています</div>
+    <h1>メール処理の自動化</h1>
+    <p>受信したメールを AI が読んで<strong>重要度を5段階</strong>で分け、案件のメールには<strong>自動で番号</strong>を振ります。結果は、ツールの画面と Outlook の中（分類の色・フォルダ・件名）の両方に出ます。下のボタンを押すと、架空の部品メーカーに届いた8通のメールで流れを見られます。</p>
+  </div>
+
+  <div class="control">
+    <button class="btn" id="run" type="button">新着メール8通を分類する</button>
+    <button class="btn ghost" id="reset" type="button" hidden>最初にもどす</button>
+    <span class="status" id="status">まだ分類していません。受信トレイに8通あります。</span>
+  </div>
+
+  <div class="panes">
+    <section class="pane" aria-label="Outlook の受信トレイ（見本）">
+      <div class="pane-head"><h2>Outlook</h2><small>受信したメールに、分類の色・フォルダ・番号が付きます</small></div>
+      <div class="folders" id="folders" role="tablist"></div>
+      <ul class="msgs" id="msgs"></ul>
+    </section>
+
+    <section class="pane" aria-label="分類ツールの画面（見本）">
+      <div class="pane-head"><h2>メール分類ツール</h2><small>重要度・番号・判定の理由を一覧で見られます</small></div>
+      <div class="summary" id="summary"></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>番号</th><th>重要度</th><th>件名</th><th>差出人</th><th>判定の理由</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="placeholder" id="placeholder">「新着メール8通を分類する」を押すと、ここに結果が並びます。</div>
+      </div>
+      <div class="detail" id="detail" hidden></div>
+    </section>
+  </div>
+
+  <section class="explain">
+    <h2>実際のツールのしくみ</h2>
+    <p class="sub">本業の社内で、企画・設計から実装、リリース、運用まで一人で担当したツールです。社内のものなので、画面とメールは架空のものに置きかえています。</p>
+
+    <div class="result">
+      <div class="num">対応漏れ ゼロ<small>案件メールの対応漏れ</small></div>
+      <p>大量の受信メールの中から、優先すべきメールだけを拾える状態にしました。</p>
+    </div>
+
+    <div class="flow">
+      <div class="box">
+        <h3>重要度を決める</h3>
+        受信したメールを AI が読み、重要度を5段階で判定します。
+      </div>
+      <div class="box">
+        <h3>案件のメールに番号を振る</h3>
+        案件のメールには自動で番号を振り、あとから追えるようにします。
+      </div>
+      <div class="box">
+        <h3>いつもの画面に出す</h3>
+        結果は、作ったツールの画面と、Outlook の中（分類の色・フォルダ・件名）に反映します。
+      </div>
+    </div>
+
+    <p class="tech"><b>担当・技術</b>：企画・設計・実装・リリース・運用を一人で担当｜Python／LLM API／Outlook 連携</p>
+
+    <div class="contact">お仕事のご相談は、このページをご覧になったサービス（クラウドソーシングなど）のメッセージ機能からお願いします。ほかの作品は<a href="../">作品集</a>にあります。</div>
+  </section>
+
+  <footer>© 2026 updating30｜画面の見本です。会社・人・メール・番号はすべて架空です</footer>
+</div>
+
+<script>
+// 重要度（見本での呼び名と色）
+const LV = {
+  5: { name: "至急", color: "var(--l5)", soft: "var(--l5s)", folder: "要対応" },
+  4: { name: "高",   color: "var(--l4)", soft: "var(--l4s)", folder: "要対応" },
+  3: { name: "通常", color: "var(--l3)", soft: "var(--l3s)", folder: "通常" },
+  2: { name: "低",   color: "var(--l2)", soft: "var(--l2s)", folder: "参考" },
+  1: { name: "参考", color: "var(--l1)", soft: "var(--l1s)", folder: "参考" },
+};
+const FOLDERS = ["受信トレイ", "要対応", "通常", "参考"];
+
+// 架空のメール（差出人は例示用のドメイン）
+const MAILS = [
+  { from: "品質保証部 山田（架空）", addr: "qa@example.co.jp", time: "10:12", subj: "【至急】出荷品の寸法不良について",
+    body: "本日受け入れた部品の一部で、外径が図面の公差を外れているものが見つかりました。\n出荷を止めるかどうか、本日17時までにご回答ください。",
+    lv: 5, isCase: true, why: "取引先からの不良の連絡。出荷を止めるかの判断が要り、今日中の回答を求めている" },
+  { from: "購買部 佐藤（架空）", addr: "buy@example.com", time: "09:48", subj: "見積のお願い：ブラケット 2,000個",
+    body: "添付の図面のブラケットを2,000個、見積をお願いします。\n回答は3日後までにいただけると助かります。",
+    lv: 4, isCase: true, why: "新しい見積の依頼。回答の期限が3日後" },
+  { from: "生産管理 鈴木（架空）", addr: "plan@example.co.jp", time: "09:30", subj: "納期を早められないかのご相談",
+    body: "注文済みのシャフトについて、納期を1週間早めていただくことはできますか。\n難しければ、分けて納めていただけるかも教えてください。",
+    lv: 4, isCase: true, why: "納期の前倒しの相談。生産計画の見直しが要るので、早めの返事が必要" },
+  { from: "設計 高橋（架空）", addr: "design@example.com", time: "昨日", subj: "図面改訂のお知らせ（Rev.C）",
+    body: "カバー部品の図面を Rev.C に改訂しました。次回の手配分から反映をお願いします。\n変更点は穴位置の公差だけです。",
+    lv: 3, isCase: true, why: "図面の改訂の連絡。次の手配から反映が必要だが、急ぎではない" },
+  { from: "経理 田中（架空）", addr: "billing@example.co.jp", time: "昨日", subj: "9月分 請求書送付のご案内",
+    body: "9月分の請求書をお送りします。月末までのお支払いをお願いいたします。",
+    lv: 3, isCase: false, why: "経理へ回す必要がある。期限は月末" },
+  { from: "総務（社内・架空）", addr: "soumu@example.com", time: "昨日", subj: "10月の安全衛生委員会の開催案内",
+    body: "10月20日 15時から、会議室Bで開催します。\n出欠を10月15日までに返信してください。",
+    lv: 2, isCase: false, why: "社内の会議の案内。出欠の返信だけでよい" },
+  { from: "展示会事務局（架空）", addr: "info@example.org", time: "昨日", subj: "産業機械の展示会のご案内",
+    body: "11月に開催する展示会のご案内です。事前登録で入場無料です。",
+    lv: 1, isCase: false, why: "案内だけで、返信は要らない" },
+  { from: "業界ニュース（架空）", addr: "news@example.net", time: "昨日", subj: "今月の業界ニュース（メールマガジン）",
+    body: "今月の主なニュースをお届けします。",
+    lv: 1, isCase: false, why: "メールマガジン。時間のある時に読めばよい" },
+];
+
+const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+let state; // 各メールの分類結果
+let folder = "受信トレイ";
+let onlyHigh = false;
+let selected = null;
+
+function init() {
+  state = MAILS.map(() => ({ done: false, no: null, judging: false }));
+  folder = "受信トレイ"; onlyHigh = false; selected = null;
+  $("run").disabled = false; $("reset").hidden = true;
+  $("status").innerHTML = "まだ分類していません。受信トレイに8通あります。";
+  $("detail").hidden = true;
+  renderAll();
+}
+
+function folderOf(i) {
+  return state[i].done ? LV[MAILS[i].lv].folder : "受信トレイ";
+}
+
+function lvBadge(lv) {
+  const L = LV[lv];
+  return `<span class="lv" style="color:${L.color};background:${L.soft}">${lv} ${L.name}</span>`;
+}
+
+function subjectHtml(i) {
+  const s = state[i];
+  return (s.no ? `<span class="no">【No.${s.no}】</span>` : "") + esc(MAILS[i].subj);
+}
+
+function renderFolders() {
+  $("folders").innerHTML = FOLDERS.map((f) => {
+    const n = MAILS.filter((_, i) => folderOf(i) === f).length;
+    return `<button type="button" role="tab" class="folder${f === folder ? " on" : ""}" data-f="${f}" aria-selected="${f === folder}">${f}<span class="c">${n}</span></button>`;
+  }).join("");
+  $("folders").querySelectorAll(".folder").forEach((b) => b.addEventListener("click", () => { folder = b.dataset.f; renderAll(); }));
+}
+
+function renderMsgs() {
+  const items = MAILS.map((m, i) => i).filter((i) => folderOf(i) === folder);
+  if (!items.length) { $("msgs").innerHTML = `<li class="empty-folder">このフォルダにメールはありません。</li>`; return; }
+  $("msgs").innerHTML = items.map((i) => {
+    const m = MAILS[i], s = state[i], L = LV[m.lv];
+    return `<li class="msg${selected === i ? " sel" : ""}" data-i="${i}">
+      <span class="bar" style="background:${s.done ? L.color : "transparent"}"></span>
+      <span class="from">${esc(m.from)}</span><span class="time">${m.time}</span>
+      <span class="subj">${subjectHtml(i)}</span>
+      ${s.done ? `<span class="cats"><span class="cat" style="color:${L.color};background:${L.soft}">重要度${m.lv}・${L.name}</span>${m.isCase ? `<span class="cat" style="color:var(--accent);background:var(--accent-soft)">案件</span>` : ""}</span>` : ""}
+    </li>`;
+  }).join("");
+  $("msgs").querySelectorAll(".msg").forEach((li) => li.addEventListener("click", () => select(+li.dataset.i)));
+}
+
+function renderTable() {
+  const any = state.some((s) => s.done || s.judging);
+  $("placeholder").hidden = any;
+  const order = MAILS.map((m, i) => i)
+    .filter((i) => state[i].done || state[i].judging)
+    .filter((i) => !onlyHigh || (state[i].done && MAILS[i].lv >= 4))
+    .sort((a, b) => (state[b].done ? MAILS[b].lv : 0) - (state[a].done ? MAILS[a].lv : 0) || a - b);
+  $("rows").innerHTML = order.map((i) => {
+    const m = MAILS[i], s = state[i];
+    if (!s.done) return `<tr class="row"><td class="no">—</td><td colspan="4"><span class="judging">判定中… ${esc(m.subj)}</span></td></tr>`;
+    return `<tr class="row${selected === i ? " sel" : ""}${s.fresh ? " new" : ""}" data-i="${i}">
+      <td class="no">${s.no ? "No." + s.no : "—"}</td>
+      <td>${lvBadge(m.lv)}</td>
+      <td>${esc(m.subj)}</td>
+      <td>${esc(m.from)}</td>
+      <td class="reason">${esc(m.why)}</td></tr>`;
+  }).join("");
+  state.forEach((s) => (s.fresh = false));
+  $("rows").querySelectorAll("tr.row[data-i]").forEach((tr) => tr.addEventListener("click", () => select(+tr.dataset.i)));
+
+  // 件数のまとめ
+  const doneIdx = MAILS.map((m, i) => i).filter((i) => state[i].done);
+  const counts = [5, 4, 3, 2, 1].map((lv) => `${lvBadge(lv).replace("</span>", `：${doneIdx.filter((i) => MAILS[i].lv === lv).length}通</span>`)}`).join("");
+  $("summary").innerHTML = counts +
+    `<label class="filter"><input type="checkbox" id="only" ${onlyHigh ? "checked" : ""}>重要度4以上だけ表示</label>`;
+  $("only").addEventListener("change", (e) => { onlyHigh = e.target.checked; renderTable(); });
+}
+
+function renderAll() { renderFolders(); renderMsgs(); renderTable(); }
+
+function select(i) {
+  selected = i;
+  const m = MAILS[i], s = state[i];
+  $("detail").hidden = false;
+  $("detail").innerHTML = `<h3>${subjectHtml(i)}</h3>
+    <div class="meta">${esc(m.from)} &lt;${m.addr}&gt;｜${m.time}</div>
+    <div class="body">${esc(m.body)}</div>
+    ${s.done ? `<div class="why">${lvBadge(m.lv)} ${m.isCase ? "案件 No." + s.no + "｜" : ""}判定の理由：${esc(m.why)}</div>` : `<div class="why">まだ分類していません。</div>`}`;
+  renderMsgs(); renderTable();
+}
+
+$("run").addEventListener("click", async () => {
+  $("run").disabled = true;
+  let next = 141;
+  for (let i = 0; i < MAILS.length; i++) {
+    state[i].judging = true;
+    $("status").innerHTML = `<b>${i + 1} / ${MAILS.length}</b> 通目を読んでいます…`;
+    renderTable();
+    await sleep(420);
+    state[i].judging = false; state[i].done = true; state[i].fresh = true;
+    if (MAILS[i].isCase) state[i].no = String(next++).padStart(4, "0");
+    renderAll();
+  }
+  const high = MAILS.filter((m) => m.lv >= 4).length;
+  const cases = state.filter((s) => s.no).length;
+  folder = "要対応";
+  onlyHigh = true;
+  renderAll();
+  $("status").innerHTML = `分類しました。<b>要対応 ${high}通</b>（重要度4以上）／案件の番号 ${cases}件。一覧は「重要度4以上だけ」に絞っています。`;
+  $("reset").hidden = false;
+});
+
+$("reset").addEventListener("click", init);
+
+init();
+</script>
+</body>
+</html>
