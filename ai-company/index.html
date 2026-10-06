@@ -1,0 +1,1417 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AIマーケ会社ガイドブック｜作品集</title>
+<meta name="description" content="Claude Code で作った「AI社員10人」の会社（AIマーケ会社）の、使い方マニュアルと仕様書です。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* 配置：上に固定のタブ（マニュアル／仕様書）＋1段組み。図は横幅いっぱい、文章は1行35字前後。
+   色と文字は product の「デザイン参考」（生成り・深緑・Noto Sans JP・本文18px）に合わせる */
+:root{
+  --bg:#FAFAF7; --surface:#FFFFFF; --fg:#222222; --muted:#4D5753;
+  --accent:#1F6F5C; --on-accent:#FFFFFF; --sub:#E8EFEC; --zone:#F3F6F4;
+  --line:#D9DED9; --line-strong:#97A39D;
+  --warn-bg:#FFF6D6; --warn-line:#C9A227; --warn-fg:#5E4700;
+  --bad:#9B3B2E; --bad-bg:#F8E9E6;
+  --font-body:"Noto Sans JP","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+  --font-mono:ui-monospace,"Cascadia Mono",Consolas,"BIZ UDGothic",monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141917; --surface:#1C2320; --fg:#E8ECE9; --muted:#AAB5B0;
+    --accent:#67C2A6; --on-accent:#0E1A15; --sub:#20302A; --zone:#18201D;
+    --line:#2F3A35; --line-strong:#5E6C66;
+    --warn-bg:#3A3117; --warn-line:#C9A227; --warn-fg:#F2D888;
+    --bad:#F09A8A; --bad-bg:#3A1F1B;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141917; --surface:#1C2320; --fg:#E8ECE9; --muted:#AAB5B0;
+  --accent:#67C2A6; --on-accent:#0E1A15; --sub:#20302A; --zone:#18201D;
+  --line:#2F3A35; --line-strong:#5E6C66;
+  --warn-bg:#3A3117; --warn-line:#C9A227; --warn-fg:#F2D888;
+  --bad:#F09A8A; --bad-bg:#3A1F1B;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:96px}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:18px;line-height:1.8}
+@media (max-width:600px){body{font-size:17px}}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--sub);padding:.05em .35em;border-radius:4px;overflow-wrap:anywhere}
+strong{font-weight:700}
+img,svg{max-width:100%}
+
+.wrap{max-width:58rem;margin-inline:auto;padding-inline:16px}
+
+/* 上のタブ */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:12px 16px;padding-block:10px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:16px;margin-right:auto}
+.tabs{display:flex;gap:8px}
+.tab{font:inherit;font-size:17px;font-weight:700;min-height:48px;padding:0 18px;border-radius:8px;border:1.5px solid var(--accent);background:var(--surface);color:var(--accent);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
+@media (max-width:600px){.brand{display:none}.tabs{width:100%}.tab{flex:1;padding:0 8px}}
+
+/* 表紙 */
+.cover{padding-block:40px 8px}
+.cover h1{font-size:32px;line-height:1.4;margin:0 0 12px;text-wrap:balance}
+.cover .lead{margin:0 0 16px;max-width:40em}
+.meta{display:flex;flex-wrap:wrap;gap:4px 24px;margin:0;padding:0;list-style:none;font-size:16px;color:var(--muted)}
+
+/* 見出しと本文 */
+.panel{padding-block:8px 64px}
+.part-title{font-size:28px;line-height:1.4;margin:32px 0 4px}
+.part-lead{color:var(--muted);margin:0 0 8px}
+section.ch{padding-top:40px;border-top:1px solid var(--line);margin-top:40px}
+h2{font-size:26px;line-height:1.45;margin:0 0 16px;text-wrap:balance;display:flex;gap:14px;align-items:baseline}
+h2 .no{flex:none;font-size:18px;color:var(--accent);font-variant-numeric:tabular-nums}
+h3{font-size:21px;line-height:1.5;margin:32px 0 12px;text-wrap:balance}
+p{margin:0 0 16px;max-width:40em}
+.list{max-width:40em;padding-left:1.4em;margin:0 0 16px}
+.list li{margin-bottom:4px}
+
+/* 目次 */
+.toc{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 20px;margin:16px 0 8px}
+.toc ol{margin:0;padding-left:1.8em;columns:2 17rem;column-gap:32px}
+.toc li{break-inside:avoid;padding-block:3px}
+
+/* 図 */
+figure.dg{margin:24px 0}
+.dg-scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px}
+figure.dg figcaption{font-size:16px;color:var(--muted);margin-top:10px;max-width:40em}
+.dg-hint{display:none;font-size:16px;color:var(--muted);margin:6px 0 0}
+@media (max-width:760px){.dg-hint{display:block}}
+svg.d{display:block;width:100%;height:auto;min-width:720px;max-width:none;font-family:var(--font-body)}
+.d text{fill:var(--fg);font-size:15px;text-anchor:middle}
+.d text.l{text-anchor:start}
+.d text.r{text-anchor:end}
+.d .t-b{font-weight:700;font-size:16px}
+.d .t-s{font-size:14px;fill:var(--muted)}
+.d .t-on{fill:var(--on-accent)}
+.d .t-lab{font-size:14px;font-weight:700;fill:var(--accent)}
+.d .t-zone{font-size:15px;font-weight:700;fill:var(--muted)}
+.d .t-mono{font-family:var(--font-mono);font-size:13px}
+.d .t-chip{font-size:14px}
+.d .t-chip tspan.n{font-weight:700}
+.d .bx{fill:var(--surface);stroke:var(--line-strong);stroke-width:1.5}
+.d .bx-acc{fill:var(--sub);stroke:var(--accent);stroke-width:2}
+.d .bx-boss{fill:var(--accent);stroke:var(--accent);stroke-width:2}
+.d .bx-warn{fill:var(--warn-bg);stroke:var(--warn-line);stroke-width:1.5}
+.d .bx-ext{fill:var(--surface);stroke:var(--fg);stroke-width:1.5;stroke-dasharray:6 4}
+.d .bx-off{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4}
+.d .bx-sub{fill:var(--sub);stroke:var(--line-strong);stroke-width:1.5}
+.d .zone{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:8 6}
+.d .zone-fill{fill:var(--zone);stroke:var(--line-strong);stroke-width:1.5}
+.d .ln{fill:none;stroke:var(--fg);stroke-width:1.6}
+.d .ln-acc{fill:none;stroke:var(--accent);stroke-width:2.2}
+.d .ln-dash{stroke-dasharray:5 4}
+.d .ah{fill:var(--fg)}
+.d .ah-acc{fill:var(--accent)}
+
+/* 流れ図（HTMLで組む小さな図） */
+.flow{list-style:none;margin:16px 0;padding:0;display:flex;flex-wrap:wrap;align-items:stretch;row-gap:10px}
+.flow>li{display:flex;align-items:center}
+.flow>li:not(:last-child)::after{content:"→";color:var(--accent);font-weight:700;padding-inline:8px}
+.node{background:var(--surface);border:1.5px solid var(--line-strong);border-radius:8px;padding:8px 14px;line-height:1.5;display:flex;flex-direction:column;justify-content:center;min-height:48px}
+.node small{display:block;font-size:16px;color:var(--muted)}
+.node .tag{font-size:16px;font-weight:700}
+.node.boss{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.node.boss small,.node.boss .tag{color:var(--on-accent)}
+.node.ext{border-style:dashed;border-color:var(--fg)}
+.node.out{background:var(--sub);border-color:var(--accent);font-weight:700}
+.node.out small{font-weight:400}
+.node.stop{background:var(--warn-bg);border-color:var(--warn-line)}
+.node.stop .tag{color:var(--warn-fg)}
+.flow.sm .node{font-size:16px;padding:6px 12px;min-height:44px}
+@media (max-width:600px){
+  .flow{flex-direction:column;flex-wrap:nowrap}
+  .flow>li{flex-direction:column;align-items:stretch}
+  .flow>li:not(:last-child)::after{content:"↓";text-align:center;padding:2px 0}
+}
+
+/* 3つの要点 */
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:12px;margin:16px 0;padding:0;list-style:none;counter-reset:n}
+.three li{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;counter-increment:n;min-width:0}
+.three li::before{content:counter(n);display:inline-flex;width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:700;align-items:center;justify-content:center;margin-right:10px}
+
+/* そのまま使える頼み方 */
+.say{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:var(--sub);border-radius:8px;padding:8px 8px 8px 16px;margin:8px 0;max-width:40em}
+.say q{quotes:"「" "」";flex:1 1 14em;min-width:0;font-weight:700}
+.copy{font:inherit;font-size:16px;font-weight:700;min-height:48px;padding:0 16px;border-radius:8px;border:1.5px solid var(--accent);background:var(--surface);color:var(--accent);cursor:pointer}
+
+/* 囲み */
+.warn{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:8px;padding:14px 18px;margin:16px 0;max-width:40em}
+.warn>strong:first-child{color:var(--warn-fg)}
+.note{background:var(--sub);border-radius:8px;padding:14px 18px;margin:16px 0;max-width:40em}
+.warn p:last-child,.note p:last-child{margin-bottom:0}
+
+/* 社員カード */
+.members{display:grid;gap:20px;margin-top:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px 22px;min-width:0}
+.card-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin-bottom:10px}
+.card-head .name{font-family:var(--font-mono);font-size:24px;font-weight:700;color:var(--accent)}
+.card-head .role{font-weight:700;font-size:19px}
+.kv{display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:10px 16px;margin:0}
+.kv dt{font-weight:700;color:var(--muted);font-size:16px;padding-top:3px}
+.kv dd{margin:0;min-width:0}
+.kv dd .flow{margin:0}
+.kv dd .say{margin:0}
+@media (max-width:600px){.kv{grid-template-columns:1fr;gap:2px}.kv dd{margin-bottom:12px}.card{padding:16px}}
+
+/* 表 */
+.tbl{overflow-x:auto;margin:16px 0 24px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:16px;line-height:1.6}
+th,td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid var(--line)}
+th{background:var(--sub);font-weight:700;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+table.wide{min-width:900px}
+td.nowrap{white-space:nowrap}
+
+/* 状態の印 */
+.badge{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:16px;line-height:1.4;padding:2px 10px;border-radius:999px;border:1.5px solid;white-space:nowrap}
+.badge.ok{color:var(--accent);border-color:var(--accent);background:var(--sub)}
+.badge.cond{color:var(--warn-fg);border-color:var(--warn-line);background:var(--warn-bg)}
+.badge.no{color:var(--bad);border-color:var(--bad);background:var(--bad-bg)}
+.badge.na{color:var(--muted);border-color:var(--line-strong);background:transparent}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:16px;margin:16px 0}
+.status .col{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;min-width:0}
+.status .col h3{margin:0 0 10px;font-size:19px}
+.status ul{margin:0;padding-left:1.2em}
+.status li{margin-bottom:8px}
+
+/* フォルダの木 */
+.tree,.tree ul{list-style:none;margin:0;padding:0}
+.tree{font-size:16px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;overflow-x:auto;margin:16px 0}
+.tree ul{margin-left:10px;padding-left:20px;border-left:2px solid var(--line)}
+.tree li{position:relative;padding:3px 0}
+.tree ul>li::before{content:"";position:absolute;left:-20px;top:1.05em;width:15px;border-top:2px solid var(--line)}
+.tree .f{font-family:var(--font-mono);font-weight:700;white-space:nowrap}
+.tree .desc{color:var(--muted);margin-left:10px}
+
+/* 決まりのカード */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:14px;margin:16px 0}
+.rules>div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;min-width:0}
+.rules h3{margin:0 0 6px;font-size:19px}
+.rules p{margin:0}
+
+/* 決めたことの記録 */
+.timeline{list-style:none;margin:16px 0;padding:0 0 0 28px;border-left:3px solid var(--sub);max-width:44em}
+.timeline>li{position:relative;padding:0 0 22px}
+.timeline>li::before{content:"";position:absolute;left:-38px;top:.4em;width:16px;height:16px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
+.timeline time{font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent);display:block}
+.timeline ul{margin:4px 0 0;padding-left:1.2em}
+
+/* 困った時 */
+.qa{margin:16px 0;max-width:44em}
+.qa dt{font-weight:700;margin-top:18px;padding-left:1.6em;text-indent:-1.6em}
+.qa dt::before{content:"Q.";color:var(--accent);display:inline-block;width:1.6em;text-indent:0}
+.qa dd{margin:4px 0 0 1.6em}
+
+.workbar{background:#2f3a35;color:#fff;font-size:15px;line-height:1.6;padding:8px 16px;text-align:center}
+.workbar a{color:#ffd98a}
+footer{border-top:1px solid var(--line);padding-block:24px 48px;color:var(--muted);font-size:16px}
+footer p{max-width:none}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="workbar">作品の資料です。自分の副業のために Claude Code で作った仕組みの、使い方マニュアルと仕様書です（公開用に個人の情報を外しています。コードと設定ファイルは非公開）。｜<a href="../">作品集にもどる</a></div>
+
+<div class="topbar">
+  <div class="wrap">
+    <span class="brand">AIマーケ会社ガイドブック</span>
+    <div class="tabs" role="tablist" aria-label="冊子を選ぶ">
+      <button class="tab" type="button" role="tab" id="tab-manual" aria-controls="manual" aria-selected="true">使い方マニュアル</button>
+      <button class="tab" type="button" role="tab" id="tab-spec" aria-controls="spec" aria-selected="false">仕様書</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="cover">
+    <h1>AIマーケ会社 ガイドブック</h1>
+    <p class="lead">作者が自分の副業のために作った「AI社員10人」の使い方と仕組みをまとめました。この冊子の「社長」は作者のことです。コードやターミナルは使いません。Claude Code アプリに日本語で頼むだけで動きます。</p>
+    <ul class="meta">
+      <li>内容は 2026-10-06 時点</li>
+      <li>作った人：updating30（企画・設計・道具づくり・この冊子）</li>
+    </ul>
+  </header>
+
+  <!-- ===================================================== 使い方マニュアル -->
+  <main class="panel" id="manual" role="tabpanel" aria-labelledby="tab-manual">
+    <h2 class="part-title">使い方マニュアル</h2>
+    <p class="part-lead">はじめて使う時は、上から順に読んでください。</p>
+
+    <nav class="toc" aria-label="マニュアルの目次">
+      <ol>
+        <li><a href="#m-1">この会社のしくみ</a></li>
+        <li><a href="#m-2">会社を開く</a></li>
+        <li><a href="#m-3">頼み方は3通り</a></li>
+        <li><a href="#m-4">誰に頼む？早見図</a></li>
+        <li><a href="#m-5">仕事の流れ（どの社員も同じ）</a></li>
+        <li><a href="#m-6">社員10人の使い方</a></li>
+        <li><a href="#m-7">何人かで組む仕事</a></li>
+        <li><a href="#m-8">社長に確認が来る時</a></li>
+        <li><a href="#m-9">お金がかかること・かからないこと</a></li>
+        <li><a href="#m-10">朝の報告・夜の報告</a></li>
+        <li><a href="#m-11">困った時は</a></li>
+      </ol>
+    </nav>
+
+    <!-- 1 -->
+    <section class="ch" id="m-1">
+      <h2><span class="no">1</span>この会社のしくみ</h2>
+      <p>社長が Claude Code アプリに日本語で頼むと、Claude が担当する社員の「役割ファイル」を読んで、その社員として仕事をします。社員は10人いて、それぞれ得意なことと仕事の手順が決まっています。</p>
+      <p>できたものは、このパソコンのフォルダに残ります。頼んだ仕事の進み具合や決めたことは、会社のフォルダの中の「台帳」（<code>台帳.md</code>）に1か所でまとめます。</p>
+
+      <figure class="dg">
+        <div class="dg-scroll">
+          <svg class="d" viewBox="0 0 820 350" role="img" aria-label="社長がアプリに頼み、アプリが役割を読んで社員10人の誰かとして動き、できたものを社長に見せる。仕事の状態は台帳に残す。">
+            <defs>
+              <marker id="m1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="m1g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="bx-boss" x="20" y="80" width="130" height="96" rx="10"/>
+            <text class="t-b t-on" x="85" y="122">社長</text>
+            <text class="t-on" x="85" y="148">日本語で頼む</text>
+
+            <path class="ln" d="M150,128 H288" marker-end="url(#m1a)"/>
+            <text class="t-lab" x="220" y="116">「〇〇に頼んで」</text>
+
+            <rect class="bx" x="290" y="80" width="160" height="96" rx="10"/>
+            <text class="t-b" x="370" y="116">Claude Code</text>
+            <text class="t-b" x="370" y="140">アプリ</text>
+            <text class="t-s" x="370" y="164">頼みを受ける窓口</text>
+
+            <path class="ln" d="M450,128 H538" marker-end="url(#m1a)"/>
+            <text class="t-lab" x="494" y="116">役割を読む</text>
+
+            <rect class="zone-fill" x="540" y="16" width="262" height="262" rx="12"/>
+            <text class="t-b" x="671" y="42">AI社員10人（ai-company）</text>
+            <rect class="bx-acc" x="553" y="58" width="113" height="36" rx="6"/><text class="t-chip" x="609.5" y="81"><tspan class="n">leader</tspan> 統括</text>
+            <rect class="bx" x="553" y="100" width="113" height="36" rx="6"/><text class="t-chip" x="609.5" y="123"><tspan class="n">brunson</tspan> 顧問</text>
+            <rect class="bx" x="553" y="142" width="113" height="36" rx="6"/><text class="t-chip" x="609.5" y="165"><tspan class="n">designer</tspan> 画像</text>
+            <rect class="bx" x="553" y="184" width="113" height="36" rx="6"/><text class="t-chip" x="609.5" y="207"><tspan class="n">lp</tspan> LP</text>
+            <rect class="bx" x="553" y="226" width="113" height="36" rx="6"/><text class="t-chip" x="609.5" y="249"><tspan class="n">video</tspan> 動画</text>
+            <rect class="bx" x="675" y="58" width="113" height="36" rx="6"/><text class="t-chip" x="731.5" y="81"><tspan class="n">researcher</tspan> 調査</text>
+            <rect class="bx" x="675" y="100" width="113" height="36" rx="6"/><text class="t-chip" x="731.5" y="123"><tspan class="n">writer</tspan> 文章</text>
+            <rect class="bx" x="675" y="142" width="113" height="36" rx="6"/><text class="t-chip" x="731.5" y="165"><tspan class="n">analyst</tspan> 分析</text>
+            <rect class="bx" x="675" y="184" width="113" height="36" rx="6"/><text class="t-chip" x="731.5" y="207"><tspan class="n">product</tspan> 教材</text>
+            <rect class="bx" x="675" y="226" width="113" height="36" rx="6"/><text class="t-chip" x="731.5" y="249"><tspan class="n">sns</tspan> SNS</text>
+
+            <path class="ln-acc" d="M540,236 H85 V178" marker-end="url(#m1g)"/>
+            <text class="t-lab" x="312" y="258">できたもの（ファイル）を見せる</text>
+
+            <path class="ln ln-dash" d="M671,278 V296"/>
+            <text class="t-s l" x="684" y="292">区切りで記録</text>
+            <rect class="bx-sub" x="20" y="296" width="782" height="44" rx="8"/>
+            <text x="411" y="324"><tspan font-weight="700">台帳（台帳.md）</tspan>　頼んだ仕事・進み具合・決めたことを残す場所</text>
+          </svg>
+        </div>
+        <p class="dg-hint">図は横にずらすと全体が見られます。</p>
+        <figcaption>社長が頼む → アプリが役割を読む → 社員が作って見せる。仕事の状態は台帳に1か所でまとめます。</figcaption>
+      </figure>
+      <div class="note">
+        <p>台帳は、会社のフォルダの中の1枚のテキストファイルです。追加の道具やお金は要りません。会社ですでにタスク管理の道具（スプレッドシートやタスク管理ツール）を使っているなら、台帳の代わりにそちらに残す形にもできます。</p>
+      </div>
+
+      <h3>覚えることは3つだけ</h3>
+      <ol class="three">
+        <li><strong>会社を開く</strong><br>アプリで ai-company のフォルダを開きます（<a href="#m-2">2章</a>）。</li>
+        <li><strong>「〇〇に頼んで」と言う</strong><br>名前が分からなければ、やりたいことだけ言えば leader が振り分けます（<a href="#m-3">3章</a>）。</li>
+        <li><strong>確認に答える</strong><br>公開・お金・削除の前には、必ず社長に確認が来ます（<a href="#m-8">8章</a>）。</li>
+      </ol>
+    </section>
+
+    <!-- 2 -->
+    <section class="ch" id="m-2">
+      <h2><span class="no">2</span>会社を開く</h2>
+      <p>毎回この順番で開きます。開いたフォルダの中だけが「会社」になります。</p>
+      <ol class="flow">
+        <li><span class="node">Claude Code アプリを起動</span></li>
+        <li><span class="node">「Select folder」を押す</span></li>
+        <li><span class="node">作業場のフォルダ</span></li>
+        <li><span class="node out">ai-company</span></li>
+        <li><span class="node">画面に ai-company と出たら準備OK</span></li>
+      </ol>
+      <div class="note">
+        <p>画面はアプリの版によって少し違って見えることがあります。位置ではなく、ボタンの<strong>文字</strong>を探してください。見つからない時は、スクリーンショットを撮って聞けば大丈夫です。</p>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="ch" id="m-3">
+      <h2><span class="no">3</span>頼み方は3通り</h2>
+      <figure class="dg">
+        <div class="dg-scroll">
+          <svg class="d" viewBox="0 0 820 326" role="img" aria-label="頼み方は3通り。名前を書いて頼むとその社員が動く。名前を書かずに頼むとleaderが受けて担当を決める。社員のフォルダを開くと最初からその社員として動く。">
+            <defs>
+              <marker id="m3a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <!-- 1 -->
+            <rect class="bx-acc" x="20" y="20" width="290" height="76" rx="26"/>
+            <text class="t-b" x="165" y="54">「writer に頼んで」</text>
+            <text class="t-s" x="165" y="78">名前を書いて頼む</text>
+            <path class="ln" d="M310,58 H378" marker-end="url(#m3a)"/>
+            <rect class="bx" x="380" y="20" width="420" height="76" rx="10"/>
+            <text class="t-b" x="590" y="54">writer が名乗って、その役割で動く</text>
+            <text class="t-s" x="590" y="78">役割ファイル members/writer/CLAUDE.md を読む</text>
+            <!-- 2 -->
+            <rect class="bx-acc" x="20" y="125" width="290" height="76" rx="26"/>
+            <text class="t-b" x="165" y="159">「インスタを1本作りたい」</text>
+            <text class="t-s" x="165" y="183">名前を書かずに頼む</text>
+            <path class="ln" d="M310,163 H378" marker-end="url(#m3a)"/>
+            <rect class="bx" x="380" y="125" width="170" height="76" rx="10"/>
+            <text class="t-b" x="465" y="159">leader が受ける</text>
+            <text class="t-s" x="465" y="183">担当と順番を決める</text>
+            <path class="ln" d="M550,163 H588" marker-end="url(#m3a)"/>
+            <rect class="bx" x="590" y="125" width="210" height="76" rx="10"/>
+            <text class="t-b" x="695" y="159">担当の社員が動く</text>
+            <text class="t-s" x="695" y="183">社長に一言伝えてから</text>
+            <!-- 3 -->
+            <rect class="bx-acc" x="20" y="230" width="290" height="76" rx="26"/>
+            <text class="t-b" x="165" y="264">社員のフォルダを開く</text>
+            <text class="t-s" x="165" y="288">例：members/brunson/</text>
+            <path class="ln" d="M310,268 H378" marker-end="url(#m3a)"/>
+            <rect class="bx" x="380" y="230" width="420" height="76" rx="10"/>
+            <text class="t-b" x="590" y="264">最初から brunson として動く</text>
+            <text class="t-s" x="590" y="288">そのフォルダの CLAUDE.md を読んで起動する</text>
+          </svg>
+        </div>
+        <p class="dg-hint">図は横にずらすと全体が見られます。</p>
+        <figcaption>ふだんは1番か2番で十分です。3番は、1人の社員とじっくり話したい時（brunson との壁打ちなど）に使います。</figcaption>
+      </figure>
+
+      <h3>そのまま使える頼み方</h3>
+      <div class="say"><q>writerに頼んで、こつこつの紹介文を書いてもらって</q><button class="copy" type="button">コピー</button></div>
+      <div class="say"><q>Instagramの投稿を1本作りたい</q><button class="copy" type="button">コピー</button></div>
+      <div class="say"><q>朝の報告をして</q><button class="copy" type="button">コピー</button></div>
+      <p>名前を書かずに頼むと、leader が「誰が・何を・どの順で」を決め、社長に一言伝えてから担当に回します。</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="ch" id="m-4">
+      <h2><span class="no">4</span>誰に頼む？早見図</h2>
+      <p>左の「やりたいこと」から、右の社員をたどってください。</p>
+      <figure class="dg">
+        <div class="dg-scroll">
+          <svg class="d" viewBox="0 0 820 480" role="img" aria-label="やりたいことから社員を選ぶ図。相談はbrunsonかleader、調べたいはresearcher、書きたいはwriter、作りたいはdesigner・lp・product・sns・video、数字はanalyst、迷ったらleader。">
+            <rect class="bx-boss" x="20" y="211" width="150" height="60" rx="10"/>
+            <text class="t-b t-on" x="95" y="247">やりたいこと</text>
+            <!-- 幹から分類へ -->
+            <path class="ln" d="M170,241 H200 V56.5 H230"/>
+            <path class="ln" d="M200,241 V118 H230"/>
+            <path class="ln" d="M200,241 V159 H230"/>
+            <path class="ln" d="M200,241 V282 H230"/>
+            <path class="ln" d="M200,241 V405 H230"/>
+            <path class="ln" d="M200,241 V446 H230"/>
+            <!-- 分類 -->
+            <rect class="bx-acc" x="230" y="40.5" width="200" height="32" rx="6"/><text class="t-b" x="330" y="62">相談したい</text>
+            <rect class="bx-acc" x="230" y="102" width="200" height="32" rx="6"/><text class="t-b" x="330" y="123.5">調べたい</text>
+            <rect class="bx-acc" x="230" y="143" width="200" height="32" rx="6"/><text class="t-b" x="330" y="164.5">書きたい</text>
+            <rect class="bx-acc" x="230" y="266" width="200" height="32" rx="6"/><text class="t-b" x="330" y="287.5">作りたい</text>
+            <rect class="bx-acc" x="230" y="389" width="200" height="32" rx="6"/><text class="t-b" x="330" y="410.5">数字を見たい</text>
+            <rect class="bx-acc" x="230" y="430" width="200" height="32" rx="6"/><text class="t-b" x="330" y="451.5">迷った・まとめて任せたい</text>
+            <!-- 分類から社員へ -->
+            <path class="ln" d="M430,56.5 H465 V36 H500"/>
+            <path class="ln" d="M465,56.5 V77 H500"/>
+            <path class="ln" d="M430,118 H500"/>
+            <path class="ln" d="M430,159 H500"/>
+            <path class="ln" d="M430,282 H465 V200 H500"/>
+            <path class="ln" d="M465,241 H500"/>
+            <path class="ln" d="M465,282 H500"/>
+            <path class="ln" d="M465,282 V364 H500"/>
+            <path class="ln" d="M465,323 H500"/>
+            <path class="ln" d="M430,405 H500"/>
+            <path class="ln" d="M430,446 H500"/>
+            <!-- 社員 -->
+            <rect class="bx" x="500" y="20" width="300" height="32" rx="6"/><text class="l" x="514" y="41"><tspan font-weight="700">brunson</tspan>　売り方・値段・企画の壁打ち</text>
+            <rect class="bx" x="500" y="61" width="300" height="32" rx="6"/><text class="l" x="514" y="82"><tspan font-weight="700">leader</tspan>　戦略・今週やる3つ</text>
+            <rect class="bx" x="500" y="102" width="300" height="32" rx="6"/><text class="l" x="514" y="123"><tspan font-weight="700">researcher</tspan>　出典つきで調べる</text>
+            <rect class="bx" x="500" y="143" width="300" height="32" rx="6"/><text class="l" x="514" y="164"><tspan font-weight="700">writer</tspan>　セールス文・投稿文・紹介文</text>
+            <rect class="bx-warn" x="500" y="184" width="300" height="32" rx="6"/><text class="l" x="514" y="205"><tspan font-weight="700">designer</tspan>　画像（課金が必要）</text>
+            <rect class="bx" x="500" y="225" width="300" height="32" rx="6"/><text class="l" x="514" y="246"><tspan font-weight="700">lp</tspan>　LP（申し込みページ）</text>
+            <rect class="bx" x="500" y="266" width="300" height="32" rx="6"/><text class="l" x="514" y="287"><tspan font-weight="700">product</tspan>　教材・特典ページ</text>
+            <rect class="bx" x="500" y="307" width="300" height="32" rx="6"/><text class="l" x="514" y="328"><tspan font-weight="700">sns</tspan>　Instagram投稿（Canva用）</text>
+            <rect class="bx" x="500" y="348" width="300" height="32" rx="6"/><text class="l" x="514" y="369"><tspan font-weight="700">video</tspan>　動画に字幕を入れる</text>
+            <rect class="bx" x="500" y="389" width="300" height="32" rx="6"/><text class="l" x="514" y="410"><tspan font-weight="700">analyst</tspan>　詰まりを見つけて改善TOP3</text>
+            <rect class="bx-acc" x="500" y="430" width="300" height="32" rx="6"/><text class="l" x="514" y="451"><tspan font-weight="700">leader</tspan>　振り分けて進めてもらう</text>
+          </svg>
+        </div>
+        <p class="dg-hint">図は横にずらすと全体が見られます。</p>
+        <figcaption>黄色の designer は、画像を作るのに Gemini API の課金設定が必要です（<a href="#m-9">9章</a>）。迷ったら、いちばん下の leader に頼めば振り分けてくれます。</figcaption>
+      </figure>
+    </section>
+
+    <!-- 5 -->
+    <section class="ch" id="m-5">
+      <h2><span class="no">5</span>仕事の流れ（どの社員も同じ）</h2>
+      <p>社員は、いきなり作りません。先に質問と案が来て、社長のOKをもらってから作ります。緑で塗った所が社長の番です。</p>
+      <ol class="flow">
+        <li><span class="node boss"><span class="tag">社長の番</span>頼む</span></li>
+        <li><span class="node">社員が質問する<small>ヒアリング</small></span></li>
+        <li><span class="node boss"><span class="tag">社長の番</span>答える</span></li>
+        <li><span class="node">案・構成を見せる</span></li>
+        <li><span class="node boss"><span class="tag">社長の番</span>OKを出す</span></li>
+        <li><span class="node">作る・点検する</span></li>
+        <li><span class="node out">成果物を置く<small>members/〈社員〉/projects/〈仕事の名前〉/</small></span></li>
+      </ol>
+      <p>質問への答えは、一度にまとめて返して大丈夫です。分からない所は「分からない」と答えてください。社員は推測で埋めず、空欄にして残します。</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="ch" id="m-6">
+      <h2><span class="no">6</span>社員10人の使い方</h2>
+      <p>社員ごとの頼み方の例・流れ・社長がやること・できあがるものです。頼み方の例は、言い回しを変えても通じます。</p>
+
+      <div class="members">
+        <!-- leader -->
+        <article class="card" id="m-leader">
+          <div class="card-head"><span class="name">leader</span><span class="role">統括・戦略・報告</span></div>
+          <dl class="kv">
+            <dt>頼み方の例</dt>
+            <dd><div class="say"><q>今週やる3つを提案して</q><button class="copy" type="button">コピー</button></div></dd>
+            <dt>流れ</dt>
+            <dd><ol class="flow sm">
+              <li><span class="node boss">頼む</span></li>
+              <li><span class="node">台帳で今の仕事を確かめる</span></li>
+              <li><span class="node">担当と順番を決める</span></li>
+              <li><span class="node out">社員に回す</span></li>
+            </ol></dd>
+            <dt>社長がやること</dt>
+            <dd>振り分けの一言を聞いて、OKを出す。判断が要ることに答える。</dd>
+            <dt>できるもの</dt>
+            <dd>朝・夜の報告（5行以内）、「今週やる3つ」の提案</dd>
+            <dt>覚えておくこと</dt>
+            <dd>leader は自分では作業しません。作る仕事は担当の社員に回します。</dd>
+          </dl>
+        </article>
+
+        <!-- brunson -->
+        <article class="card" id="m-brunson">
+          <div class="card-head"><span class="name">brunson</span><span class="role">マーケの壁打ち顧問</span></div>
+          <dl class="kv">
+            <dt>頼み方の例</dt>
+            <dd><div class="say"><q>brunsonに相談。こつこつの値段はいくらにすべき？</q><button class="copy" type="button">コピー</button></div></dd>
+            <dt>流れ</dt>
+            <dd><ol class="flow sm">
+              <li><span class="node boss">相談する</span></li>
+              <li><span class="node">手持ちの本を引く</span></li>
+              <li><span class="node">本音で答える</span></li>
+              <li><span class="node out">決まったことを3行に</span></li>
+            </ol></dd>
+            <dt>社長がやること</dt>
+            <dd>最初に1回だけ、手持ちの本の PDF を <code>members/brunson/books/</code> に入れて「本をテキストにして」と頼む。</dd>
+            <dt>できるもの</dt>
+            <dd>根拠つきの答え（「書名 p.ページ」を添える）と、台帳に残せる3行のまとめ</dd>
+            <dt>覚えておくこと</dt>
+            <dd>くだけた丁寧語で、良くないものは良くないと言います。本に無いことは「ここからは私の考えですが」と分けて話します。スキャンした画像だけの PDF からは文字が取れません。</dd>
+          </dl>
+        </article>
+
+        <!-- designer -->
+        <article class="card" id="m-designer">
+          <div class="card-head"><span class="name">designer</span><span class="role">画像（LP・サムネ・バナー・SNS）</span></div>
+          <dl class="kv">
+            <dt>頼み方の例</dt>
+            <dd><div class="say"><q>designerに、こつこつのInstagram用の画像を4:5で考えてもらって</q><button class="copy" type="button">コピー</button></div></dd>
+            <dt>流れ</dt>
+            <dd><ol class="flow sm">
+              <li><span class="node">ヒアリング</span></li>
+              <li><span class="node">英語のプロンプトを見せる</span></li>
+              <li><span class="node boss">OKを出す</span></li>
+              <li><span class="node stop"><span class="tag">⚠ 課金が必要</span>3つのモデルで同時に作る</span></li>
+              <li><span class="node boss">比べて選ぶ</span></li>
+            </ol></dd>
+            <dt>社長がやること</dt>
+            <dd>プロンプトにOKを出す。並んだ画像から1つ選ぶ。</dd>
+            <dt>できるもの</dt>
+            <dd>画像・比較ページ（<code>compare.html</code>）・<code>prompt.txt</code>。置き場は <code>members/designer/projects/〈日時_お題〉/</code></dd>
+            <dt>覚えておくこと</dt>
+            <dd><div class="warn"><strong>⚠ 画像を作るには、Gemini API の課金設定が必要です。</strong>料金は1枚あたり約0.039ドル（Nano Banana）からです（2026年10月時点）。1回に作るのは6枚までで、超える時は社長に確認が来ます。プロンプト作り（画像の指示文）までは、課金なしでできます。</div></dd>
+          </dl>
+        </article>
+
+        <!-- lp -->
+        <article class="card" id="m-lp">
+          <div class="card-head"><span class="name">lp</span><span class="role">LP（申し込みページ）</span></div>
+          <dl class="kv">
+            <dt>頼み方の例</dt>
+            <dd><div class="say"><q>lpに、50代向けGitHub実務講座の申し込みLPを作ってもらって</q><button class="copy" type="button">コピー</button></div></dd>
+            <dt>流れ</dt>
+            <dd><ol class="flow sm">
+              <li><span class="node">ヒアリング</span></li>
+              <li><span class="node">PASONA で見出しだけ</span></li>
+              <li><span class="node boss">OKを出す</span></li>
+              <li><span class="node">文章を書く</span></li>
+              <li><span class="node out">ページを作る<small>スマホとPCで確認</small></span></li>
+            </ol></dd>
+            <dt>社長がやること</dt>
+            <dd>誰に・何を・してほしい行動・使える証拠を伝える。構成にOKを出す。公開するかを決める。</dd>
+            <dt>できるもの</dt>
+            <dd><code>members/lp/projects/〈LP名〉/index.html</code></dd>
+            <dt>覚えておくこと</dt>
+            <dd>「AI感を消す10原則」に沿って作ります。無い実績やお客様の声は書きません。</dd>
+          </dl>
+        </article>
+
+        <!-- video -->
+        <article class="card" id="m-video">
+          <div class="card-head"><span class="name">video</span><span class="role">動画の字幕</span></div>
+          <dl class="kv">
+            <dt>頼み方の例</dt>
+            <dd><div class="say"><q>videoに、inboxに置いた動画に字幕を焼いてもらって</q><button class="copy" type="button">コピー</button></div></dd>
+            <dt>流れ</dt>
+            <dd><ol class="flow sm">
+              <li><span class="node boss">動画を inbox に置く</span></li>
+              <li><span class="node">文字起こし</span></li>
+              <li><span class="node">字幕の文字を見せる</span></li>
+              <li><span class="node boss">言い間違いを直す</span></li>
+              <li><span class="node out">焼き込む</span></li>
+            </ol></dd>
+            <dt>社長がやること</dt>
+            <dd>動画を <code>members/video/inbox/</code> に置く。字幕の文字の言い間違い・固有名詞を直す。</dd>
+            <dt>できるもの</dt>
+            <dd>字幕付きの mp4・<code>.srt</code>・<code>.ass</code>。置き場は <code>members/video/projects/〈動画名〉/</code></dd>
+            <dt>覚えておくこと</dt>
+            <dd>縦の動画か横の動画かは自動で見分け、字幕の大きさと位置を変えます。元の動画は上書きしません。顔・声・家族・職場が映る動画は、外に出す前に確認が来ます。</dd>
+          </dl>
+        </article>
+
+        <!-- researcher -->
+        <article class="card" id="m-researcher">
+          <div class="card-head"><span class="name">researcher</span><span class="role">調べもの</span></div>
+          <dl class="kv">
+            <dt>頼み方の例</dt>
+            <dd><div class="say"><q>researcherに、製造現場のAI活用事例をURL付きで調べてもらって</q><button class="copy" type="button">コピー</button></div></dd>
+            <dt>流れ</dt>
+            <dd><ol class="flow sm">
+              <li><span class="node">調べ方の型を選ぶ<small>4本から</small></span></li>
+              <li><span class="node">10件以上集める</span></li>
+              <li><span class="node">絞る</span></li>
+              <li><span class="node out">3行まとめ＋出典一覧</span></li>
+            </ol></dd>
+            <dt>社長がやること</dt>
+            <dd>何を知りたいか、何に使うかを伝える。</dd>
+            <dt>できるもの</dt>
+            <dd><code>members/researcher/projects/〈YYYY-MM-DD_テーマ〉.md</code>。すべての項目に URL と日付が付きます。</dd>
+            <dt>覚えておくこと</dt>
+            <dd>X（旧Twitter）は直接検索できません。Web検索で見つかる範囲だけです。1年以上前の情報には「古い」と印が付きます。</dd>
+          </dl>
+        </article>
+
+        <!-- writer -->
+        <article class="card" id="m-writer">
+          <div class="card-head"><span class="name">writer</span><span class="role">セールス文章</span></div>
+          <dl class="kv">
+            <dt>頼み方の例</dt>
+            <dd><div class="say"><q>writerに、こつこつのApp Store用の紹介文を書いてもらって</q><button class="copy" type="button">コピー</button></div></dd>
+            <dt>流れ</dt>
+            <dd><ol class="flow sm">
+              <li><span class="node">ヒアリング</span></li>
+              <li><span class="node">読み手の整理を見せる</span></li>
+              <li><span class="node">8ステップの骨組み</span></li>
+              <li><span class="node boss">OKを出す</span></li>
+              <li><span class="node out">本文＋点検の結果</span></li>
+            </ol></dd>
+            <dt>社長がやること</dt>
+            <dd>使える証拠（体験・画面・数字）を渡す。骨組みにOKを出す。</dd>
+            <dt>できるもの</dt>
+            <dd><code>members/writer/projects/〈仕事の名前〉/</code></dd>
+            <dt>覚えておくこと</dt>
+            <dd>実績が無い所は「【実績が入ったらここに】」と空けて、社長に聞きます。</dd>
+          </dl>
+        </article>
+
+        <!-- analyst -->
+        <article class="card" id="m-analyst">
+          <div class="card-head"><span class="name">analyst</span><span class="role">数字の分析</span></div>
+          <dl class="kv">
+            <dt>頼み方の例</dt>
+            <dd><div class="say"><q>analystに、作品集から問い合わせが増えない理由を見てもらって</q><button class="copy" type="button">コピー</button></div></dd>
+            <dt>流れ</dt>
+            <dd><ol class="flow sm">
+              <li><span class="node">段を決める<small>見られる→問い合わせ→受注</small></span></li>
+              <li><span class="node boss">数字を渡す</span></li>
+              <li><span class="node">通過率を出す</span></li>
+              <li><span class="node out">詰まり1つ＋改善TOP3</span></li>
+            </ol></dd>
+            <dt>社長がやること</dt>
+            <dd>数字を渡す（インサイトの画面、台帳の記録など）。</dd>
+            <dt>できるもの</dt>
+            <dd><code>members/analyst/projects/〈YYYY-MM-DD_対象〉.md</code>。先頭に結論が来ます。</dd>
+            <dt>覚えておくこと</dt>
+            <dd>数字は作りません。数が少ない時（1つの段が10件未満）は、率の代わりに「次に何件集めるか」を提案します。</dd>
+          </dl>
+        </article>
+
+        <!-- product -->
+        <article class="card" id="m-product">
+          <div class="card-head"><span class="name">product</span><span class="role">教材・特典ページ</span></div>
+          <dl class="kv">
+            <dt>頼み方の例</dt>
+            <dd><div class="say"><q>productに、50代向けGitHub講座の教材ページを作ってもらって</q><button class="copy" type="button">コピー</button></div></dd>
+            <dt>流れ</dt>
+            <dd><ol class="flow sm">
+              <li><span class="node boss">4つの質問に答える</span></li>
+              <li><span class="node">型を選ぶ<small>4型から</small></span></li>
+              <li><span class="node">ひな形をコピー</span></li>
+              <li><span class="node out">STEPを書いて仕上げる</span></li>
+            </ol></dd>
+            <dt>社長がやること</dt>
+            <dd>4つの質問（誰に・何ができるようになるか・前提・形）に答える。</dd>
+            <dt>できるもの</dt>
+            <dd><code>members/product/projects/〈教材名〉/index.html</code>（進み具合のバーと完了ボタン付き）</dd>
+            <dt>覚えておくこと</dt>
+            <dd>読み手に50代以上もいる前提で、本文18px以上・ボタンの高さ48px以上で作ります。このガイドブックも、この決まりで作りました。</dd>
+          </dl>
+        </article>
+
+        <!-- sns -->
+        <article class="card" id="m-sns">
+          <div class="card-head"><span class="name">sns</span><span class="role">Instagram 投稿</span></div>
+          <dl class="kv">
+            <dt>頼み方の例</dt>
+            <dd><div class="say"><q>snsに、こつこつの紹介カルーセルを5枚で作ってもらって</q><button class="copy" type="button">コピー</button></div></dd>
+            <dt>流れ</dt>
+            <dd><ol class="flow sm">
+              <li><span class="node">ヒアリング</span></li>
+              <li><span class="node">テンプレを選ぶ</span></li>
+              <li><span class="node boss">構成にOK</span></li>
+              <li><span class="node">文字数チェック</span></li>
+              <li><span class="node out">Canva 用の CSV</span></li>
+              <li><span class="node boss">Canva で仕上げて投稿</span></li>
+            </ol></dd>
+            <dt>社長がやること</dt>
+            <dd>1枚ごとの見出し・本文の表にOKを出す。Canva で仕上げて、Instagram に投稿する。</dd>
+            <dt>できるもの</dt>
+            <dd>原稿（<code>原稿.md</code>）と Canva の一括作成用 CSV。置き場は <code>members/sns/projects/〈投稿名〉/</code>。ハッシュタグは5〜10個。</dd>
+            <dt>覚えておくこと</dt>
+            <dd><div class="warn"><strong>⚠ Canva の「一括作成」は Pro 以上で使えます。</strong>無料プランでは、CSV の中身を1枚ずつ貼るか、自作のテンプレ工房（ブラウザで動く1枚のHTML）を使います。投稿は社長がします。</div></dd>
+          </dl>
+        </article>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="ch" id="m-7">
+      <h2><span class="no">7</span>何人かで組む仕事</h2>
+      <p>複数の社員にまたがる仕事は、leader が順番と受け渡すものを決めます。たとえば LP は、writer → designer → lp の順に回ります。</p>
+      <figure class="dg">
+        <div class="dg-scroll">
+          <svg class="d" viewBox="0 0 820 222" role="img" aria-label="LP作りの例。leaderが順番を決め、writerが文章を書き、designerが画像を作り、lpが1枚のページにして社長に渡す。">
+            <defs>
+              <marker id="m7a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="bx-acc" x="270" y="16" width="220" height="50" rx="10"/>
+            <text class="t-b" x="380" y="47">leader が順番を決める</text>
+            <path class="ln" d="M380,66 V96"/>
+            <path class="ln" d="M120,96 H640"/>
+            <path class="ln" d="M120,96 V128" marker-end="url(#m7a)"/>
+            <path class="ln" d="M380,96 V128" marker-end="url(#m7a)"/>
+            <path class="ln" d="M640,96 V128" marker-end="url(#m7a)"/>
+
+            <rect class="bx" x="30" y="130" width="180" height="70" rx="10"/>
+            <text class="t-b" x="120" y="160">① writer</text>
+            <text class="t-s" x="120" y="184">文章を書く</text>
+            <rect class="bx-warn" x="290" y="130" width="180" height="70" rx="10"/>
+            <text class="t-b" x="380" y="160">② designer</text>
+            <text class="t-s" x="380" y="184">画像を作る（課金が必要）</text>
+            <rect class="bx" x="550" y="130" width="180" height="70" rx="10"/>
+            <text class="t-b" x="640" y="160">③ lp</text>
+            <text class="t-s" x="640" y="184">1枚のページにする</text>
+
+            <path class="ln" d="M210,165 H288" marker-end="url(#m7a)"/>
+            <text class="t-lab" x="249" y="155">文章</text>
+            <path class="ln" d="M470,165 H548" marker-end="url(#m7a)"/>
+            <text class="t-lab" x="509" y="155">画像</text>
+            <path class="ln" d="M730,165 H798" marker-end="url(#m7a)"/>
+            <text class="t-lab" x="764" y="155">LP</text>
+            <text class="t-s" x="764" y="190">社長へ</text>
+          </svg>
+        </div>
+        <p class="dg-hint">図は横にずらすと全体が見られます。</p>
+        <figcaption>画像の課金を設定しない場合は、designer の代わりに実物の画面や写真を使います（lp の「AI感を消す10原則」でも、実物の画面・写真を優先しています）。</figcaption>
+      </figure>
+    </section>
+
+    <!-- 8 -->
+    <section class="ch" id="m-8">
+      <h2><span class="no">8</span>社長に確認が来る時</h2>
+      <p>次の3つは、社員が勝手に進めません。必ず「中身を見せる → 社長が確認 → 実行」の順になります。</p>
+      <figure class="dg">
+        <div class="dg-scroll">
+          <svg class="d" viewBox="0 0 820 270" role="img" aria-label="公開・送信・投稿、お金がかかる操作、ファイルの削除・上書きの3つは、中身を見せてから社長が確認し、OKなら実行、そうでなければ直すかやめる。">
+            <defs>
+              <marker id="m6a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="m6g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="bx-warn" x="20" y="20" width="220" height="50" rx="8"/><text x="130" y="51">公開・送信・投稿する</text>
+            <rect class="bx-warn" x="20" y="95" width="220" height="50" rx="8"/><text x="130" y="126">お金がかかる操作</text>
+            <rect class="bx-warn" x="20" y="170" width="220" height="50" rx="8"/><text x="130" y="201">ファイルの削除・上書き</text>
+            <path class="ln" d="M240,45 H265 V195 H240"/>
+            <path class="ln" d="M240,120 H265"/>
+            <path class="ln" d="M265,120 H298" marker-end="url(#m6a)"/>
+
+            <rect class="bx" x="300" y="92" width="160" height="56" rx="8"/>
+            <text class="t-b" x="380" y="116">提示する</text>
+            <text class="t-s" x="380" y="138">中身を見せる</text>
+            <path class="ln" d="M460,120 H508" marker-end="url(#m6a)"/>
+
+            <polygon class="bx-boss" points="510,120 580,70 650,120 580,170"/>
+            <text class="t-b t-on" x="580" y="116">社長が</text>
+            <text class="t-b t-on" x="580" y="138">確認する</text>
+
+            <path class="ln-acc" d="M650,120 H698" marker-end="url(#m6g)"/>
+            <text class="t-lab" x="674" y="108">OK</text>
+            <rect class="bx-acc" x="700" y="92" width="100" height="56" rx="8"/>
+            <text class="t-b" x="750" y="126">実行</text>
+
+            <path class="ln" d="M580,170 V232 H380 V150" marker-end="url(#m6a)"/>
+            <text class="t-lab" x="480" y="254">直す・やめる</text>
+          </svg>
+        </div>
+        <p class="dg-hint">図は横にずらすと全体が見られます。</p>
+        <figcaption>OKが出るまで、何も外に出ませんし、お金も動きません。</figcaption>
+      </figure>
+
+      <h3>外に出さないもの</h3>
+      <ul class="list">
+        <li>社長の本名</li>
+        <li>個人のメールアドレス</li>
+        <li>本業（勤務先）の情報</li>
+        <li>APIキー</li>
+      </ul>
+      <h3>キーの扱い</h3>
+      <p>APIキーは <code>.env</code> というファイルにだけ置きます。キーを作って貼るのは社長です。会話やほかのファイルには、キーを書かないでください。</p>
+    </section>
+
+    <!-- 9 -->
+    <section class="ch" id="m-9">
+      <h2><span class="no">9</span>お金がかかること・かからないこと</h2>
+      <p>Claude の Pro プラン・Gemini の無料枠・Canva の無料プランを前提に、追加のお金がかかるかどうかの一覧です（2026年10月時点）。</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>やること</th><th>追加のお金・プラン</th></tr></thead>
+          <tbody>
+            <tr><td>社員との会話・文章・調べもの・LP・教材づくり</td><td><span class="badge ok">✓ なし</span>　Claude の Pro プランの範囲</td></tr>
+            <tr><td>スクリプトを動かす（Python・ffmpeg）</td><td><span class="badge ok">✓ なし</span>　パソコンの中で動く</td></tr>
+            <tr><td>動画の文字起こし（Gemini）</td><td><span class="badge ok">✓ なし</span>　Gemini API の無料枠</td></tr>
+            <tr><td>画像を作る（Gemini）</td><td><span class="badge cond">⚠ 課金が必要</span>　Gemini API の課金設定（1枚 約0.039ドル〜）</td></tr>
+            <tr><td>Canva の「一括作成」</td><td><span class="badge cond">⚠ プランが必要</span>　Canva Pro 以上</td></tr>
+            <tr><td>Canva AI でデザインを作る</td><td><span class="badge ok">✓ なし</span>　無料プランは回数に上限（20回まで）</td></tr>
+            <tr><td>Canva のテンプレに文字を自動で流し込む</td><td><span class="badge cond">⚠ プランが必要</span>　Canva Enterprise</td></tr>
+            <tr><td>Instagram に投稿する</td><td><span class="badge ok">✓ なし</span>　投稿は人が行う</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="ch" id="m-10">
+      <h2><span class="no">10</span>朝の報告・夜の報告</h2>
+      <p>leader が、台帳と各社員のフォルダを見て、5行以内で報告します。</p>
+      <div class="say"><q>朝の報告をして</q><button class="copy" type="button">コピー</button></div>
+      <p>→ 今日やること／各社員の進行中の仕事／社長の判断が要ること</p>
+      <div class="say"><q>夜の報告をして</q><button class="copy" type="button">コピー</button></div>
+      <p>→ 今日できたこと／できなかったこと／明日の一手</p>
+      <div class="say"><q>台帳の続きを、一緒に進めて</q><button class="copy" type="button">コピー</button></div>
+      <p>→ 台帳で進行中の仕事を読んで、続きを一緒に進めます。</p>
+    </section>
+
+    <!-- 11 -->
+    <section class="ch" id="m-11">
+      <h2><span class="no">11</span>困った時は</h2>
+      <dl class="qa">
+        <dt>社員として名乗ってくれない</dt>
+        <dd>「members/〇〇/CLAUDE.md を読んで、〇〇として動いて」と頼んでください。ai-company のフォルダが開いているかも確かめてください（<a href="#m-2">2章</a>）。</dd>
+        <dt>「画像は作れません」と言われた</dt>
+        <dd>Gemini API の画像の課金が設定されていないためです。課金を設定したら「キーが使えるか確かめて」と頼み、1枚だけ試します。</dd>
+        <dt>字幕の出るタイミングがずれる</dt>
+        <dd>Gemini の文字起こしは少しずれることがあります。video に伝えると、パソコンの中で動く無料の道具（faster-whisper、約500MB）を入れるか相談が来ます。勝手には入れません。</dd>
+        <dt>Instagram の原稿が「文字数オーバー」で止まった</dt>
+        <dd>そういう決まりです。テンプレの欄からはみ出す文字があると、CSV を作らずに止まります。原稿を短くして、もう一度。</dd>
+        <dt>本の文字が取れない</dt>
+        <dd>スキャンした画像だけの PDF は、文字を取り出せません。本の一覧（<code>library/INDEX.md</code>）に「文字なし」と出ます。</dd>
+        <dt>「混み合っています」と出た</dt>
+        <dd>Gemini が混んでいる時です。スクリプトは少し待って自動でやり直します。それでも駄目なら、時間をおいてもう一度。</dd>
+        <dt>できたものがどこにあるか分からない</dt>
+        <dd>成果物は <code>members/〈社員〉/projects/</code> の中です。「〇〇の成果物の場所を教えて」と聞いても大丈夫です。</dd>
+        <dt>Instagram に投稿までしてほしい</dt>
+        <dd>投稿は社長がする決まりです。Instagram にはつないでいません。</dd>
+      </dl>
+    </section>
+  </main>
+
+  <!-- ===================================================== 仕様書 -->
+  <main class="panel" id="spec" role="tabpanel" aria-labelledby="tab-spec" hidden>
+    <h2 class="part-title">仕様書</h2>
+    <p class="part-lead">会社の仕組み・決まり・道具の中身です。直したい時や、ほかの人に説明する時に使います。</p>
+
+    <nav class="toc" aria-label="仕様書の目次">
+      <ol>
+        <li><a href="#s-1">目的と範囲</a></li>
+        <li><a href="#s-2">全体の構成</a></li>
+        <li><a href="#s-3">ルールの重なり</a></li>
+        <li><a href="#s-4">フォルダの構成</a></li>
+        <li><a href="#s-5">社員10人の仕様</a></li>
+        <li><a href="#s-6">道具（スクリプト4本）</a></li>
+        <li><a href="#s-7">設定とキー</a></li>
+        <li><a href="#s-8">外のサービスとのつながり</a></li>
+        <li><a href="#s-9">共通ルール</a></li>
+        <li><a href="#s-10">前提と制約</a></li>
+      </ol>
+    </nav>
+
+    <!-- S1 -->
+    <section class="ch" id="s-1">
+      <h2><span class="no">1</span>目的と範囲</h2>
+      <div class="tbl">
+        <table>
+          <tbody>
+            <tr><th>目的</th><td>社長の副業（AIで作ったツール・教材を届けて収益にする）のために、制作・リサーチ・執筆・動画・SNS を回す。</td></tr>
+            <tr><th>使う人</th><td>社長（作者）1人。非エンジニアでも、アプリに日本語で頼むだけで使える作りにした。</td></tr>
+            <tr><th>事業の前提</th><td>製造現場×AI（例：装置トラブル対応エージェント）／初めての人向けの教材（例：50代向けの GitHub 実務講座）／スマホアプリ（例：習慣トラッカー「こつこつ」）／Instagram 運用</td></tr>
+            <tr><th>扱わないこと</th><td>案件の受注（クラウドワークスなどへの応募・納品）。別の仕組み「<a href="https://updating30.github.io/ai-shacho-demo/">AI社長</a>」の担当。</td></tr>
+            <tr><th>仕事の状態</th><td>会社のフォルダの <code>台帳.md</code> に1か所でまとめる（頼んだ仕事・進み具合・決めたこと）。会社で使っているタスク管理の道具があれば、そちらに置く形にもできる。</td></tr>
+            <tr><th>公開の方針</th><td>外に出すのは「見せる用」（モック・サンプル・資料）だけ。コード本体は公開しない。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- S2 -->
+    <section class="ch" id="s-2">
+      <h2><span class="no">2</span>全体の構成</h2>
+      <p>このパソコンの中にあるもの（アプリ・会社のフォルダ・道具）と、インターネットの先にあるサービスに分かれます。</p>
+      <figure class="dg">
+        <div class="dg-scroll">
+          <svg class="d" viewBox="0 0 840 470" role="img" aria-label="全体の構成。パソコンの中にClaude Codeアプリ、ai-companyフォルダ、Pythonとffmpegがある。アプリはインターネットの先のClaude、Web検索、Canvaとつながる。仕事の状態はフォルダの中の台帳に残す。スクリプトはキーを使ってGemini APIを呼ぶ。xAI、Slack、Figmaはつないでいない。">
+            <defs>
+              <marker id="s1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="bx-boss" x="16" y="60" width="104" height="60" rx="10"/>
+            <text class="t-b t-on" x="68" y="96">社長</text>
+            <path class="ln" d="M122,90 H163" marker-start="url(#s1a)" marker-end="url(#s1a)"/>
+
+            <rect class="zone" x="140" y="16" width="340" height="440" rx="14"/>
+            <text class="t-zone l" x="156" y="42">このパソコンの中</text>
+
+            <rect class="bx-acc" x="165" y="56" width="290" height="68" rx="10"/>
+            <text class="t-b" x="310" y="84">Claude Code アプリ</text>
+            <text class="t-s" x="310" y="108">社長と話す窓口。ファイルを読み書きする</text>
+
+            <path class="ln" d="M310,126 V168" marker-start="url(#s1a)" marker-end="url(#s1a)"/>
+            <text class="t-lab l" x="322" y="152">読む・書く</text>
+
+            <rect class="bx" x="165" y="170" width="290" height="162" rx="10"/>
+            <text class="t-b" x="310" y="196">ai-company フォルダ</text>
+            <text class="l" x="181" y="222" font-size="14"><tspan class="t-mono" font-weight="700">CLAUDE.md</tspan>　会社のルール</text>
+            <text class="l" x="181" y="247" font-size="14"><tspan class="t-mono" font-weight="700">members/</tspan>　社員10人の役割と成果物</text>
+            <text class="l" x="181" y="272" font-size="14"><tspan class="t-mono" font-weight="700">台帳.md</tspan>　仕事の状態</text>
+            <text class="l" x="181" y="297" font-size="14"><tspan class="t-mono" font-weight="700">config.yaml</tspan>　設定</text>
+            <text class="l" x="181" y="322" font-size="14"><tspan class="t-mono" font-weight="700">.env</tspan>　キー（社長だけが書く）</text>
+
+            <path class="ln" d="M310,332 V374" marker-end="url(#s1a)"/>
+            <text class="t-lab l" x="322" y="357">スクリプトを動かす</text>
+
+            <rect class="bx" x="165" y="376" width="290" height="66" rx="10"/>
+            <text class="t-b" x="310" y="404">Python 3.14・ffmpeg</text>
+            <text class="t-s" x="310" y="427">パソコンに入っている道具</text>
+
+            <rect class="zone" x="500" y="16" width="324" height="440" rx="14"/>
+            <text class="t-zone l" x="516" y="42">インターネットの先</text>
+
+            <path class="ln" d="M455,90 H510"/>
+            <path class="ln" d="M510,78 V190"/>
+            <path class="ln" d="M510,78 H538" marker-end="url(#s1a)"/>
+            <path class="ln" d="M510,134 H538" marker-end="url(#s1a)"/>
+            <path class="ln" d="M510,190 H538" marker-end="url(#s1a)"/>
+
+            <rect class="bx" x="540" y="56" width="268" height="44" rx="8"/>
+            <text x="674" y="84"><tspan font-weight="700">Claude</tspan>（考えるAI・Pro プラン）</text>
+            <rect class="bx" x="540" y="112" width="268" height="44" rx="8"/>
+            <text x="674" y="140"><tspan font-weight="700">Web検索</tspan>（researcher が使う）</text>
+            <rect class="bx" x="540" y="168" width="268" height="44" rx="8"/>
+            <text x="674" y="196"><tspan font-weight="700">Canva</tspan>（SNS の仕上げ）</text>
+
+            <path class="ln" d="M455,409 H522 V322 H538" marker-end="url(#s1a)"/>
+            <rect class="bx-ext" x="540" y="290" width="268" height="64" rx="8"/>
+            <text class="t-b" x="674" y="316">Gemini API</text>
+            <text class="t-s" x="674" y="340">文字起こし＝無料枠／画像＝有料</text>
+            <text class="t-lab l" x="530" y="378">キー（.env）で呼ぶ</text>
+
+            <rect class="bx-off" x="540" y="392" width="268" height="48" rx="8"/>
+            <text class="t-s" x="674" y="421">つないでいない：xAI・Slack・Figma</text>
+          </svg>
+        </div>
+        <p class="dg-hint">図は横にずらすと全体が見られます。</p>
+        <figcaption>アプリが窓口になり、フォルダのルールに従って動きます。Gemini を呼ぶのはスクリプトだけで、キーは <code>.env</code> から読みます。</figcaption>
+      </figure>
+
+      <div class="tbl">
+        <table>
+          <thead><tr><th>部品</th><th>役目</th><th>どこにあるか</th></tr></thead>
+          <tbody>
+            <tr><td>Claude Code アプリ</td><td>社長の頼みを受け、役割ファイルを読んで社員として動く。ファイルの読み書き・スクリプトの実行もする。</td><td>このパソコン（デスクトップアプリ）</td></tr>
+            <tr><td>会社のフォルダ</td><td>ルール・社員の役割・成果物・設定の置き場。</td><td>作業場の中の <code>ai-company/</code></td></tr>
+            <tr><td>道具</td><td>スクリプト4本を動かす（字幕の焼き込みには ffmpeg）。</td><td>Python 3.14・ffmpeg（このパソコン）</td></tr>
+            <tr><td>台帳（<code>台帳.md</code>）</td><td>頼んだ仕事・進み具合・決めたことを1か所にまとめる。leader の報告のもとになる。</td><td>会社のフォルダの中</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- S3 -->
+    <section class="ch" id="s-3">
+      <h2><span class="no">3</span>ルールの重なり</h2>
+      <p>ルールは3段の入れ子です（作業場＝作者が AI と働くための作業フォルダ全体）。外側ほど優先され、食い違ったら外側に従います。</p>
+      <figure class="dg">
+        <div class="dg-scroll">
+          <svg class="d" viewBox="0 0 820 300" role="img" aria-label="ルールは3段の入れ子。いちばん外が作業場の憲法、その中に会社のルール、いちばん内に社員10人の役割。食い違ったら外側に従う。">
+            <rect class="zone-fill" x="10" y="10" width="800" height="280" rx="14"/>
+            <text class="t-b l" x="30" y="40">① 作業場の憲法</text>
+            <text class="t-s l" x="30" y="63">作業場/CLAUDE.md … 置き場所の決まり・仕事の状態は台帳に・削除や上書きは確認してから</text>
+            <text class="t-lab r" x="790" y="40">食い違ったら、外側のルールに従う</text>
+
+            <rect class="bx" x="34" y="78" width="752" height="196" rx="12"/>
+            <text class="t-b l" x="54" y="106">② 会社のルール</text>
+            <text class="t-s l" x="54" y="130">ai-company/CLAUDE.md … 社長の事業・社員の一覧・頼み方・全員の共通ルール</text>
+
+            <rect class="bx-acc" x="58" y="144" width="704" height="116" rx="10"/>
+            <text class="t-b l" x="78" y="170">③ 社員の役割</text>
+            <text class="t-s l" x="204" y="170">members/〈社員〉/CLAUDE.md … 手順・決まり・話し方</text>
+            <rect class="bx" x="72" y="182" width="128" height="30" rx="6"/><text class="t-mono" x="136" y="202">leader</text>
+            <rect class="bx" x="209" y="182" width="128" height="30" rx="6"/><text class="t-mono" x="273" y="202">brunson</text>
+            <rect class="bx" x="346" y="182" width="128" height="30" rx="6"/><text class="t-mono" x="410" y="202">designer</text>
+            <rect class="bx" x="483" y="182" width="128" height="30" rx="6"/><text class="t-mono" x="547" y="202">lp</text>
+            <rect class="bx" x="620" y="182" width="128" height="30" rx="6"/><text class="t-mono" x="684" y="202">video</text>
+            <rect class="bx" x="72" y="220" width="128" height="30" rx="6"/><text class="t-mono" x="136" y="240">researcher</text>
+            <rect class="bx" x="209" y="220" width="128" height="30" rx="6"/><text class="t-mono" x="273" y="240">writer</text>
+            <rect class="bx" x="346" y="220" width="128" height="30" rx="6"/><text class="t-mono" x="410" y="240">analyst</text>
+            <rect class="bx" x="483" y="220" width="128" height="30" rx="6"/><text class="t-mono" x="547" y="240">product</text>
+            <rect class="bx" x="620" y="220" width="128" height="30" rx="6"/><text class="t-mono" x="684" y="240">sns</text>
+          </svg>
+        </div>
+        <p class="dg-hint">図は横にずらすと全体が見られます。</p>
+        <figcaption>会社のフォルダを開くと①と②が最初から読まれ、「〇〇に頼んで」で③が追加で読まれます。社員のフォルダを開いた時は、①〜③が最初から読まれます。</figcaption>
+      </figure>
+    </section>
+
+    <!-- S4 -->
+    <section class="ch" id="s-4">
+      <h2><span class="no">4</span>フォルダの構成</h2>
+      <p>どの社員のフォルダにも、<code>CLAUDE.md</code>（役割）・<code>inbox/</code>（依頼メモ）・<code>projects/</code>（成果物）の3つがあります。下の木では、それ以外に持っているものだけを書いています。</p>
+      <ul class="tree" aria-label="ai-company フォルダの中身">
+        <li><span class="f">ai-company/</span>
+          <ul>
+            <li><span class="f">CLAUDE.md</span><span class="desc">会社のルール（社長の事業・10人の一覧・頼み方・共通ルール）</span></li>
+            <li><span class="f">README.md</span><span class="desc">フォルダの地図と動かし方</span></li>
+            <li><span class="f">台帳.md</span><span class="desc">仕事の状態（頼んだ仕事・進み具合・決めたこと）を1か所にまとめる</span></li>
+            <li><span class="f">config.yaml</span><span class="desc">設定（画像のモデル・文字起こしのやり方など。キーは入れない）</span></li>
+            <li><span class="f">.env</span><span class="desc">APIキー（社長が貼る。使うのは GEMINI_API_KEY だけ）</span></li>
+            <li><span class="f">.gitignore</span><span class="desc">外に出さないものの一覧</span></li>
+            <li><span class="f">.claude/</span><span class="desc">Claude Code の許可の設定</span></li>
+            <li><span class="f">members/</span>
+              <ul>
+                <li><span class="f">leader/</span><span class="desc">統括（追加のものは無し）</span></li>
+                <li><span class="f">brunson/</span><span class="desc">books/（本のPDF）・library/（テキスト化した本と INDEX.md）・tools/pdf_to_md.py</span></li>
+                <li><span class="f">designer/</span><span class="desc">scripts/compare_images.py</span></li>
+                <li><span class="f">lp/</span><span class="desc">PASONA と10原則は CLAUDE.md の中</span></li>
+                <li><span class="f">video/</span><span class="desc">scripts/burn_subtitles.py</span></li>
+                <li><span class="f">researcher/</span><span class="desc">recipes/（調べ方の型4本）</span></li>
+                <li><span class="f">writer/</span><span class="desc">reference/（セールス辞書6本）</span></li>
+                <li><span class="f">analyst/</span><span class="desc">（追加のものは無し）</span></li>
+                <li><span class="f">product/</span><span class="desc">guides/（構成の4型・デザイン参考）・templates/base.html</span></li>
+                <li><span class="f">sns/</span><span class="desc">scripts/canva_bulk_csv.py・templates/carousel_basic.yaml</span></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>社員のフォルダの使われ方</h3>
+      <ol class="flow">
+        <li><span class="node">依頼のメモ</span></li>
+        <li><span class="node"><code>inbox/</code> に置く</span></li>
+        <li><span class="node">作業する</span></li>
+        <li><span class="node out">成果物<small>projects/〈仕事の名前〉/</small></span></li>
+        <li><span class="node">終わったら inbox を空にする</span></li>
+      </ol>
+    </section>
+
+    <!-- S5 -->
+    <section class="ch" id="s-5">
+      <h2><span class="no">5</span>社員10人の仕様</h2>
+      <p>置き場はすべて <code>members/〈社員〉/</code> から見た場所です。使い方の例は <a href="#m-6">マニュアル6章</a> にあります。</p>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>社員</th><th>担当</th><th>受け取るもの</th><th>出すもの・置き場</th><th>使う知識・道具</th><th>社長の確認</th></tr></thead>
+          <tbody>
+            <tr><td class="nowrap"><strong>leader</strong></td><td>統括・戦略・報告（自分では作業しない）</td><td>社長の依頼、台帳、各社員の inbox・projects</td><td>振り分け、朝・夜の報告（5行以内）、今週やる3つ</td><td>会社のルールの社員一覧</td><td>振り分けを一言伝える</td></tr>
+            <tr><td class="nowrap"><strong>brunson</strong></td><td>マーケの壁打ち（くだけた丁寧語）</td><td>相談、手持ちの本の PDF</td><td>根拠つきの答え（書名 p.ページ）、3行のまとめ</td><td>library/、tools/pdf_to_md.py</td><td>―</td></tr>
+            <tr><td class="nowrap"><strong>designer</strong></td><td>画像</td><td>用途・比率・入れる文字・雰囲気・参考画像</td><td>画像・compare.html・prompt.txt（projects/〈日時_お題〉/）</td><td>scripts/compare_images.py、Gemini</td><td>プロンプト、課金、1回6枚を超える時</td></tr>
+            <tr><td class="nowrap"><strong>lp</strong></td><td>LP（HTML＋Tailwind）</td><td>誰に・何を・してほしい行動・証拠</td><td>index.html（projects/〈LP名〉/）</td><td>PASONA、AI感を消す10原則、writer の辞書</td><td>構成、公開</td></tr>
+            <tr><td class="nowrap"><strong>video</strong></td><td>字幕の焼き込み</td><td>動画（inbox/）</td><td>字幕付き mp4・.srt・.ass（projects/〈動画名〉/）</td><td>scripts/burn_subtitles.py、ffmpeg、Gemini</td><td>字幕の文字、外に出す前</td></tr>
+            <tr><td class="nowrap"><strong>researcher</strong></td><td>出典つきのリサーチ</td><td>テーマ</td><td>〈YYYY-MM-DD_テーマ〉.md（3行まとめ＋出典一覧）</td><td>recipes/ の型4本、Web検索</td><td>―</td></tr>
+            <tr><td class="nowrap"><strong>writer</strong></td><td>セールス文章</td><td>誰に・何を・してほしいこと・証拠</td><td>文章＋点検の結果（projects/〈仕事の名前〉/）</td><td>reference/ の辞書6本</td><td>読み手の整理、骨組み</td></tr>
+            <tr><td class="nowrap"><strong>analyst</strong></td><td>ファネルの分析</td><td>各段の数字（社長・台帳の記録・インサイトの画面）</td><td>〈YYYY-MM-DD_対象〉.md（結論が先頭）</td><td>通過率の比べ方</td><td>数字の出典</td></tr>
+            <tr><td class="nowrap"><strong>product</strong></td><td>特典ページ・教材</td><td>ヒアリング4項目</td><td>index.html（projects/〈教材名〉/）</td><td>guides/ の4型とデザイン参考、templates/base.html</td><td>公開</td></tr>
+            <tr><td class="nowrap"><strong>sns</strong></td><td>Instagram 投稿</td><td>伝えること・誰に・種類・写真</td><td>原稿.md・〈原稿名〉_canva.csv（projects/〈投稿名〉/）</td><td>templates/ の定義、scripts/canva_bulk_csv.py</td><td>構成、写真（家族・職場が分かるもの）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>手持ちの知識（型と辞書）</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>社員</th><th>中身</th></tr></thead>
+          <tbody>
+            <tr><td class="nowrap">writer</td><td>reference/：01_基礎（セールス8ステップ）・02_オーディエンス・03_ストーリー（神話の法則）・04_ネーミング・05_チェックリスト・06_実例レター</td></tr>
+            <tr><td class="nowrap">researcher</td><td>recipes/：01_AI全般・02_ClaudeCode関連・03_URL付き重視・04_深掘り</td></tr>
+            <tr><td class="nowrap">product</td><td>guides/：01_学習教材型・02_章立て型・03_カタログ型・04_公開フロー型・デザイン参考／templates/base.html（STEPカード・進み具合のバー・完了ボタン）</td></tr>
+            <tr><td class="nowrap">sns</td><td>templates/carousel_basic.yaml（4:5 のカルーセル。見出し18字・本文80字・ページ5字まで、10枚まで）</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- S6 -->
+    <section class="ch" id="s-6">
+      <h2><span class="no">6</span>道具（スクリプト4本）</h2>
+      <p>社長がコマンドを覚える必要はありません。社員に頼めば、社員が動かします。どれも ai-company のフォルダで <code>python members/〈社員〉/…/〈名前〉.py</code> の形で動きます。</p>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>道具</th><th>使う社員</th><th>入れるもの</th><th>出てくるもの</th><th>外のサービス</th><th>主な指定</th></tr></thead>
+          <tbody>
+            <tr><td><code>burn_subtitles.py</code></td><td>video</td><td>動画</td><td>〈動画名〉_字幕.mp4・.srt・.ass</td><td>Gemini（文字起こし・無料枠）</td><td><code>--srt-only</code>（字幕の文字だけ作って止まる）<br><code>--srt 直した.srt</code>（直した字幕で焼き直す）</td></tr>
+            <tr><td><code>canva_bulk_csv.py</code></td><td>sns</td><td>原稿.md</td><td>〈原稿名〉_canva.csv</td><td>なし（パソコンの中だけ）</td><td><code>--template carousel_basic</code><br><code>--check</code>（数えるだけ）</td></tr>
+            <tr><td><code>compare_images.py</code></td><td>designer</td><td>プロンプト</td><td>画像・compare.html・prompt.txt</td><td>Gemini（画像・課金が要る）</td><td><code>--aspect 16:9</code>・<code>--models</code><br><code>--list-models</code>・<code>--check-key</code></td></tr>
+            <tr><td><code>pdf_to_md.py</code></td><td>brunson</td><td>books/ の PDF</td><td>library/〈書名〉.md・INDEX.md</td><td>なし（パソコンの中だけ）</td><td><code>--force</code>（全部作り直す）<br><code>本.pdf</code>（1冊だけ）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="s-6-1">字幕の焼き込み（burn_subtitles.py）　<span class="badge ok">✓ 追加のお金なし</span></h3>
+      <figure class="dg">
+        <div class="dg-scroll">
+          <svg class="d" viewBox="0 0 860 340" role="img" aria-label="字幕の焼き込みの流れ。動画の形を調べ、音声を取り出し、Geminiで文字起こしし、2行に整えて.srtにする。見た目を決めて.assにし、ffmpegで焼き込む。社長が.srtを直したら、--srtで焼き直す。">
+            <defs>
+              <marker id="s6a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="s6g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="bx" x="20" y="30" width="140" height="64" rx="8"/><text class="t-b" x="90" y="58">動画</text><text class="t-s" x="90" y="81">inbox に置く</text>
+            <path class="ln" d="M160,62 H188" marker-end="url(#s6a)"/>
+            <rect class="bx" x="190" y="30" width="140" height="64" rx="8"/><text class="t-b" x="260" y="58">形を調べる</text><text class="t-s" x="260" y="81">縦・横・正方形</text>
+            <path class="ln" d="M330,62 H358" marker-end="url(#s6a)"/>
+            <rect class="bx" x="360" y="30" width="140" height="64" rx="8"/><text class="t-b" x="430" y="58">音声を取り出す</text><text class="t-s" x="430" y="81">ffmpeg</text>
+            <path class="ln" d="M500,62 H528" marker-end="url(#s6a)"/>
+            <rect class="bx-ext" x="530" y="30" width="140" height="64" rx="8"/><text class="t-b" x="600" y="58">文字起こし</text><text class="t-s" x="600" y="81">Gemini（無料枠）</text>
+            <path class="ln" d="M670,62 H698" marker-end="url(#s6a)"/>
+            <rect class="bx" x="700" y="30" width="140" height="64" rx="8"/><text class="t-b" x="770" y="58">2行に整える</text><text class="t-s" x="770" y="81">言葉の切れ目で改行</text>
+
+            <path class="ln" d="M770,94 V132 H90 V168" marker-end="url(#s6a)"/>
+
+            <rect class="bx-acc" x="20" y="170" width="140" height="64" rx="8"/><text class="t-b" x="90" y="198">.srt</text><text class="t-s" x="90" y="221">字幕の文字</text>
+            <path class="ln" d="M160,202 H258" marker-end="url(#s6a)"/>
+            <rect class="bx" x="260" y="170" width="140" height="64" rx="8"/><text class="t-b" x="330" y="198">見た目を決める</text><text class="t-s" x="330" y="221">.ass・大きさと位置</text>
+            <path class="ln" d="M400,202 H448" marker-end="url(#s6a)"/>
+            <rect class="bx" x="450" y="170" width="140" height="64" rx="8"/><text class="t-b" x="520" y="198">焼き込む</text><text class="t-s" x="520" y="221">ffmpeg</text>
+            <path class="ln" d="M590,202 H638" marker-end="url(#s6a)"/>
+            <rect class="bx-acc" x="640" y="170" width="200" height="64" rx="8"/><text class="t-b" x="740" y="198">〈動画名〉_字幕.mp4</text><text class="t-s" x="740" y="221">srt・ass と一緒に保存</text>
+
+            <path class="ln" d="M90,234 V297 H118" marker-end="url(#s6a)"/>
+            <rect class="bx-boss" x="120" y="272" width="170" height="50" rx="8"/><text class="t-b t-on" x="205" y="303">社長が直す</text>
+            <path class="ln-acc" d="M290,297 H330 V236" marker-end="url(#s6g)"/>
+            <text class="t-lab l" x="342" y="272">--srt で焼き直す</text>
+          </svg>
+        </div>
+        <p class="dg-hint">図は横にずらすと全体が見られます。</p>
+        <figcaption>縦の動画は1行14字前後で画面の下から2割あたり、横の動画は1行24字前後で下寄りに字幕を置きます。元の動画は上書きしません。Gemini が混んでいる時（503）は、10秒・30秒・60秒と待ってやり直します。</figcaption>
+      </figure>
+
+      <h3 id="s-6-2">Instagram の原稿を CSV に（canva_bulk_csv.py）　<span class="badge ok">✓ 追加のお金なし</span></h3>
+      <figure class="dg">
+        <div class="dg-scroll">
+          <svg class="d" viewBox="0 0 860 300" role="img" aria-label="原稿とテンプレの定義を読み、欄ごとに文字数を数える。上限を超えた欄があればCSVを作らずに止まり、原稿を短くしてやり直す。超えていなければCSVを作り、Canvaの一括作成に読み込む。">
+            <defs>
+              <marker id="s7a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="s7g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="bx" x="20" y="30" width="180" height="56" rx="8"/><text class="t-b" x="110" y="54">テンプレの定義</text><text class="t-s" x="110" y="76">templates/〈名前〉.yaml</text>
+            <rect class="bx-acc" x="20" y="120" width="180" height="56" rx="8"/><text class="t-b" x="110" y="144">原稿.md</text><text class="t-s" x="110" y="166">--- で1枚ずつ区切る</text>
+            <path class="ln" d="M200,58 H235 V95 H268" marker-end="url(#s7a)"/>
+            <path class="ln" d="M200,148 H235 V111 H268" marker-end="url(#s7a)"/>
+
+            <rect class="bx" x="270" y="75" width="170" height="56" rx="8"/><text class="t-b" x="355" y="99">欄ごとに数える</text><text class="t-s" x="355" y="121">改行は数えない</text>
+            <path class="ln" d="M440,103 H476" marker-end="url(#s7a)"/>
+
+            <polygon class="bx" points="478,103 550,57 622,103 550,149"/>
+            <text class="t-b" x="550" y="99">上限を</text>
+            <text class="t-b" x="550" y="121">超えた？</text>
+
+            <path class="ln-acc" d="M622,103 H668" marker-end="url(#s7g)"/>
+            <text class="t-lab" x="645" y="92">いいえ</text>
+            <rect class="bx-acc" x="670" y="75" width="170" height="56" rx="8"/><text class="t-b" x="755" y="99">〈原稿名〉_canva.csv</text><text class="t-s" x="755" y="121">原稿と同じフォルダ</text>
+            <path class="ln-acc" d="M755,131 V188" marker-end="url(#s7g)"/>
+            <rect class="bx-ext" x="670" y="190" width="170" height="56" rx="8"/><text class="t-b" x="755" y="214">Canva 一括作成</text><text class="t-s" x="755" y="236">Pro 以上・社長が操作</text>
+
+            <path class="ln" d="M550,149 V188" marker-end="url(#s7a)"/>
+            <text class="t-lab l" x="560" y="174">はい</text>
+            <rect class="bx-warn" x="460" y="190" width="180" height="56" rx="8"/><text class="t-b" x="550" y="214">CSV を作らない</text><text class="t-s" x="550" y="236">そこで止まる</text>
+
+            <path class="ln" d="M460,218 H330 V242 H202" marker-end="url(#s7a)"/>
+            <rect class="bx" x="20" y="214" width="180" height="56" rx="8"/><text class="t-b" x="110" y="238">原稿を短くする</text><text class="t-s" x="110" y="260">直るまで先に進まない</text>
+            <path class="ln" d="M110,214 V178" marker-end="url(#s7a)"/>
+            <text class="t-lab l" x="120" y="202">もう一度</text>
+          </svg>
+        </div>
+        <p class="dg-hint">図は横にずらすと全体が見られます。</p>
+        <figcaption>テンプレに「ページ」の欄があれば、<code>1/5</code> のような番号を自動で入れます。CSV の文字コードは UTF-8（Canva に合わせる）。Canva の一括作成は Pro 以上なので、無料プランでは CSV の中身を1枚ずつ貼ります。</figcaption>
+      </figure>
+
+      <h3 id="s-6-3">画像を並べて作る（compare_images.py）　<span class="badge cond">⚠ 課金が必要</span></h3>
+      <figure class="dg">
+        <div class="dg-scroll">
+          <svg class="d" viewBox="0 0 860 250" role="img" aria-label="同じプロンプトを3つの画像モデルに同時に送り、できた画像をcompare.htmlに並べ、社長が選ぶ。">
+            <defs>
+              <marker id="s8a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="bx-acc" x="20" y="95" width="160" height="60" rx="8"/><text class="t-b" x="100" y="121">プロンプト</text><text class="t-s" x="100" y="143">英語・社長のOK後</text>
+            <path class="ln" d="M180,125 H230"/>
+            <path class="ln" d="M230,45 V205"/>
+            <path class="ln" d="M230,45 H278" marker-end="url(#s8a)"/>
+            <path class="ln" d="M230,125 H278" marker-end="url(#s8a)"/>
+            <path class="ln" d="M230,205 H278" marker-end="url(#s8a)"/>
+            <rect class="bx-ext" x="280" y="20" width="250" height="50" rx="8"/><text class="t-mono" x="405" y="50">gemini-3.1-flash-lite-image</text>
+            <rect class="bx-ext" x="280" y="100" width="250" height="50" rx="8"/><text class="t-mono" x="405" y="130">gemini-3.1-flash-image</text>
+            <rect class="bx-ext" x="280" y="180" width="250" height="50" rx="8"/><text class="t-mono" x="405" y="210">gemini-2.5-flash-image</text>
+            <path class="ln" d="M530,45 H580 V205 H530"/>
+            <path class="ln" d="M530,125 H580"/>
+            <path class="ln" d="M580,125 H618" marker-end="url(#s8a)"/>
+            <rect class="bx-acc" x="620" y="95" width="110" height="60" rx="8"/><text class="t-mono" x="675" y="121" font-weight="700">compare.html</text><text class="t-s" x="675" y="143">並べて表示</text>
+            <path class="ln" d="M730,125 H748" marker-end="url(#s8a)"/>
+            <rect class="bx-boss" x="750" y="95" width="96" height="60" rx="8"/><text class="t-b t-on" x="798" y="121">社長が</text><text class="t-b t-on" x="798" y="143">選ぶ</text>
+          </svg>
+        </div>
+        <p class="dg-hint">図は横にずらすと全体が見られます。</p>
+        <figcaption>3つのモデルは <code>config.yaml</code> の designer.models で決まります。直しは選ばれたモデルだけで回します（<code>--models</code>）。Gemini の画像には無料枠が無いため、課金の設定が必要です（2026年10月時点）。</figcaption>
+      </figure>
+
+      <h3 id="s-6-4">本をテキストにする（pdf_to_md.py）　<span class="badge ok">✓ 追加のお金なし</span></h3>
+      <ol class="flow">
+        <li><span class="node boss">PDF を books/ に入れる</span></li>
+        <li><span class="node">文字を取り出す<small>ページごと</small></span></li>
+        <li><span class="node">見た目が同じ別の文字を直す<small>検索で引けるように</small></span></li>
+        <li><span class="node out">library/〈書名〉.md<small>「## p.12」の見出し付き</small></span></li>
+        <li><span class="node out">library/INDEX.md<small>ページ数・文字数・文字なしのページ数</small></span></li>
+      </ol>
+      <p>新しく入れた本だけを変換します。本はパソコンの中で使うだけで、外には出しません。</p>
+    </section>
+
+    <!-- S7 -->
+    <section class="ch" id="s-7">
+      <h2><span class="no">7</span>設定とキー</h2>
+      <h3>config.yaml（設定）</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>項目</th><th>今の値</th><th>意味</th></tr></thead>
+          <tbody>
+            <tr><td><code>designer.models</code></td><td>gemini-3.1-flash-lite-image／gemini-3.1-flash-image／gemini-2.5-flash-image</td><td>並べて比べる画像モデル</td></tr>
+            <tr><td><code>designer.default_aspect</code></td><td>1:1</td><td>画像の比率の初期値</td></tr>
+            <tr><td><code>designer.max_images_per_run</code></td><td>6</td><td>1回に作ってよい枚数。超える時は社長に確認</td></tr>
+            <tr><td><code>video.engine</code></td><td>gemini</td><td>文字起こしのやり方（gemini／whisper／auto）</td></tr>
+            <tr><td><code>video.gemini_model</code></td><td>gemini-flash-latest</td><td>いつも最新の Flash を指す名前</td></tr>
+            <tr><td><code>video.whisper_model</code></td><td>small</td><td>faster-whisper に切り替えた時に使う大きさ</td></tr>
+            <tr><td><code>video.font</code></td><td>Meiryo</td><td>字幕の書体</td></tr>
+            <tr><td><code>sns.csv_encoding</code></td><td>utf-8</td><td>CSV の文字コード（Canva は UTF-8）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>.env（キー）</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>名前</th><th>値</th><th>決まり</th></tr></thead>
+          <tbody>
+            <tr><td><code>GEMINI_API_KEY</code></td><td>（ここには書かない）</td><td>Gemini を呼ぶキー。作成と貼り付けは社長がする。会話・コード・成果物に書かない。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>.gitignore（外に出さないもの）</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>対象</th><th>理由</th></tr></thead>
+          <tbody>
+            <tr><td><code>.env</code>・<code>.env.*</code></td><td>キーを絶対に外に出さない</td></tr>
+            <tr><td><code>members/*/inbox/*</code>・<code>members/*/projects/*</code></td><td>作業中のファイルと成果物</td></tr>
+            <tr><td><code>members/brunson/books/*</code>・<code>library/*</code></td><td>社長の手持ちの本（再配布しない）</td></tr>
+            <tr><td><code>__pycache__/</code>・<code>.venv/</code></td><td>Python の作業用ファイル</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- S8 -->
+    <section class="ch" id="s-8">
+      <h2><span class="no">8</span>外のサービスとのつながり</h2>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>サービス</th><th>つながり</th><th>何に使う</th><th>何が送られる</th><th>お金</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Claude</strong></td><td><span class="badge ok">✓ つないでいる</span></td><td>会話・考える・作業すべて</td><td>会話と、作業で読んだファイルの中身</td><td>Pro プランの範囲</td></tr>
+            <tr><td><strong>Gemini API</strong></td><td><span class="badge ok">✓ つないでいる</span>（.env のキー）</td><td>動画の文字起こし／画像</td><td>動画の音声／画像のプロンプト</td><td>文字起こし：無料枠<br>画像：課金が必要（1枚 約0.039ドル〜）</td></tr>
+            <tr><td><strong>Web検索</strong></td><td><span class="badge ok">✓ Claude Code の機能</span></td><td>researcher の調べもの</td><td>検索の言葉</td><td>Pro プランの範囲</td></tr>
+            <tr><td><strong>Canva</strong></td><td><span class="badge na">― 人が操作</span></td><td>sns の仕上げ（CSV を一括作成に読み込む）</td><td>―（社長が CSV を Canva に読み込む）</td><td>一括作成は Canva Pro 以上</td></tr>
+            <tr><td><strong>xAI（X検索）・Slack通知・Figma</strong></td><td><span class="badge na">― つないでいない</span></td><td>―</td><td>―</td><td>―</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- S9 -->
+    <section class="ch" id="s-9">
+      <h2><span class="no">9</span>共通ルール</h2>
+      <div class="rules">
+        <div><h3>話し方</h3><p>日本語・敬語。brunson だけは、くだけた丁寧語で本音を話す。</p></div>
+        <div><h3>置き場</h3><p>依頼のメモは <code>inbox/</code>、成果物は <code>projects/〈仕事の名前〉/</code>。仕事が終わったら inbox を空にする。</p></div>
+        <div><h3>確認が要る3つ</h3><p>外への公開・送信・投稿／お金がかかる操作／ファイルの削除・上書き。必ず「提示 → 社長の確認 → 実行」。</p></div>
+        <div><h3>外に出さない4つ</h3><p>社長の本名・個人のメールアドレス・本業（勤務先）の情報・APIキー。</p></div>
+        <div><h3>キー</h3><p><code>.env</code> にだけ置く。キーの作成と貼り付けは社長がする。</p></div>
+        <div><h3>作らない</h3><p>実績・数字・お客様の声をつくらない。無いものは「ねらい」「見本」と書くか、空欄にして社長に聞く。</p></div>
+        <div><h3>推測しない</h3><p>分からないことは推測せず、社長に聞く。</p></div>
+        <div><h3>公開の方針</h3><p>外に出すのは「見せる用」だけ。コード本体は公開しない。</p></div>
+      </div>
+    </section>
+
+    <!-- S10 -->
+    <section class="ch" id="s-10">
+      <h2><span class="no">10</span>前提と制約</h2>
+      <p>使い始める前に知っておくことです（2026年10月時点）。</p>
+      <div class="status">
+        <div class="col">
+          <h3><span class="badge ok">✓ 追加のお金なし</span></h3>
+          <ul>
+            <li>社員としての会話・リサーチ・執筆・LP・教材・分析・報告（Claude の Pro プランの範囲）</li>
+            <li>字幕：文字起こし（Gemini API の無料枠）から焼き込みまで</li>
+            <li>Instagram 原稿の CSV 作り・本のテキスト化（パソコンの中だけで動く）</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h3><span class="badge cond">⚠ 課金・プランが必要</span></h3>
+          <ul>
+            <li>画像の生成：Gemini API の課金設定（1枚 約0.039ドル〜）</li>
+            <li>Canva の一括作成：Canva Pro 以上</li>
+            <li>Canva のテンプレへの自動の流し込み：Canva Enterprise</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h3><span class="badge na">― 知っておくこと</span></h3>
+          <ul>
+            <li>Gemini の文字起こしは、字幕の出るタイミングが少しずれることがある（パソコンの中で動く faster-whisper に切り替えられる）</li>
+            <li>Gemini が混んでいる時（503）は、自動で待ってやり直す</li>
+            <li>Instagram への投稿・外への公開は人が行う</li>
+            <li>X検索・Slack通知・Figma はつないでいない</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>このガイドブックも、社員の product が作りました。内容は 2026-10-06 時点です。</p>
+    <p>お仕事のご相談は、このページをご覧になったサービス（クラウドソーシングなど）のメッセージ機能からお願いします。ほかの作品は<a href="../">作品集</a>にあります。</p>
+    <p>© 2026 updating30</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var panels = Array.prototype.slice.call(document.querySelectorAll('[role="tabpanel"]'));
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+
+  function show(id) {
+    panels.forEach(function (p) { p.hidden = p.id !== id; });
+    tabs.forEach(function (t) {
+      t.setAttribute('aria-selected', t.getAttribute('aria-controls') === id ? 'true' : 'false');
+    });
+  }
+  function setHash(id) {
+    try { history.replaceState(null, '', '#' + id); } catch (e) {}
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      var id = t.getAttribute('aria-controls');
+      show(id);
+      setHash(id);
+      window.scrollTo(0, 0);
+    });
+  });
+
+  // もう片方の冊子の中へのリンクは、冊子を切り替えてから移動する
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (!el) return;
+    var panel = el.closest('[role="tabpanel"]');
+    if (panel && panel.hidden) {
+      e.preventDefault();
+      show(panel.id);
+      el.scrollIntoView();
+      setHash(id);
+    }
+  });
+
+  // 開いた時のリンク（#spec や #s-6 など）に合わせる
+  var start = location.hash.slice(1);
+  var target = start && document.getElementById(start);
+  if (target) {
+    var p = target.closest('[role="tabpanel"]') || target;
+    show(p.id);
+    if (target !== p) target.scrollIntoView();
+  } else {
+    show('manual');
+  }
+
+  // 頼み方のコピー
+  Array.prototype.forEach.call(document.querySelectorAll('.copy'), function (b) {
+    b.addEventListener('click', function () {
+      var q = b.parentNode.querySelector('q');
+      if (!q) return;
+      var text = q.textContent;
+      function done(msg) {
+        b.textContent = msg;
+        setTimeout(function () { b.textContent = 'コピー'; }, 2000);
+      }
+      function fallback() {
+        var r = document.createRange();
+        r.selectNodeContents(q);
+        var s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(r);
+        done('選びました。Ctrl+Cでコピー');
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done('コピーしました'); }, fallback);
+      } else {
+        fallback();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
