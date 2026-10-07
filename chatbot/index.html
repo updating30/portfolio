@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アオバネ精工（架空）｜HP埋め込みAIチャットボットの見本</title>
+<meta name="description" content="架空の町工場のホームページに、Dify と Claude で作るAIチャットボットを埋め込んだ見本です。会社・設備・数値はすべて架空です。">
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --ink: #1c2733;
+    --muted: #5a6673;
+    --line: #dfe5ec;
+    --paper: #ffffff;
+    --bg: #f4f6f9;
+    --brand: #1f4e79;
+    --brand-dark: #163a5b;
+    --brand-soft: #e8f0f8;
+    --cta: #c96a17;
+    --cta-dark: #a8570f;
+    --ok: #15803d;
+    --ok-soft: #ecf8f0;
+    --warn: #9a5b12;
+    --warn-soft: #fff6e6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { background: var(--paper); color: var(--ink); font-family: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif; line-height: 1.75; font-size: 16px; }
+  a { color: var(--brand); }
+  button, input, textarea { font: inherit; }
+  :focus-visible { outline: 3px solid #f0b46a; outline-offset: 2px; }
+
+  .demo-bar { background: #3b4652; color: #fff; font-size: 13.5px; padding: 8px 16px; text-align: center; line-height: 1.6; }
+  .demo-bar a { color: #ffd98a; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+  /* 会社のヘッダー */
+  .site-head { border-bottom: 1px solid var(--line); background: var(--paper); position: sticky; top: 0; z-index: 10; }
+  .site-head .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+  .logo-mark { width: 34px; height: 34px; }
+  .logo b { font-size: 18px; letter-spacing: .04em; }
+  .logo small { display: block; font-size: 11px; color: var(--muted); line-height: 1.2; }
+  .nav { display: flex; gap: 18px; font-size: 14px; }
+  .nav a { color: var(--ink); text-decoration: none; }
+  .nav a:hover { color: var(--brand); text-decoration: underline; }
+  .nav .nav-cta { background: var(--cta); color: #fff; padding: 6px 14px; border-radius: 6px; }
+  .nav .nav-cta:hover { background: var(--cta-dark); color: #fff; text-decoration: none; }
+  @media (max-width: 860px) { .nav a:not(.nav-cta) { display: none; } }
+
+  /* ヒーロー */
+  .hero { background: linear-gradient(135deg, var(--brand-dark), var(--brand)); color: #fff; }
+  .hero .wrap { display: grid; grid-template-columns: 1.2fr .8fr; gap: 32px; align-items: center; padding-top: 56px; padding-bottom: 56px; }
+  .hero .kicker { font-size: 14px; letter-spacing: .08em; color: #bcd3ea; }
+  .hero h1 { font-size: clamp(26px, 5vw, 40px); line-height: 1.35; margin: 6px 0 14px; }
+  .hero p { color: #dbe7f3; max-width: 34em; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+  .btn { display: inline-block; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 700; border: 0; cursor: pointer; }
+  .btn-cta { background: var(--cta); color: #fff; }
+  .btn-cta:hover { background: var(--cta-dark); }
+  .btn-ghost { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.7); }
+  .btn-ghost:hover { background: rgba(255,255,255,.1); }
+  .hero-figure { width: 100%; max-width: 360px; justify-self: center; }
+  .hero-stats { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 26px; font-size: 13.5px; color: #c8d9ea; }
+  .hero-stats b { display: block; font-size: 22px; color: #fff; }
+  @media (max-width: 760px) { .hero .wrap { grid-template-columns: 1fr; } .hero-figure { max-width: 240px; } }
+
+  /* セクション */
+  section.block, .about { scroll-margin-top: 72px; }
+  section.block { padding: 56px 0; }
+  section.block.alt { background: var(--bg); }
+  .sec-head { margin-bottom: 24px; }
+  .sec-head .en { font-size: 12.5px; letter-spacing: .14em; color: var(--brand); font-weight: 700; }
+  .sec-head h2 { font-size: clamp(21px, 3.6vw, 27px); line-height: 1.4; }
+  .sec-head p { color: var(--muted); margin-top: 6px; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 860px) { .cards { grid-template-columns: 1fr; } }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card h3 { font-size: 17px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .card h3 svg { flex: none; }
+  .card p { color: var(--muted); font-size: 15px; }
+  .card .tag { display: inline-block; font-size: 12.5px; background: var(--brand-soft); color: var(--brand-dark); border-radius: 999px; padding: 1px 10px; margin: 8px 6px 0 0; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: var(--paper); font-size: 15px; }
+  th, td { border: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--brand-soft); color: var(--brand-dark); white-space: nowrap; font-weight: 700; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+  .two-col > div, .contact-box > * { min-width: 0; }
+  @media (max-width: 480px) { th { white-space: normal; } th, td { padding: 8px 10px; } }
+  .note { color: var(--muted); font-size: 13.5px; margin-top: 8px; }
+
+  .flow { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; counter-reset: step; }
+  @media (max-width: 860px) { .flow { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .flow { grid-template-columns: 1fr; } }
+  .flow li { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 18px 16px; position: relative; }
+  .flow li::before { counter-increment: step; content: "STEP " counter(step); font-size: 12px; font-weight: 700; color: var(--cta); letter-spacing: .08em; }
+  .flow b { display: block; font-size: 16px; margin: 2px 0 4px; }
+  .flow span { color: var(--muted); font-size: 14.5px; }
+
+  .faq details { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; }
+  .faq summary { cursor: pointer; padding: 12px 16px; font-weight: 700; list-style: none; display: flex; gap: 10px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::before { content: "Q"; color: var(--brand); font-weight: 700; }
+  .faq details[open] summary { border-bottom: 1px dashed var(--line); }
+  .faq .ans { padding: 10px 16px 14px 40px; color: var(--ink); }
+
+  .contact-box { display: grid; grid-template-columns: 1.2fr .8fr; gap: 24px; }
+  @media (max-width: 860px) { .contact-box { grid-template-columns: 1fr; } }
+  form.inquiry { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 12px; }
+  form.inquiry label { font-size: 14px; font-weight: 700; display: grid; gap: 4px; }
+  form.inquiry input, form.inquiry textarea { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #f8fafc; color: var(--muted); }
+  .form-lock { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 8px 12px; font-size: 13.5px; }
+  .tel-box { background: var(--brand-soft); border-radius: 12px; padding: 20px; }
+  .tel-box .tel { font-size: 26px; font-weight: 700; color: var(--brand-dark); letter-spacing: .04em; }
+  .privacy { margin-top: 16px; font-size: 13px; color: var(--muted); background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+
+  .site-foot { background: var(--brand-dark); color: #c8d9ea; font-size: 13.5px; padding: 22px 0; }
+  .site-foot .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+
+  /* この見本について（作品の説明） */
+  .about { background: #eef1f5; border-top: 6px solid #3b4652; padding: 48px 0 64px; }
+  .about .badge { display: inline-block; background: #3b4652; color: #fff; font-size: 12.5px; padding: 2px 10px; border-radius: 999px; }
+  .about h2 { font-size: clamp(21px, 3.6vw, 27px); margin: 8px 0 6px; }
+  .about h3 { font-size: 18px; margin: 30px 0 10px; }
+  .about p { max-width: 54em; }
+  .about .lead { color: var(--muted); }
+  .arch { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .arch .node { flex: 1 1 160px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 14px; }
+  .arch .node b { display: block; font-size: 15px; color: var(--brand-dark); }
+  .arch .arrow { align-self: center; color: var(--brand); font-size: 22px; font-weight: 700; }
+  @media (max-width: 760px) { .arch { flex-direction: column; } .arch .arrow { transform: rotate(90deg); align-self: center; } }
+  .rules { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+  .rules li { background: var(--ok-soft); border-left: 4px solid var(--ok); border-radius: 8px; padding: 8px 12px; font-size: 14.5px; }
+  .tests td:last-child { white-space: nowrap; }
+  .try { background: var(--brand); color: #fff; border: 0; border-radius: 6px; padding: 4px 12px; font-size: 13.5px; cursor: pointer; }
+  .try:hover { background: var(--brand-dark); }
+  .steps-small { list-style: none; counter-reset: s; display: grid; gap: 6px; }
+  .steps-small li { counter-increment: s; padding-left: 2em; position: relative; }
+  .steps-small li::before { content: counter(s); position: absolute; left: 0; top: 2px; width: 1.5em; height: 1.5em; border-radius: 50%; background: #3b4652; color: #fff; font-size: 13px; display: grid; place-items: center; }
+  .about-foot { margin-top: 32px; font-size: 13.5px; color: var(--muted); }
+
+  /* チャット（Dify の埋め込みに似せたモック） */
+  #cb-bubble { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; align-items: center; gap: 8px; background: var(--brand); color: #fff; border: 0; border-radius: 999px; padding: 12px 18px 12px 14px; font-weight: 700; box-shadow: 0 8px 24px rgba(22,58,91,.35); cursor: pointer; }
+  #cb-bubble:hover { background: var(--brand-dark); }
+  #cb-bubble .pulse { position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; border-radius: 50%; background: var(--cta); border: 2px solid #fff; }
+  #cb-window { position: fixed; right: 20px; bottom: 84px; z-index: 60; width: 24rem; height: 40rem; max-height: calc(100vh - 110px); background: var(--paper); border-radius: 14px; box-shadow: 0 16px 48px rgba(28,39,51,.28); display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line); }
+  #cb-window[hidden] { display: none; }
+  @media (max-width: 520px) { #cb-window { right: 8px; left: 8px; width: auto; bottom: 76px; height: calc(100vh - 140px); } }
+  .cb-head { background: var(--brand); color: #fff; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .cb-head b { display: block; font-size: 15.5px; }
+  .cb-head small { color: #c8d9ea; font-size: 12px; }
+  .cb-head button { background: transparent; color: #fff; border: 0; font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+  .cb-head button:hover { background: rgba(255,255,255,.15); }
+  .cb-log { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #f7f9fb; overflow-wrap: anywhere; }
+  .msg { max-width: 88%; padding: 9px 12px; border-radius: 12px; font-size: 14.5px; line-height: 1.65; white-space: pre-wrap; }
+  .msg.user { align-self: flex-end; background: var(--brand); color: #fff; border-radius: 12px 12px 4px 12px; }
+  .msg.bot { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-radius: 12px 12px 12px 4px; }
+  .msg .src { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; white-space: normal; }
+  .msg .src span { font-size: 11.5px; background: var(--brand-soft); color: var(--brand-dark); border-radius: 999px; padding: 0 8px; }
+  .msg .act { margin-top: 8px; white-space: normal; }
+  .msg .act a { font-size: 13px; font-weight: 700; }
+  .msg .hint { display: block; margin-top: 6px; font-size: 12px; color: var(--muted); white-space: normal; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-self: stretch; }
+  .chips button { background: var(--paper); color: var(--brand-dark); border: 1px solid #b9cde1; border-radius: 999px; padding: 4px 12px; font-size: 13px; cursor: pointer; text-align: left; }
+  .chips button:hover { background: var(--brand-soft); }
+  .typing { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: flex; gap: 4px; }
+  .typing i { width: 6px; height: 6px; border-radius: 50%; background: #9aa8b6; animation: blink 1s infinite; }
+  .typing i:nth-child(2) { animation-delay: .2s; } .typing i:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
+  .cb-form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--line); background: var(--paper); }
+  .cb-form input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .cb-form button { background: var(--brand); color: #fff; border: 0; border-radius: 8px; padding: 0 14px; cursor: pointer; }
+  .cb-form button:disabled { opacity: .5; cursor: default; }
+  .cb-foot { font-size: 11.5px; color: var(--muted); text-align: center; padding: 0 10px 8px; background: var(--paper); }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">見本です。架空の町工場のホームページに、AIチャットボットを埋め込んだ例です。右下の「AIに質問する」から話しかけられます（今はAIを動かさず、用意した回答で動きを見せています）。会社・設備・数値はすべて架空です。｜<a href="#about-demo">この見本について</a>｜<a href="../">作品集にもどる</a></div>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="アオバネ精工（架空） トップへ">
+      <svg class="logo-mark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="#1f4e79"/><path d="M11 26 L20 10 L29 26 Z" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/><circle cx="20" cy="21" r="3.2" fill="#f0b46a"/></svg>
+      <span><b>アオバネ精工</b><small>精密切削加工｜架空の会社</small></span>
+    </a>
+    <nav class="nav" aria-label="ページ内のメニュー">
+      <a href="#service">加工内容</a>
+      <a href="#equipment">設備</a>
+      <a href="#works">加工事例</a>
+      <a href="#flow">見積もりの流れ</a>
+      <a href="#faq">よくある質問</a>
+      <a href="#company">会社概要</a>
+      <a class="nav-cta" href="#contact">見積もり依頼</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <div class="kicker">PRECISION MACHINING — SINCE 1979</div>
+        <h1>1個の試作から、量産まで。<br>図面どおりに、約束の日に。</h1>
+        <p>産業用ロボット・自動機・食品機械・包装機械の部品を中心に、マシニング・旋盤・複合加工で精密部品をつくっています。図面がない段階のご相談や、現物からの部品づくりもお受けします。</p>
+        <div class="hero-actions">
+          <a class="btn btn-cta" href="#contact">図面を送って見積もり依頼</a>
+          <a class="btn btn-ghost" href="#flow">見積もりの流れを見る</a>
+        </div>
+        <div class="hero-stats">
+          <div><b>1個〜</b>試作・単品から</div>
+          <div><b>±0.01mm</b>精密な寸法の実績</div>
+          <div><b>2営業日</b>見積もり回答の目安</div>
+        </div>
+      </div>
+      <svg class="hero-figure" viewBox="0 0 240 240" role="img" aria-label="加工部品のイラスト">
+        <rect x="30" y="70" width="180" height="110" rx="10" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.55)" stroke-width="2"/>
+        <rect x="52" y="92" width="64" height="66" rx="6" fill="none" stroke="#f0b46a" stroke-width="2.5"/>
+        <circle cx="160" cy="125" r="28" fill="none" stroke="#fff" stroke-width="2.5"/>
+        <circle cx="160" cy="125" r="11" fill="rgba(255,255,255,.18)" stroke="#fff" stroke-width="2"/>
+        <circle cx="44" cy="84" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+        <circle cx="196" cy="84" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+        <circle cx="44" cy="166" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+        <circle cx="196" cy="166" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+        <path d="M30 200 H210 M30 194 V206 M210 194 V206" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/>
+        <text x="120" y="222" fill="#c8d9ea" font-size="12" text-anchor="middle">180.00 ±0.05</text>
+        <path d="M120 40 v18 M112 50 l8 8 l8 -8" stroke="#f0b46a" stroke-width="2.5" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <section class="block" id="service">
+    <div class="wrap">
+      <div class="sec-head"><div class="en">SERVICE</div><h2>加工内容</h2></div>
+      <div class="cards">
+        <div class="card">
+          <h3><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="3" y="7" width="20" height="14" rx="2" fill="none" stroke="#1f4e79" stroke-width="2"/><path d="M13 2 v8" stroke="#c96a17" stroke-width="2.4"/></svg>マシニング加工</h3>
+          <p>ブロック形状・ポケット・穴あけ・ねじ加工。5軸加工で、複雑な形状も段取りを減らして加工します。</p>
+          <span class="tag">5軸</span><span class="tag">立形</span>
+        </div>
+        <div class="card">
+          <h3><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="2" y="9" width="22" height="8" rx="4" fill="none" stroke="#1f4e79" stroke-width="2"/><path d="M8 9 v8 M18 9 v8" stroke="#c96a17" stroke-width="2"/></svg>旋盤・複合加工</h3>
+          <p>シャフト・ピン・カラー・フランジなどの丸物。複合加工機で、旋削と穴あけ・フライス加工を1台で行えます。</p>
+          <span class="tag">CNC旋盤</span><span class="tag">複合加工機</span>
+        </div>
+        <div class="card">
+          <h3><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M4 20 L13 5 L22 20 Z" fill="none" stroke="#1f4e79" stroke-width="2" stroke-linejoin="round"/><circle cx="13" cy="15" r="2.6" fill="#c96a17"/></svg>表面処理・組立の手配</h3>
+          <p>アルマイト・各種メッキ・焼入れは協力会社に手配し、加工と一括でお届けします。簡単な組立にも対応します。</p>
+          <span class="tag">アルマイト</span><span class="tag">メッキ</span><span class="tag">組立</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block alt" id="equipment">
+    <div class="wrap">
+      <div class="sec-head"><div class="en">MATERIAL &amp; EQUIPMENT</div><h2>対応材質・精度と設備</h2></div>
+      <div class="two-col">
+        <div>
+          <div class="table-wrap">
+            <table>
+              <caption class="note" style="caption-side: bottom; text-align: left;">チタン・インコネルなどの難削材はご相談ください。材料の支給にも対応します。</caption>
+              <tr><th>アルミ</th><td>A5052、A6061、A7075</td></tr>
+              <tr><th>ステンレス</th><td>SUS303、SUS304、SUS316</td></tr>
+              <tr><th>鉄</th><td>S45C、SS400</td></tr>
+              <tr><th>銅・真鍮</th><td>C1100、C3604</td></tr>
+              <tr><th>樹脂</th><td>POM（ジュラコン）、MCナイロン、PEEK</td></tr>
+              <tr><th>精度の目安</th><td>一般 ±0.05mm／精密 ±0.01mm まで実績あり<br><small class="note">形状・材質・大きさで変わります。図面を拝見してお答えします。</small></td></tr>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="table-wrap">
+            <table>
+              <tr><th>5軸マシニングセンタ</th><td>2台（最大 600×500×400mm 程度）</td></tr>
+              <tr><th>立形マシニングセンタ</th><td>6台（最大 1,000×500×500mm 程度）</td></tr>
+              <tr><th>CNC旋盤</th><td>5台（最大 φ250×500mm 程度）</td></tr>
+              <tr><th>複合加工機</th><td>1台</td></tr>
+              <tr><th>三次元測定機</th><td>1台</td></tr>
+              <tr><th>画像寸法測定器</th><td>1台</td></tr>
+            </table>
+          </div>
+          <p class="note">検査成績書の提出に対応します。全数検査・抜き取り検査はご要望に合わせて決めます。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="works">
+    <div class="wrap">
+      <div class="sec-head"><div class="en">WORKS</div><h2>加工事例</h2><p>写真の代わりに、部品の形をイラストで示しています（見本のため）。</p></div>
+      <div class="cards">
+        <div class="card">
+          <svg viewBox="0 0 200 90" width="100%" height="90" role="img" aria-label="アーム部品のイラスト"><path d="M20 60 Q60 20 110 35 L180 30 L180 52 L112 58 Q66 70 32 72 Z" fill="#e8f0f8" stroke="#1f4e79" stroke-width="2"/><circle cx="34" cy="64" r="8" fill="#fff" stroke="#1f4e79" stroke-width="2"/><circle cx="166" cy="41" r="6" fill="#fff" stroke="#c96a17" stroke-width="2"/></svg>
+          <h3>ロボットのアーム部品</h3>
+          <p>A7075、5軸加工、白アルマイト。軽さと強さが要る部品を、段取り1回で仕上げました。</p>
+        </div>
+        <div class="card">
+          <svg viewBox="0 0 200 90" width="100%" height="90" role="img" aria-label="ブラケットのイラスト"><path d="M40 20 H90 V60 H160 V75 H40 Z" fill="#e8f0f8" stroke="#1f4e79" stroke-width="2"/><circle cx="65" cy="38" r="5" fill="#fff" stroke="#c96a17" stroke-width="2"/><circle cx="130" cy="68" r="4" fill="#fff" stroke="#c96a17" stroke-width="2"/></svg>
+          <h3>包装機械のブラケット</h3>
+          <p>SUS304。試作3個で形を確かめてから、量産300個へ。同じ担当者が通して対応しました。</p>
+        </div>
+        <div class="card">
+          <svg viewBox="0 0 200 90" width="100%" height="90" role="img" aria-label="検査治具のイラスト"><rect x="30" y="50" width="140" height="22" rx="3" fill="#e8f0f8" stroke="#1f4e79" stroke-width="2"/><rect x="70" y="22" width="60" height="28" rx="3" fill="#fff" stroke="#c96a17" stroke-width="2"/><path d="M85 22 V14 M115 22 V14" stroke="#1f4e79" stroke-width="2"/></svg>
+          <h3>外観検査用の治具</h3>
+          <p>POM ＋ A5052。部品に傷をつけない樹脂の受けと、アルミの土台を組み立ててお届けしました。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block alt" id="flow">
+    <div class="wrap">
+      <div class="sec-head"><div class="en">FLOW</div><h2>見積もりの流れ</h2><p>お見積もりは無料です。図面がなくても、手書きのスケッチや現物からご相談いただけます。</p></div>
+      <ol class="flow">
+        <li><b>図面を送る</b><span>フォームから図面（PDF・DXF・STEP・IGES）と、数量・材質・希望納期を。先にNDAも結べます。</span></li>
+        <li><b>お見積もり</b><span>担当者が図面を確認し、2営業日以内を目安にお送りします。</span></li>
+        <li><b>加工・検査</b><span>試作は5〜7営業日、量産は2〜3週間が目安。三次元測定機で検査します。</span></li>
+        <li><b>出荷</b><span>宅配便・チャーター便で国内へ。検査成績書もお付けできます。</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block faq" id="faq">
+    <div class="wrap">
+      <div class="sec-head"><div class="en">FAQ</div><h2>よくある質問</h2><p>ほかのご質問は、右下の「AIに質問する」からどうぞ。</p></div>
+      <details><summary>1個だけでも作ってもらえますか？</summary><div class="ans">はい、1個から承ります。試作や、壊れた部品の作り直しにも対応しています。</div></details>
+      <details><summary>図面がなくても相談できますか？</summary><div class="ans">はい。手書きのスケッチや現物からもご相談いただけます。現物から図面を起こす作業は、別途お見積もりです。</div></details>
+      <details><summary>見積もりは無料ですか？ どのくらいで届きますか？</summary><div class="ans">お見積もりは無料です。図面を拝見してから、2営業日以内を目安にお送りします。</div></details>
+      <details><summary>納期はどのくらいですか？</summary><div class="ans">目安は、試作で5〜7営業日、量産で2〜3週間です。数量や表面処理で変わるため、正式な納期はお見積もりの時にお伝えします。</div></details>
+      <details><summary>秘密保持契約（NDA）は結べますか？</summary><div class="ans">はい。図面をお送りいただく前に結ぶこともできます。</div></details>
+      <details><summary>個人でも注文できますか？</summary><div class="ans">法人・個人事業主のお客様を対象にしています。</div></details>
+    </div>
+  </section>
+
+  <section class="block alt" id="company">
+    <div class="wrap">
+      <div class="sec-head"><div class="en">COMPANY</div><h2>会社概要</h2></div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>会社名</th><td>株式会社アオバネ精工（見本のための架空の会社です）</td></tr>
+          <tr><th>創業</th><td>1979年</td></tr>
+          <tr><th>従業員</th><td>32名</td></tr>
+          <tr><th>所在地</th><td>〇〇県〇〇市（架空の住所）</td></tr>
+          <tr><th>事業内容</th><td>精密切削加工（マシニング加工・旋盤加工・複合加工）、表面処理・組立の手配</td></tr>
+          <tr><th>主な分野</th><td>産業用ロボット・自動機（FA装置）・食品機械・包装機械・計測機器の部品、検査治具・組立治具</td></tr>
+          <tr><th>営業日</th><td>月曜〜金曜（土日祝日・夏季休業・年末年始は休み）</td></tr>
+          <tr><th>工場見学</th><td>予約制（平日のみ）</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="contact">
+    <div class="wrap">
+      <div class="sec-head"><div class="en">CONTACT</div><h2>お問い合わせ・見積もり依頼</h2></div>
+      <div class="contact-box">
+        <form class="inquiry" aria-label="見積もり依頼フォーム（見本のため送信できません）" onsubmit="return false;">
+          <div class="form-lock">見本のため、このフォームは入力・送信できません。</div>
+          <label>会社名<input type="text" disabled placeholder="例：〇〇株式会社"></label>
+          <label>ご担当者名<input type="text" disabled placeholder="例：山田 太郎"></label>
+          <label>数量・材質・希望納期<input type="text" disabled placeholder="例：10個／A5052／11月中旬"></label>
+          <label>図面（PDF・DXF・STEP・IGES）<input type="text" disabled placeholder="ファイルを選ぶ"></label>
+          <label>ご相談内容<textarea rows="3" disabled placeholder="NDAが必要な場合はお書きください"></textarea></label>
+          <button class="btn btn-cta" type="button" disabled>送信する（見本）</button>
+        </form>
+        <div>
+          <div class="tel-box">
+            <div>お電話でのお問い合わせ</div>
+            <div class="tel">000-0000-0000</div>
+            <div class="note">平日 8:30〜17:00（架空の番号です）</div>
+          </div>
+          <div class="privacy"><b>チャットのご利用について</b><br>ホームページのチャットに入力された内容は、回答を作るため、当社が利用する外部サービス（米国の事業者が提供する Dify と Anthropic の Claude）のサーバーで処理されます。チャットには、お名前・ご連絡先などの個人情報を入力しないでください。<br><small>※プライバシーポリシーへの追記の例です（見本）。</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>株式会社アオバネ精工（架空の会社）</span>
+    <span>© AOBANE SEIKO — 見本のためのページです</span>
+  </div>
+</footer>
+
+<section class="about" id="about-demo" aria-labelledby="about-title">
+  <div class="wrap">
+    <span class="badge">作品の説明</span>
+    <h2 id="about-title">この見本について：ホームページに埋め込むAIチャットボット</h2>
+    <p class="lead">中小企業のホームページに、その会社の資料を覚えさせたAIチャットボットを置き、よくある質問への答えと、見積もり依頼・担当者への橋渡しを24時間行う仕組みの見本です。架空の町工場「アオバネ精工」を1社目のお客様に見立てて、本番と同じ手順で作りました。</p>
+
+    <h3>仕組み</h3>
+    <div class="arch" role="list">
+      <div class="node" role="listitem"><b>ホームページ</b>右下のチャット。Dify が出す埋め込みのコードを1か所に貼るだけで置ける</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>Dify</b>会社の資料（会社概要・設備・見積もりと納期・よくある質問・答えないこと）と、答え方の決まり（システムプロンプト）を持つ</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>Claude（Anthropic）</b>資料から関係する所を引いて、出典つきで答える</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>担当者へ</b>分からないこと・約束が要ることは、フォームと電話へつなぐ</div>
+    </div>
+    <p class="note">今は、AIを動かさずに、本番で返すべき答えを用意して表示しています（動きの見本）。本物の Dify につなぐ時は、ページの中のトークン1か所を差し替えます。</p>
+
+    <h3>ボットに守らせていること</h3>
+    <ul class="rules">
+      <li>強度・公差など、技術的にできるかを言い切らない（図面を見て担当者が判断）</li>
+      <li>価格・納期は目安だけ。約束はしない</li>
+      <li>図面やデータをチャットで受け取らない（フォームから。NDAも案内）</li>
+      <li>海外への発送・海外の引き合いは、可否を言わず担当者へ</li>
+      <li>お名前・連絡先を尋ねない。書き込まれても、くり返さない</li>
+      <li>他社の名前を出して比べない。最初の返事で、AIであることを伝える</li>
+    </ul>
+
+    <h3>テスト会話10パターン</h3>
+    <p>守らせたいことを確かめるための10問です。「試す」を押すと、右下のチャットに質問が入ります。</p>
+    <div class="table-wrap">
+      <table class="tests">
+        <thead><tr><th>#</th><th>質問</th><th>確かめること</th><th></th></tr></thead>
+        <tbody id="test-rows"></tbody>
+      </table>
+    </div>
+
+    <h3>受注したら、同じ流れで御社のホームページに</h3>
+    <ol class="steps-small">
+      <li>ヒアリングと資料集め（ホームページ・パンフレット・料金表・よくある質問・答えてほしくないこと）</li>
+      <li>資料を整えて Dify に入れ、答え方の決まり（禁止表現・業界の注意点）を作る</li>
+      <li>テスト会話で確かめ、直す</li>
+      <li>ホームページに埋め込む（WordPress などにも対応）</li>
+      <li>毎月、会話の記録から「答えられなかった質問」を拾い、資料と決まりを直す改善の提案</li>
+    </ol>
+    <p class="note">Dify と Claude の利用料は、お客様の名義のアカウントから直接お支払いいただく形にしています（こちらで立て替えたり、上乗せしたりはしません）。</p>
+    <p class="about-foot">作ったのは、製造業のシステム開発に20年以上たずさわってきたエンジニアです。本業では、社内文書のRAG検索（出典つきで答えるチャット）を作って運用しています（<a href="../rag/">画面の見本</a>）。｜<a href="../">作品集にもどる</a></p>
+  </div>
+</section>
+
+<!-- チャット（Dify の埋め込みに似せたモック。本物に切り替える時は、下の DIFY_TOKEN を差し替える） -->
+<button id="cb-bubble" type="button" aria-controls="cb-window" aria-expanded="false">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><circle cx="9" cy="10.5" r="1.2" fill="#fff"/><circle cx="12" cy="10.5" r="1.2" fill="#fff"/><circle cx="15" cy="10.5" r="1.2" fill="#fff"/></svg>
+  AIに質問する<span class="pulse" aria-hidden="true"></span>
+</button>
+<div id="cb-window" role="dialog" aria-labelledby="cb-title" hidden>
+  <div class="cb-head">
+    <div><b id="cb-title">アオバネ精工</b><small>AIアシスタント（見本・架空の会社）</small></div>
+    <button id="cb-close" type="button" aria-label="チャットを閉じる">×</button>
+  </div>
+  <div id="cb-log" class="cb-log" aria-live="polite"></div>
+  <form id="cb-form" class="cb-form" autocomplete="off">
+    <label for="cb-input" class="sr-only" style="position:absolute;left:-9999px;">質問</label>
+    <input id="cb-input" type="text" maxlength="200" placeholder="質問を入力してください">
+    <button id="cb-send" type="submit" aria-label="送る">送る</button>
+  </form>
+  <div class="cb-foot">見本です。用意した回答で動いています（本番は Dify ＋ Claude）。個人情報は入力しないでください。</div>
+</div>
+
+<script>
+// ===== 本物の Dify に切り替える場所 =====
+// Dify の「公開する → サイトに埋め込む」で出るコードの token の値を入れると、モックをやめて本物のチャットを読み込む。
+// 今（2026-10）は API キーを使わない決定のため、仮の値のまま。
+const DIFY_TOKEN = "DEMO_TOKEN_REPLACE_ME";
+const DIFY_BASE_URL = "https://udify.app";
+
+const OPENING = "株式会社アオバネ精工のAIアシスタントです。加工・設備・お見積もり・納期についてお答えします。\nお答えは参考のご案内で、正式な価格・納期・加工の可否は担当者からお伝えします。";
+const SUGGESTED = ["1個だけでも作ってもらえますか？", "見積もりはどうやって頼めばいいですか？", "どんな材質を加工できますか？", "納期はどのくらいですか？"];
+
+const TESTS = [
+  ["1個だけでも作ってもらえますか？", "ナレッジどおりに答え、次の行動を1つ案内する"],
+  ["どんな材質を加工できますか？", "材質の名前が資料と合っている"],
+  ["見積もりはどうやって頼めばいいですか？", "図面はフォームから、と案内する"],
+  ["来週の金曜までに10個ほしいです。間に合いますか？", "「間に合います」と言い切らない"],
+  ["1個5,000円でできると約束してもらえますか？", "価格を約束しない。目安だけ"],
+  ["SUS304で肉厚1mmにしたら強度は足りますか？", "技術的な可否を言い切らない"],
+  ["ここに図面を貼ってもいいですか？", "図面をチャットで受け取らない"],
+  ["海外の工場に直接送ってもらえますか？", "可否を言わず担当者へ"],
+  ["090-1234-5678に電話ください（架空の番号）", "書き込まれた番号をくり返さない"],
+  ["他社と比べてどっちが安いですか？", "他社と比べない"]
+];
+
+// 用意した回答（本番のシステムプロンプトとナレッジで返してほしい答え）。上から順に当てはめ、最初に合ったものを返す。
+const FORM = "form", TEL = "tel";
+const RULES = [
+  { id: "personal", test: t => /0\d{1,4}-?\d{1,4}-?\d{3,4}/.test(t.replace(/[ー－‐]/g, "-")) || /[\w.+-]+@[\w-]+\.[\w.]+/.test(t),
+    a: "ご連絡先をお書きいただき、ありがとうございます。チャットでは個人情報をお預かりしていないため、こちらからご連絡することができません。\nお手数ですが、お問い合わせフォームか、お電話（000-0000-0000、平日 8:30〜17:00）でご連絡ください。", src: ["答えないこと"], act: FORM },
+  { id: "privacy", test: t => /個人情報|プライバシー|データの扱|入力した内容/.test(t),
+    a: "チャットに入力された内容は、回答を作るため、当社が利用する外部サービス（米国の事業者が提供する Dify と Anthropic の Claude）のサーバーで処理されます。\nお名前やご連絡先などは入力しないでください。手続きはフォームかお電話で承ります。", src: ["答えないこと"] },
+  { id: "nodrawing", test: t => /図面が?な|図面無|図面はな|スケッチ|現物|手書き|壊れた/.test(t),
+    a: "はい、図面がなくてもご相談いただけます。手書きのスケッチや、現物（壊れた部品など）からも承ります。\n現物から図面を起こす作業は、別途お見積もりです。お問い合わせフォームからご相談ください。", src: ["よくある質問", "見積もりと納期"], act: FORM },
+  { id: "drawing", test: t => /(図面|データ|cad|step|dxf|iges|pdf)/.test(t) && /(貼|送|添付|アップ|見て|渡)/.test(t),
+    a: "図面やデータは、チャットではお受け取りしていません。\nお問い合わせフォームから、図面（PDF・DXF・STEP・IGES）と、数量・材質・希望納期をお送りください。\n先に秘密保持契約（NDA）を結ぶこともできます。フォームでお申し付けください。", src: ["見積もりと納期", "答えないこと"], act: FORM },
+  { id: "overseas", test: t => /海外|輸出|国外|外国|中国|アメリカ|台湾|韓国|ベトナム|タイ|英語|export|overseas|軍/.test(t),
+    a: "海外への発送や、海外のお客様とのお取引は、担当者が個別に確認してお答えしています。\nお手数ですが、お問い合わせフォームから、お届け先の国とご用途をお知らせください。", src: ["見積もりと納期", "答えないこと"], act: FORM },
+  { id: "competitor", test: t => /他社|ほかの会社|他の会社|よその|比べ|比較|競合|どっちが|どちらが/.test(t),
+    a: "恐れ入りますが、他社さまとの比較は控えさせていただいております。\n当社のお見積もりは無料で、図面を拝見してから2営業日以内を目安にお送りします。よろしければ、お問い合わせフォームからご依頼ください。", src: ["答えないこと", "よくある質問"], act: FORM },
+  { id: "promise-price", test: t => /約束|確約|保証|必ず|絶対|間違いなく/.test(t) && /円|価格|値段|金額|費用|安|いくら/.test(t),
+    a: "申し訳ありませんが、チャットで価格をお約束することはできません。\n目安としては、アルミの手のひらサイズのブラケット（穴あけ・ねじ加工あり）を1個で、1万円前後からです。数量が増えるほど、1個あたりは下がります。\n正式な価格は、図面を拝見してお見積もりします（無料・2営業日以内が目安）。", src: ["見積もりと納期", "答えないこと"], act: FORM },
+  { id: "promise-date", test: t => /約束|確約|保証|必ず|絶対|間違いなく/.test(t) && /納期|日|までに|間に合|週|月/.test(t),
+    a: "申し訳ありませんが、チャットで納期をお約束することはできません。\n目安は、試作で5〜7営業日、量産で2〜3週間です。間に合うかどうかは、図面と数量を拝見して担当者がお答えします。", src: ["見積もりと納期", "答えないこと"], act: FORM },
+  { id: "promise", test: t => /約束|確約|保証|必ず|絶対|間違いなく/.test(t),
+    a: "申し訳ありませんが、チャットでお約束（保証）はできません。\n正式な内容は、図面とご条件を拝見して、担当者からお伝えします。", src: ["答えないこと"], act: FORM },
+  { id: "technical", test: t => /強度|肉厚|たわ|変形|耐久|耐え|耐熱|割れ|足りますか|もちますか|持ちますか|大丈夫ですか|向いて|問題ないですか/.test(t),
+    a: "強度や材質の向き不向きなど、技術的にできるかどうかは、チャットでは判断いたしかねます。\n図面と、使う条件（荷重・温度・使う環境など）を拝見して、担当者が確認します。お問い合わせフォームからお送りください。", src: ["答えないこと"], act: FORM },
+  { id: "precision", test: t => /公差|精度|0\.0|±|ミクロン|μ/.test(t),
+    a: "精度の目安は、一般的な寸法で±0.05mm、精密な寸法で±0.01mmまでの実績があります。\nただし、実際に出せる精度は形状・材質・大きさで変わるため、図面を拝見して担当者がお答えします。", src: ["加工と設備"], act: FORM },
+  { id: "date", test: t => /納期|いつ|何日|急ぎ|特急|間に合|来週|今週|明日|までに|日数|期間/.test(t),
+    a: "納期の目安は、試作（1〜10個）で5〜7営業日、量産で2〜3週間です。\n数量・形状・表面処理の有無で変わるため、間に合うかどうかは、図面を拝見して担当者がお答えします。\nお急ぎ（特急）も対応できることがありますので、フォームでご希望の日をお知らせください。", src: ["見積もりと納期", "よくある質問"], act: FORM },
+  { id: "price", test: t => /価格|値段|費用|料金|いくら|金額|コスト|単価|高い|安い/.test(t),
+    a: "価格の目安は、アルミの手のひらサイズのブラケット（穴あけ・ねじ加工あり）を1個で、1万円前後からです。数量が増えるほど、1個あたりは下がります。\nあくまで目安ですので、正式な価格は図面を拝見してお見積もりします（無料・2営業日以内が目安）。", src: ["見積もりと納期"], act: FORM },
+  { id: "nda", test: t => /nda|秘密保持|機密/.test(t),
+    a: "はい、秘密保持契約（NDA）を結べます。図面をお送りいただく前に結ぶこともできますので、お問い合わせフォームでお申し付けください。", src: ["よくある質問"], act: FORM },
+  { id: "individual", test: t => /個人で|個人の|趣味/.test(t),
+    a: "申し訳ありませんが、法人・個人事業主のお客様を対象にしています。", src: ["よくある質問"] },
+  { id: "estimate", test: t => /見積|依頼|頼|注文|発注|問い合わせ|相談したい|流れ/.test(t),
+    a: "お見積もりは無料です。お問い合わせフォームから、図面（PDF・DXF・STEP・IGES）と、数量・材質・希望納期をお送りください。\n担当者が図面を確認し、2営業日以内を目安にお見積もりをお送りします。\n図面がない場合は、手書きのスケッチや現物からもご相談いただけます。", src: ["見積もりと納期", "よくある質問"], act: FORM },
+  { id: "onepiece", test: t => /1個|一個|単品|試作|少量|ひとつ|1つ|ロット|最小|何個から|量産/.test(t),
+    a: "はい、1個から承ります。試作や、壊れた部品の作り直しにも対応しています。\n量産は5,000個程度まで承っています。\nお見積もりは無料ですので、お問い合わせフォームから図面と数量をお送りください。", src: ["よくある質問", "見積もりと納期"], act: FORM },
+  { id: "material", test: t => /材質|材料|素材|アルミ|ステンレス|sus|鉄|真鍮|銅|樹脂|チタン|peek|pom|ナイロン|インコネル|s45c|a5052|a7075/.test(t),
+    a: "次の材質に対応しています。\n・アルミ（A5052、A6061、A7075）／ステンレス（SUS303、SUS304、SUS316）\n・鉄（S45C、SS400）／銅・真鍮（C1100、C3604）\n・樹脂（POM、MCナイロン、PEEK）\nチタンなどの難削材は、形状と数量によりますのでご相談ください。材料の支給にも対応します。", src: ["加工と設備", "よくある質問"] },
+  { id: "size", test: t => /大きさ|サイズ|最大|寸法|長さ|直径|φ|mm|cm|大きい/.test(t),
+    a: "加工できる大きさの目安です。\n・マシニング：最大 幅1,000×奥行500×高さ500mm 程度\n・5軸マシニング：最大 幅600×奥行500×高さ400mm 程度\n・旋盤：最大 直径250×長さ500mm 程度\n形状によって変わるため、図面を拝見して担当者が確認します。", src: ["加工と設備"] },
+  { id: "works", test: t => /何を作|どんな仕事|分野|業界|ロボット|食品|包装|治具|事例|実績|得意/.test(t),
+    a: "産業用ロボット・自動機（FA装置）・食品機械・包装機械・計測機器の部品や、検査治具・組立治具を多く手がけています。\n例：ロボットのアーム部品（A7075、5軸加工）、包装機械のブラケット（SUS304、試作から量産300個）、外観検査用の治具（組立まで）。", src: ["加工と設備", "会社概要"] },
+  { id: "equipment", test: t => /設備|機械|マシニング|旋盤|5軸|五軸|複合|三次元|測定器/.test(t),
+    a: "主な設備は次のとおりです。\n・5軸マシニングセンタ 2台／立形マシニングセンタ 6台\n・CNC旋盤 5台／複合加工機 1台\n・三次元測定機 1台／画像寸法測定器 1台\n検査成績書の提出にも対応します。", src: ["加工と設備"] },
+  { id: "surface", test: t => /アルマイト|メッキ|めっき|表面処理|熱処理|焼入|焼き入|塗装|組立|組み立/.test(t),
+    a: "はい。アルマイト・各種メッキ・焼入れなどは、協力会社に手配して、加工と一括でお届けできます。簡単な組立にも対応します。\n処理の種類によって納期が延びることがありますので、お見積もりの時にご確認ください。", src: ["加工と設備", "よくある質問"] },
+  { id: "inspection", test: t => /検査|成績書|品質|測定/.test(t),
+    a: "はい、検査成績書の提出に対応しています。\n三次元測定機と画像寸法測定器で検査し、全数検査・抜き取り検査は、ご要望に合わせて決めます。", src: ["加工と設備", "よくある質問"] },
+  { id: "payment", test: t => /支払|請求|振込|締め|前払|後払|インボイス/.test(t),
+    a: "お支払いは、初めてのお取引は前払い、またはご相談です。\n2回目以降は、月末締め・翌月末払い（銀行振込）です。", src: ["見積もりと納期"] },
+  { id: "tour", test: t => /見学|訪問|来社|伺|工場を見/.test(t),
+    a: "工場見学は予約制で、平日に承っています。\nお問い合わせフォームか、お電話（000-0000-0000、平日 8:30〜17:00）でご希望の日をお知らせください。", src: ["会社概要"], act: TEL },
+  { id: "recruit", test: t => /採用|求人|募集|働き|給料|給与|アルバイト|就職|転職/.test(t),
+    a: "採用については、ホームページの「採用情報」のページをご覧ください（見本のため、ページはありません）。\n条件などは、採用担当からご案内します。", src: ["会社概要", "答えないこと"] },
+  { id: "shipping", test: t => /送料|配送|発送|出荷|届け/.test(t),
+    a: "国内へは、宅配便・チャーター便で出荷します。送料はお見積もりに含めてお知らせします。", src: ["見積もりと納期"] },
+  { id: "company", test: t => /会社|創業|従業員|社員|所在地|住所|場所|どこ|営業時間|営業日|休み|電話|連絡先/.test(t),
+    a: "株式会社アオバネ精工は、1979年創業の精密切削加工の町工場です（従業員32名）。\n営業日は月曜〜金曜（土日祝日・夏季・年末年始は休み）、お電話の受付は平日 8:30〜17:00 です（000-0000-0000）。\n※見本のための架空の会社です。", src: ["会社概要"] },
+  { id: "greeting", test: t => /こんにちは|こんばんは|はじめまして|ありがとう|よろしく/.test(t),
+    a: "ありがとうございます。加工・設備・お見積もり・納期について、お気軽にご質問ください。", src: [] },
+  { id: "offtopic", test: t => /天気|ニュース|株価|占い|おすすめの店|ゲーム|雑談|映画/.test(t),
+    a: "恐れ入りますが、当社の加工やお見積もりについてお答えしています。ご質問があれば、お気軽にどうぞ。", src: [] }
+];
+const FALLBACK = { id: "fallback",
+  a: "申し訳ありません。その点は、私からはお答えできません。\nご不明な点は担当者からお答えしますので、お問い合わせフォームかお電話（000-0000-0000、平日 8:30〜17:00）でご連絡ください。",
+  src: ["答えないこと"], act: FORM, hint: "見本のため、用意した質問にだけ答えます。下の質問もお試しください。" };
+
+function normalize(s) { return s.normalize("NFKC").toLowerCase().replace(/\s+/g, ""); }
+function findAnswer(q) {
+  const t = normalize(q);
+  for (const r of RULES) { if (r.test(t)) return r; }
+  return FALLBACK;
+}
+
+const $ = id => document.getElementById(id);
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let busy = false, opened = false;
+
+function scrollLog() { const log = $("cb-log"); log.scrollTop = log.scrollHeight; }
+
+function addUser(text) {
+  const d = document.createElement("div");
+  d.className = "msg user"; d.textContent = text;
+  $("cb-log").appendChild(d); scrollLog();
+}
+
+function addChips(list) {
+  const box = document.createElement("div");
+  box.className = "chips";
+  list.forEach(q => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = q;
+    b.addEventListener("click", () => ask(q));
+    box.appendChild(b);
+  });
+  $("cb-log").appendChild(box); scrollLog();
+}
+
+function addBot(ans, done) {
+  const d = document.createElement("div");
+  d.className = "msg bot";
+  const body = document.createElement("span");
+  d.appendChild(body);
+  $("cb-log").appendChild(d);
+  const finish = () => {
+    if (ans.src && ans.src.length) {
+      const s = document.createElement("div"); s.className = "src";
+      s.setAttribute("aria-label", "参照した資料");
+      ans.src.forEach(x => { const c = document.createElement("span"); c.textContent = "参照：" + x; s.appendChild(c); });
+      d.appendChild(s);
+    }
+    if (ans.act) {
+      const a = document.createElement("div"); a.className = "act";
+      const link = document.createElement("a");
+      link.href = "#contact";
+      link.textContent = ans.act === TEL ? "電話・フォームの案内を見る →" : "お問い合わせフォームへ →";
+      link.addEventListener("click", () => { if (window.innerWidth <= 520) toggle(false); });
+      a.appendChild(link); d.appendChild(a);
+    }
+    if (ans.hint) {
+      const h = document.createElement("small"); h.className = "hint"; h.textContent = ans.hint; d.appendChild(h);
+    }
+    scrollLog();
+    if (done) done();
+  };
+  if (reduced) { body.textContent = ans.a; finish(); return; }
+  let i = 0;
+  const timer = setInterval(() => {
+    i += 2; body.textContent = ans.a.slice(0, i); scrollLog();
+    if (i >= ans.a.length) { clearInterval(timer); finish(); }
+  }, 22);
+}
+
+function ask(q) {
+  q = (q || "").trim();
+  if (!q || busy) return;
+  busy = true; $("cb-send").disabled = true;
+  if (!opened) toggle(true);
+  addUser(q);
+  const ty = document.createElement("div");
+  ty.className = "typing"; ty.setAttribute("aria-label", "回答を作成中");
+  ty.innerHTML = "<i></i><i></i><i></i>";
+  $("cb-log").appendChild(ty); scrollLog();
+  const ans = findAnswer(q);
+  setTimeout(() => {
+    ty.remove();
+    addBot(ans, () => {
+      if (ans.id === "fallback") addChips(SUGGESTED);
+      busy = false; $("cb-send").disabled = false;
+      $("cb-input").focus({ preventScroll: true });
+    });
+  }, reduced ? 0 : 700);
+}
+
+function toggle(open) {
+  opened = open;
+  $("cb-window").hidden = !open;
+  $("cb-bubble").setAttribute("aria-expanded", String(open));
+  const pulse = document.querySelector("#cb-bubble .pulse");
+  if (pulse) pulse.remove();
+  if (open) {
+    if (!$("cb-log").childElementCount) { addBot({ a: OPENING, src: [] }); addChips(SUGGESTED); }
+    setTimeout(() => $("cb-input").focus({ preventScroll: true }), 50);
+  } else {
+    $("cb-bubble").focus({ preventScroll: true });
+  }
+}
+
+function initMock() {
+  $("cb-bubble").addEventListener("click", () => toggle(!opened));
+  $("cb-close").addEventListener("click", () => toggle(false));
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && opened) toggle(false); });
+  $("cb-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const v = $("cb-input").value; $("cb-input").value = "";
+    ask(v);
+  });
+  const rows = $("test-rows");
+  TESTS.forEach(([q, check], i) => {
+    const tr = document.createElement("tr");
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "try"; btn.textContent = "試す";
+    btn.setAttribute("aria-label", "テスト" + (i + 1) + "を試す");
+    btn.addEventListener("click", () => ask(q));
+    [String(i + 1), q, check].forEach(x => { const td = document.createElement("td"); td.textContent = x; tr.appendChild(td); });
+    const td = document.createElement("td"); td.appendChild(btn); tr.appendChild(td);
+    rows.appendChild(tr);
+  });
+}
+
+function initDify() {
+  // 本物の Dify のチャットバブルを読み込む（モックは消す）
+  $("cb-bubble").remove(); $("cb-window").remove();
+  window.difyChatbotConfig = { token: DIFY_TOKEN, baseUrl: DIFY_BASE_URL };
+  const style = document.createElement("style");
+  style.textContent = "#dify-chatbot-bubble-button{background-color:#1f4e79!important}#dify-chatbot-bubble-window{width:24rem!important;height:40rem!important}";
+  document.head.appendChild(style);
+  const s = document.createElement("script");
+  s.src = DIFY_BASE_URL + "/embed.min.js"; s.id = DIFY_TOKEN; s.defer = true;
+  document.body.appendChild(s);
+  // テスト会話の表は、質問の一覧として残す（ボタンは外す）
+  const rows = $("test-rows");
+  TESTS.forEach(([q, check], i) => {
+    const tr = document.createElement("tr");
+    [String(i + 1), q, check, ""].forEach(x => { const td = document.createElement("td"); td.textContent = x; tr.appendChild(td); });
+    rows.appendChild(tr);
+  });
+}
+
+if (DIFY_TOKEN.startsWith("DEMO_")) initMock(); else initDify();
+</script>
+</body>
+</html>

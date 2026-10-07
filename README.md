@@ -11,6 +11,7 @@
   - 通知表所見作成アシスタント（画面の見本） … https://updating30.github.io/portfolio/shoken/
   - 社内文書のRAG検索（画面の見本） … https://updating30.github.io/portfolio/rag/
   - メール処理の自動化（画面の見本） … https://updating30.github.io/portfolio/mail/
+  - 町工場のホームページに置くAIチャットボット（Dify・Claude の見本。架空の会社） … https://updating30.github.io/portfolio/chatbot/
   - 装置トラブル対応エージェント … https://updating30.github.io/equipment-trouble-agent-demo/
   - AI社長カンパニー … https://updating30.github.io/ai-shacho-demo/
   - AIマーケ会社 — AI社員10人（使い方マニュアルと仕様書） … https://updating30.github.io/portfolio/ai-company/
