@@ -11,6 +11,7 @@
   - 通知表所見作成アシスタント（画面の見本） … https://updating30.github.io/portfolio/shoken/
   - 社内文書のRAG検索（画面の見本） … https://updating30.github.io/portfolio/rag/
   - メール処理の自動化（画面の見本） … https://updating30.github.io/portfolio/mail/
+  - 受注・納期共有アプリ（製造業の受注から納期の確定までを共有する業務アプリの体験版） … https://updating30.github.io/order-delivery-demo/
   - 町工場のホームページに置くAIチャットボット（Dify・Claude の見本。架空の会社） … https://updating30.github.io/portfolio/chatbot/
   - 装置トラブル対応エージェント … https://updating30.github.io/equipment-trouble-agent-demo/
   - AI社長カンパニー … https://updating30.github.io/ai-shacho-demo/
