@@ -17,9 +17,10 @@
   - AI社長カンパニー … https://updating30.github.io/ai-shacho-demo/
   - AIマーケ会社 — AI社員10人（使い方マニュアルと仕様書） … https://updating30.github.io/portfolio/ai-company/
   - GitHub実務講座（全5回） … https://updating30.github.io/github-beginner-course/
+  - プロンプト作り役（GitHub Copilot に入れて使う役。ファイルを無料で公開） … https://github.com/updating30/tool-koubou
   - こつこつ（習慣トラッカーの体験版） … https://updating30.github.io/kotsukotsu-demo/
 
-コードは公開していません。データはすべて架空です。
+コードは公開していません（プロンプト作り役のファイルだけは無料で公開しています）。データはすべて架空です。
 
 ## ご相談
 
