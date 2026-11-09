@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>領収書・請求書の仕訳の下書き｜画面の見本</title>
+<meta name="description" content="ためた領収書・請求書のPDFを入れると、仕訳の下書きが表に並ぶ形の画面の見本（モック）と、仕組みの説明です。会社・お店・書類はすべて架空です。">
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --ink: #1f2933;
+    --muted: #5b6672;
+    --line: #e3e8ee;
+    --grid: #d3dae3;
+    --paper: #ffffff;
+    --bg: #f6f8fb;
+    --side: #f1f4f8;
+    --head: #eef2f7;
+    --accent: #1d4ed8;
+    --accent-soft: #eaf1ff;
+    --green: #15803d;
+    --green-soft: #ecf8f0;
+    --amber: #9a5b12;
+    --amber-soft: #fff6e6;
+    --yellow: #fff3bf;
+    --yellow-line: #e0b400;
+    --yellow-ink: #6b4e00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--ink); font-family: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif; line-height: 1.75; font-size: 16px; }
+  a { color: var(--accent); }
+  button, input, select { font: inherit; }
+  :focus-visible { outline: 3px solid #f0b46a; outline-offset: 2px; }
+
+  .demo-bar { background: #3b4652; color: #fff; font-size: 13.5px; padding: 8px 16px; text-align: center; line-height: 1.65; }
+  .demo-bar a { color: #ffd98a; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  .page-head { padding: 28px 0 18px; }
+  .kicker { font-size: 13.5px; font-weight: 700; color: var(--accent); }
+  h1 { font-size: clamp(22px, 4.4vw, 30px); line-height: 1.4; margin: 4px 0 6px; }
+  .page-head p { color: var(--muted); font-size: 15px; max-width: 52em; }
+
+  /* アプリの枠 */
+  .app { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 6px 24px rgba(31,41,51,.06); }
+  .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: #fbfcfe; }
+  .topbar h2 { font-size: 17px; line-height: 1.4; }
+  .topbar h2 small { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 6px; }
+  .progress { font-size: 14px; display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+  .pill { display: inline-block; border-radius: 999px; padding: 1px 10px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .pill.ok { background: var(--accent-soft); color: var(--accent); }
+  .pill.warn { background: var(--yellow); color: var(--yellow-ink); border: 1px solid var(--yellow-line); }
+  .pill.done { background: var(--green-soft); color: var(--green); border: 1px solid #9fd5b3; }
+  .pill.idle { background: var(--head); color: var(--muted); }
+  .top-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn { border: 0; border-radius: 9px; background: var(--accent); color: #fff; font-weight: 700; padding: 8px 16px; cursor: pointer; }
+  .btn:hover:not(:disabled) { background: #1740b0; }
+  .btn:disabled { background: #b8c2d0; cursor: not-allowed; }
+  .btn.ghost { background: var(--paper); color: var(--accent); border: 1.5px solid var(--accent); }
+  .btn.ghost:hover:not(:disabled) { background: var(--accent-soft); }
+  .btn.ghost:disabled { color: #8d99a8; border-color: #c7d0dc; background: var(--paper); }
+  .btn.small { padding: 4px 12px; font-size: 14px; }
+  .btn.green { background: var(--green); }
+  .btn.green:hover:not(:disabled) { background: #0f6a31; }
+  .btn.green:disabled { background: #b8c2d0; }
+  .close-hint { font-size: 12.5px; color: var(--muted); }
+
+  .body { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .folder { background: var(--side); border-bottom: 1px solid var(--line); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
+  .folder .side-title { font-weight: 700; font-size: 14.5px; line-height: 1.45; }
+  .folder .side-title small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+  .files { list-style: none; display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  .files li { flex: 1 1 250px; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 0; line-height: 1.4; overflow-wrap: anywhere; font-size: 13px; }
+  .files li .fbtn { all: unset; box-sizing: border-box; display: flex; gap: 8px; align-items: flex-start; width: 100%; padding: 6px 10px; cursor: pointer; border-radius: 8px; }
+  .files li .fbtn:focus-visible { outline: 3px solid #f0b46a; outline-offset: 1px; }
+  .files li:has(.fbtn:not(:disabled)):hover { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .files li.off { opacity: .55; }
+  .files li.off .fbtn { cursor: not-allowed; }
+  .files li .ico { flex: none; font-size: 10.5px; font-weight: 800; color: #b42318; border: 1.5px solid #b42318; border-radius: 3px; padding: 0 3px; margin-top: 2px; line-height: 1.35; }
+  .files li .st { margin-left: auto; flex: none; color: var(--green); font-weight: 700; font-size: 12.5px; white-space: nowrap; }
+  .files li.reading { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .files li.done { background: #f7fdf9; }
+  .folder .hint { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+  .sheet { min-width: 0; display: flex; flex-direction: column; }
+  .sheet-note { padding: 8px 14px; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line); min-height: 38px; }
+  .tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.grid { border-collapse: collapse; width: 100%; min-width: 980px; font-size: 13.5px; }
+  table.grid th, table.grid td { border: 1px solid var(--grid); padding: 6px 8px; text-align: left; vertical-align: top; line-height: 1.5; }
+  table.grid thead th { background: var(--head); color: #3b4652; font-weight: 700; white-space: nowrap; position: sticky; top: 0; }
+  table.grid td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.grid td.nw { white-space: nowrap; }
+  table.grid td.no { white-space: nowrap; background: var(--head); text-align: center; font-weight: 700; color: #3b4652; }
+  table.grid tr.row { cursor: pointer; }
+  table.grid tr.row:hover td:not(.no) { background: #f4f8ff; }
+  table.grid tr.row.flag td:not(.no) { background: var(--yellow); }
+  table.grid tr.row.flag:hover td:not(.no) { background: #ffeea0; }
+  table.grid tr.row.checked td:not(.no) { background: var(--green-soft); }
+  table.grid tr.row.checked:hover td:not(.no) { background: #dff3e6; }
+  table.grid tr.row.sel td:not(.no) { box-shadow: inset 0 2px 0 var(--accent), inset 0 -2px 0 var(--accent); }
+  table.grid tr.row:focus-visible { outline-offset: -3px; }
+  table.grid tr.sub td { background: #fffbe6; padding: 8px 12px; }
+  table.grid tr.sub.checked td { background: #f3fbf6; }
+  table.grid tr.row.new { animation: slide .35s ease-out; }
+  @keyframes slide { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { table.grid tr.row.new { animation: none; } }
+  .st-tag { display: inline-block; border-radius: 999px; padding: 0 9px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+  .st-tag.ok { background: var(--accent-soft); color: var(--accent); }
+  .st-tag.warn { background: #ffe58a; color: var(--yellow-ink); }
+  .st-tag.done { background: #c9ecd5; color: #0f6a31; }
+  .subrow { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .subrow .why { flex: 1 1 320px; min-width: 0; color: var(--yellow-ink); font-size: 13.5px; overflow-wrap: anywhere; }
+  .subrow .why b { color: #4a3600; }
+  .subrow .ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .subrow label { font-size: 13px; font-weight: 700; display: flex; gap: 6px; align-items: center; }
+  .subrow select { border: 1px solid #c9b25a; border-radius: 8px; padding: 4px 8px; background: #fff; max-width: 100%; }
+  .subrow .done-line { color: #0f6a31; font-size: 13.5px; }
+  .empty-sheet { padding: 28px 18px; color: var(--muted); font-size: 14.5px; }
+  .legend { padding: 8px 14px; font-size: 13px; color: #3d4853; background: #fbfcfe; border-bottom: 1px solid var(--line); line-height: 1.65; }
+  .legend b { color: var(--ink); }
+  .sheet-empty-box { border: 1px dashed var(--grid); border-radius: 10px; background: var(--bg); padding: 16px; margin: 16px; color: var(--muted); font-size: 14.5px; }
+
+  /* CSV */
+  .csv-out { border-top: 1px solid var(--line); padding: 16px; background: #fbfcfe; }
+  .csv-out h3 { font-size: 16px; margin-bottom: 2px; }
+  .csv-out p { font-size: 13.5px; color: var(--muted); }
+  .csv-out pre { margin: 10px 0; background: #1f2933; color: #e6edf5; border-radius: 10px; padding: 12px 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.6; font-family: "BIZ UDGothic", Consolas, "MS Gothic", monospace; white-space: pre; }
+  .csv-out .copy-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .csv-out .copied { font-size: 13.5px; color: var(--green); font-weight: 700; }
+
+  /* シートのタブ */
+  .tabs { display: flex; flex-wrap: wrap; gap: 2px; padding: 0 10px; background: var(--head); border-top: 1px solid var(--grid); }
+  .tabs button { border: 0; background: transparent; padding: 8px 16px; font-size: 14px; cursor: pointer; border-top: 3px solid transparent; color: #3b4652; }
+  .tabs button:hover { background: #e3e9f1; }
+  .tabs button[aria-selected="true"] { background: var(--paper); border-top-color: var(--accent); font-weight: 700; color: var(--accent); }
+
+  table.sum { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14px; }
+  table.sum th, table.sum td { border: 1px solid var(--grid); padding: 8px 10px; text-align: left; vertical-align: top; }
+  table.sum thead th { background: var(--head); white-space: nowrap; }
+  table.sum td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* 書類の見比べ（横から出る） */
+  .viewer { position: fixed; top: 0; right: 0; bottom: 0; width: min(920px, 94vw); background: var(--paper); box-shadow: -10px 0 40px rgba(31,41,51,.25); z-index: 40; display: flex; flex-direction: column; border-left: 1px solid var(--line); }
+  .viewer[hidden] { display: none; }
+  .viewer-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: #fbfcfe; }
+  .viewer-head h3 { font-size: 16px; line-height: 1.4; }
+  .viewer-body { overflow-y: auto; padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .viewer-body figure { margin: 0; }
+  .viewer-body img { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 8px; background: #eef1f5; }
+  .viewer-body figcaption { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .viewer dl { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 4px 10px; font-size: 14px; }
+  .viewer dt { color: var(--muted); font-weight: 700; }
+  .viewer dd { overflow-wrap: anywhere; }
+  .viewer .why-box { margin-top: 10px; background: var(--yellow); border: 1px solid var(--yellow-line); color: var(--yellow-ink); border-radius: 8px; padding: 8px 12px; font-size: 13.5px; }
+  .viewer .why-box b { display: block; }
+  .viewer h4 { font-size: 14px; margin: 12px 0 4px; }
+  .viewer table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  .viewer table th, .viewer table td { border: 1px solid var(--grid); padding: 4px 6px; text-align: left; }
+  .viewer table th { background: var(--head); }
+  @media (max-width: 760px) {
+    .viewer { top: auto; left: 0; width: auto; height: 86vh; border-left: 0; border-top: 1px solid var(--line); border-radius: 14px 14px 0 0; box-shadow: 0 -10px 40px rgba(31,41,51,.3); }
+    .viewer-body { grid-template-columns: minmax(0, 1fr); }
+    .viewer-body figure { order: 2; }
+  }
+
+  /* しくみ */
+  .explain { padding: 40px 0 8px; }
+  .explain h2 { font-size: 22px; margin-bottom: 2px; }
+  .sub { color: var(--muted); font-size: 14.5px; margin-bottom: 16px; max-width: 52em; }
+  .arch { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+  .arch .node { flex: 1 1 150px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 14px; color: var(--muted); min-width: 0; }
+  .arch .node b { display: block; font-size: 15px; color: var(--ink); }
+  .arch .node.human { border-color: var(--yellow-line); background: #fffdf0; }
+  .arch .arrow { align-self: center; color: var(--accent); font-size: 22px; font-weight: 700; }
+  @media (max-width: 760px) { .arch { flex-direction: column; } .arch .arrow { transform: rotate(90deg); } }
+  .assume { display: inline-block; background: var(--amber-soft); color: var(--amber); font-weight: 700; font-size: 12.5px; padding: 0 10px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+  .col { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px 20px; min-width: 0; }
+  .col h3 { font-size: 17px; margin-bottom: 6px; }
+  .col.ai h3 { color: var(--accent); }
+  .col.human h3 { color: var(--yellow-ink); }
+  .col ul { padding-left: 1.3em; font-size: 14.5px; color: #3d4853; }
+  .col li { margin-bottom: 4px; }
+  .statement { margin-top: 14px; background: var(--green-soft); border-left: 4px solid var(--green); border-radius: 8px; padding: 10px 14px; font-size: 14.5px; color: #1e5b34; }
+  .months { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; counter-reset: m; }
+  @media (max-width: 760px) { .months { grid-template-columns: 1fr; } }
+  .box { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px; font-size: 14.5px; color: var(--muted); }
+  .box h3 { font-size: 16px; color: var(--ink); margin-bottom: 4px; }
+  .months .box h3::before { counter-increment: m; content: counter(m) "か月目　"; color: var(--accent); }
+  .result-list { list-style: none; display: grid; gap: 8px; margin: 10px 0; }
+  .result-list li { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; font-size: 14.5px; }
+  .result-list li b { color: var(--ink); }
+  .result-list li.diff { border-left: 4px solid var(--amber); background: var(--amber-soft); }
+  .result-list li.good { border-left: 4px solid var(--green); }
+  details.instr { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; }
+  details.instr summary { cursor: pointer; padding: 10px 16px; font-weight: 700; font-size: 14.5px; }
+  details.instr ul { padding: 0 16px 12px 36px; font-size: 14.5px; color: #3d4853; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .contact { background: var(--paper); border: 1.5px solid var(--accent); border-radius: 14px; padding: 16px 20px; margin-top: 26px; font-size: 15px; }
+  footer { color: var(--muted); font-size: 13px; padding: 32px 0 44px; }
+
+
+</style>
+</head>
+<body>
+
+<div class="demo-bar">画面の見本（モック）です。会社・お店・書類はすべて架空で、登録番号も見本の番号です。表の下書きは、この8枚のスキャン（文字の層が無い画像のPDF）をAI（Claude）に実際に読ませて出た結果を、そのまま載せています。このページではAIは動いていません。｜<a href="../">作品集にもどる</a></div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div class="kicker">画面の見本｜経営者向け</div>
+    <h1>ためた領収書・請求書を、PDFを入れるだけで仕訳の下書きに</h1>
+    <p>スキャンしたPDFをフォルダに入れると、日付・取引先・金額・税率・勘定科目の下書きが表に並びます。人が見るのは、AIが迷った黄色の行だけです。下の「8枚を読み取る（見本）」を押してみてください。</p>
+  </div>
+
+  <div class="app" id="app">
+    <div class="topbar">
+      <h2>仕訳の下書き　A社　2026年10月 <small>（会社も書類もすべて架空）</small></h2>
+      <div class="progress" id="progress" aria-live="polite"></div>
+      <div class="top-actions">
+        <button class="btn" id="btn-read" type="button">8枚を読み取る（見本）</button>
+        <button class="btn green" id="btn-close" type="button" disabled aria-describedby="close-hint">10月を締める</button>
+        <button class="btn ghost small" id="btn-reset" type="button" hidden>最初に戻す</button>
+        <span class="close-hint" id="close-hint"></span>
+      </div>
+    </div>
+
+    <div id="panel-A" role="tabpanel" aria-labelledby="tab-A">
+      <div class="body">
+        <aside class="folder" aria-label="受け取りフォルダ">
+          <div class="side-title">受け取りフォルダ<small>A社 / 2026年10月</small></div>
+          <ul class="files" id="files"></ul>
+          <p class="hint">スキャンしたPDFを、このフォルダに入れるだけです。読み取り後は、PDFを押すと、その書類を見比べられます。</p>
+        </aside>
+        <section class="sheet" aria-label="仕訳の下書きの表">
+          <div class="sheet-note" id="sheet-note" aria-live="polite"></div>
+          <div class="legend"><div><b>借方</b>＝何に使ったか（費用の科目）／<b>貸方</b>＝どう払ったか（現金・まだ払っていない物は未払金）</div><div><b>迷いなし</b>＝AIが迷わなかった下書き（最後は月末にまとめて目を通します）</div></div>
+          <div class="tablewrap">
+            <table class="grid" id="grid">
+              <caption class="sr-only" style="position:absolute;left:-9999px">仕訳の下書き（A社 2026年10月）。行を押すと、元の書類と見比べられます。</caption>
+              <thead><tr><th>No</th><th>日付</th><th>書類</th><th>取引先</th><th>借方科目</th><th>貸方科目</th><th>金額</th><th>税率</th><th>登録番号</th><th>摘要</th><th>状態</th></tr></thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+          <div class="sheet-empty-box" id="empty-box">まだ表は空です。「8枚を読み取る（見本）」を押すと、フォルダの8枚が1枚ずつ読み取られ、下書きが1行ずつ並びます。</div>
+          <div class="csv-out" id="csv-out" hidden>
+            <h3>税理士・会計ソフトに渡す形（CSV）</h3>
+            <p>CSVは、会計ソフトや表計算に取り込める形です。月を締めると、確かめ済みの下書きがこの形になります。列の並びは、会計ソフトや税理士の取り込みの形に合わせて変えられます。</p>
+            <pre id="csv-text" tabindex="0" aria-label="CSVの中身"></pre>
+            <div class="copy-row"><button class="btn small" id="btn-copy" type="button">CSVをコピー</button><span class="copied" id="copied" role="status"></span></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="panel-B" role="tabpanel" aria-labelledby="tab-B" hidden>
+      <div class="sheet-empty-box"><b>B社 / 2026年10月</b><br>同じ形のフォルダです。PDFを入れると、ここに並びます（見本では空）。</div>
+    </div>
+    <div id="panel-C" role="tabpanel" aria-labelledby="tab-C" hidden>
+      <div class="sheet-empty-box"><b>C社 / 2026年10月</b><br>同じ形のフォルダです。PDFを入れると、ここに並びます（見本では空）。</div>
+    </div>
+    <div id="panel-S" role="tabpanel" aria-labelledby="tab-S" hidden>
+      <div style="padding:14px 14px 4px;font-size:13.5px;color:var(--muted)">会社ごとの10月の状態です。会社を足しても、同じ形で並びます。A社の行は、上の操作に合わせて変わります。</div>
+      <div class="tablewrap" style="padding:0 14px 16px">
+        <table class="sum">
+          <thead><tr><th>会社</th><th>PDF</th><th>下書き行</th><th>要確認</th><th>借方の合計</th><th>状態</th></tr></thead>
+          <tbody id="sum-rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="会社ごとのシート">
+      <button type="button" role="tab" id="tab-A" aria-selected="true" aria-controls="panel-A" data-tab="A">A社</button>
+      <button type="button" role="tab" id="tab-B" aria-selected="false" aria-controls="panel-B" data-tab="B" tabindex="-1">B社</button>
+      <button type="button" role="tab" id="tab-C" aria-selected="false" aria-controls="panel-C" data-tab="C" tabindex="-1">C社</button>
+      <button type="button" role="tab" id="tab-S" aria-selected="false" aria-controls="panel-S" data-tab="S" tabindex="-1">月のまとめ</button>
+    </div>
+  </div>
+
+  <aside class="viewer" id="viewer" role="dialog" aria-label="元の書類と読み取り結果の見比べ" hidden>
+    <div class="viewer-head"><h3 id="viewer-title">元の書類と読み取り結果</h3><button class="btn ghost small" id="viewer-close" type="button">閉じる</button></div>
+    <div class="viewer-body" id="viewer-body"></div>
+  </aside>
+
+  <section class="explain">
+    <h2>本番では、こう動く想定です<span class="assume">想定</span></h2>
+    <p class="sub">ここに書くのは本番の想定の形です。この見本のページでは、AIも、Googleドライブやスプレッドシートも動いていません。</p>
+    <div class="arch" role="list">
+      <div class="node" role="listitem"><b>スキャン</b>スマホや複合機で、領収書・請求書をPDFにする</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>会社ごとのフォルダ</b>Googleドライブの、会社ごと・月ごとのフォルダに入れる</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>AIに読ませる</b>Google Apps Script（Googleの表やフォルダを自動で動かす仕組み）が、新しいPDFをAIに読ませる</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>スプレッドシート</b>1枚ごとに、下書きが1行ずつ並ぶ</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node human" role="listitem"><b>黄色の行だけ人が見る</b>迷った理由を見て、科目を選び直して確かめる</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>月末に締める</b>税理士・会計ソフトに渡す形（CSV。会計ソフトや表計算に取り込める形）にする</div>
+    </div>
+  </section>
+
+  <section class="explain">
+    <h2>AIに任せること／人が見ること</h2>
+    <p class="sub">全部をAIに任せるのではなく、AIが迷った所だけを人が見る分け方です。</p>
+    <div class="two">
+      <div class="col ai">
+        <h3>AIに任せること</h3>
+        <ul>
+          <li>日付・取引先・金額・税率・登録番号を読む</li>
+          <li>税率（8%・10%）が混ざる書類は、税率ごとに行を分ける</li>
+          <li>請求書は「未払金」、払い済みのレシート・領収書は「現金」にする</li>
+          <li>勘定科目の候補を出す</li>
+          <li>迷った所に、理由を付ける</li>
+        </ul>
+      </div>
+      <div class="col human">
+        <h3>人が見ること</h3>
+        <ul>
+          <li>黄色の行を見る（用途や相手が書類から分からない、字がかすれている、登録番号がない）</li>
+          <li>科目を選び直して、確かめる</li>
+          <li>月末に締める</li>
+        </ul>
+      </div>
+    </div>
+    <p class="statement">決算と申告は、これまでどおり経営者と税理士が行います。この仕組みは、そのための下書きを毎月そろえる道具です。</p>
+  </section>
+
+  <section class="explain">
+    <h2>小さく始める進め方（例）</h2>
+    <p class="sub">一度に全部を変えず、1社から始めて、決まりを少しずつ育てる進め方の例です。</p>
+    <div class="months">
+      <div class="box"><h3>1社分を回す</h3>1社分の書類を実際に回し、黄色の行の見方と、科目の決まりを一緒に決めます。</div>
+      <div class="box"><h3>決まりを残して広げる</h3>決めた内容を「科目のメモ」として残し、ほかの会社のフォルダを足します。</div>
+      <div class="box"><h3>渡す形を決める</h3>税理士への受け渡しの形（列・時期）を決め、決算前にあわてない状態にします。</div>
+    </div>
+  </section>
+
+  <section class="explain">
+    <h2>この見本で、AIが実際に読んだ結果</h2>
+    <p class="sub">表の下書きは、この8枚のPDFをAIに画像として1枚ずつ読ませて出た結果です。直さずに載せています。そのあとで、書類を作った時の正しい値と比べました。</p>
+    <ul class="result-list">
+      <li><b>読んだAI：</b>Claude Sonnet 5.5。2026-11-09 に読み取りました。画像だけのPDFを1本ずつ開いて、画像として読む形です。1回読んだだけの結果で、別の書類でも同じ精度とは限りません。</li>
+      <li class="good"><b>日付・取引先・合計：</b>作った時の正しい値と比べると、8枚とも同じでした。税率ごとの内訳（スーパーの8%と10%を含む）も、8枚とも同じでした。</li>
+      <li class="good"><b>借方科目：</b>9行（スーパーの2行を含む）のうち8行が、作った時の正しい値と同じでした。<b>貸方科目：</b>9行とも同じでした（請求書は未払金、それ以外は現金）。</li>
+      <li class="diff"><b>違った所（科目）：</b>さくらいマートのお茶とコーヒー（7-1）は、作った時には会議費としていましたが、AIは福利厚生費を第一の候補にしました。来客用か社員用かは書類から分からないため、AIは要確認にして、人が確かめる行に回しました（会議費も候補に挙げています）。</li>
+      <li class="diff"><b>読み取れなかった所：</b>手書きの領収書（まるやま商店）の登録番号は、かすれていて「一部読めない」としました（作った時の値は、見本の番号の1つです）。「T0000000000005 のように見えるが断定できない」と理由に書き、決め打ちはしませんでした。金額のかすれた末尾は、内消費税と税率から計算が合うことを確かめて、正しい金額（1,080円）に読めています。</li>
+      <li class="diff"><b>支払方法：</b>手書きの領収書は、書類に支払方法が書かれていないので「不明」としました。貸方は「領収書なので現金」と判断して、作った時の正しい値と同じになっています。</li>
+      <li class="good"><b>登録番号：</b>8枚のうち、番号を正しく読めたのは6枚です。駐車場は書類に無いので「なし」と書き、これも正しい読みです。</li>
+      <li class="good"><b>要確認：</b>AIは4枚を要確認にしました（喫茶店・手書きの領収書・スーパー・駐車場）。作った時に、迷う書類として用意した3枚（喫茶店・手書きの領収書・駐車場）は、すべて含まれています。スーパーは、作った時には要確認にしていませんでしたが、来客用か社員用かが書類から分からないため、AIは要確認にしました。確からしさは、高が4枚、中が4枚でした。</li>
+    </ul>
+    <details class="instr">
+      <summary>読み取りの指示（抜粋）</summary>
+      <ul>
+        <li>書類に書いてあることだけを読む。読めない字は推測で埋めず「?」にして、理由を書く</li>
+        <li>8%と10%が混ざる書類は、税率ごとに行を分ける</li>
+        <li>まだ払っていない請求書は「未払金」、払い済みのレシート・領収書は「現金」</li>
+        <li>用途が分からず科目が決まらない時は、候補を2つまで挙げて要確認にする</li>
+        <li>登録番号が無ければ「なし」と書き、要確認にする</li>
+        <li>1枚ごとに、確からしさを「高・中・低」で付ける</li>
+      </ul>
+    </details>
+    <p class="note">この見本は、会社・お店・書類・番号をすべて架空にして作っています。本番の精度や効果を約束するものではありません。</p>
+  </section>
+
+  <section class="explain">
+    <h2>よくある質問</h2>
+    <p class="sub">本番の想定での答えです。決まっていないことは、始める時に一緒に確かめます。</p>
+    <details class="instr"><summary>書類のデータはどこに置かれますか</summary><ul style="list-style:none;padding-left:16px"><li>本番の想定では、書類と表は会社のGoogleドライブに置き、AIには読み取りのために送るだけです。どのAIのサービスを使うか、送った内容が学習に使われない設定になっているかは、始める時に一緒に確かめて選びます。</li></ul></details>
+    <details class="instr"><summary>今の会計ソフトや税理士に、そのまま渡せますか</summary><ul style="list-style:none;padding-left:16px"><li>列の並びは、使っている会計ソフトや税理士の取り込みの形に合わせて変えられます。最初に、今の受け渡しの形を見せていただきます。</li></ul></details>
+    <details class="instr"><summary>自分の会社の書類で試せますか</summary><ul style="list-style:none;padding-left:16px"><li>始める時に、1社の1か月分で試し、黄色の行がどれくらい出るかを一緒に見ます。</li></ul></details>
+
+    <div class="contact">お仕事のご相談は、このページをご覧になったサービス（クラウドソーシングなど）のメッセージ機能からお願いします。ほかの作品は<a href="../">作品集</a>にあります。</div>
+  </section>
+
+  <footer>© 2026 updating30｜画面の見本です。会社・お店・書類・番号はすべて架空です</footer>
+</div>
+
+<script>
+const DATA = {
+ "読み取った日時": "2026-11-09 23:58",
+ "読み取ったAI": "Claude Sonnet 5.5 (claude-sonnet-5-5)",
+ "読み方": "PDFをReadツールで1本ずつ開き、画像として読んだ",
+ "documents": [
+  {
+   "file": "01_レシート_ふでばこ堂.pdf",
+   "書類の種類": "レシート",
+   "日付": "2026-10-02",
+   "取引先": "ふでばこ堂",
+   "登録番号": "T0000000000001",
+   "合計": 3300,
+   "税率ごとの内訳": [
+    {
+     "税率": "10%",
+     "対象額（税込）": 3300,
+     "消費税": 300
+    }
+   ],
+   "支払方法": "現金",
+   "品目・但し書き": "コピー用紙 A4 500枚 1,980円、ボールペン 黒 3本組 1,320円（書類上の表題は「領収書」）",
+   "仕訳": [
+    {
+     "借方科目": "消耗品費",
+     "借方科目の候補": [],
+     "貸方科目": "現金",
+     "金額": 3300,
+     "税率": "10%",
+     "摘要": "ふでばこ堂 コピー用紙・ボールペン"
+    }
+   ],
+   "確からしさ": "高",
+   "要確認": false,
+   "要確認の理由": ""
+  },
+  {
+   "file": "02_領収書_つばめ交通.pdf",
+   "書類の種類": "領収書",
+   "日付": "2026-10-05",
+   "取引先": "つばめ交通 株式会社",
+   "登録番号": "T0000000000002",
+   "合計": 2180,
+   "税率ごとの内訳": [
+    {
+     "税率": "10%",
+     "対象額（税込）": 2180,
+     "消費税": 198
+    }
+   ],
+   "支払方法": "現金",
+   "品目・但し書き": "運賃（タクシー。乗車 ○○駅前 17:48、降車 ○○町 18:09）。宛名 A社 御中",
+   "仕訳": [
+    {
+     "借方科目": "旅費交通費",
+     "借方科目の候補": [],
+     "貸方科目": "現金",
+     "金額": 2180,
+     "税率": "10%",
+     "摘要": "つばめ交通 タクシー代 ○○駅前〜○○町"
+    }
+   ],
+   "確からしさ": "高",
+   "要確認": false,
+   "要確認の理由": ""
+  },
+  {
+   "file": "03_レシート_こもれび珈琲.pdf",
+   "書類の種類": "レシート",
+   "日付": "2026-10-08",
+   "取引先": "こもれび珈琲",
+   "登録番号": "T0000000000003",
+   "合計": 1740,
+   "税率ごとの内訳": [
+    {
+     "税率": "10%",
+     "対象額（税込）": 1740,
+     "消費税": 158
+    }
+   ],
+   "支払方法": "現金",
+   "品目・但し書き": "ブレンドコーヒー 550×2 1,100円、チーズケーキ 640円（店内飲食）",
+   "仕訳": [
+    {
+     "借方科目": "会議費",
+     "借方科目の候補": [
+      "会議費",
+      "交際費"
+     ],
+     "貸方科目": "現金",
+     "金額": 1740,
+     "税率": "10%",
+     "摘要": "こもれび珈琲 店内飲食（コーヒー2・チーズケーキ）"
+    }
+   ],
+   "確からしさ": "中",
+   "要確認": true,
+   "要確認の理由": "店内飲食で、打合せ（会議費）か取引先との飲食（交際費）かが書類から分からない。参加者・目的が書かれていない"
+  },
+  {
+   "file": "04_請求書_山田印刷所.pdf",
+   "書類の種類": "請求書",
+   "日付": "2026-10-15",
+   "取引先": "山田印刷所",
+   "登録番号": "T0000000000004",
+   "合計": 33000,
+   "税率ごとの内訳": [
+    {
+     "税率": "10%",
+     "対象額（税込）": 33000,
+     "消費税": 3000
+    }
+   ],
+   "支払方法": "振込",
+   "品目・但し書き": "チラシ印刷（A4両面カラー）5,000部 単価6円 30,000円（税抜）。請求書番号 YP-2610-015。支払期限 2026-11-30、振込手数料は客負担",
+   "仕訳": [
+    {
+     "借方科目": "広告宣伝費",
+     "借方科目の候補": [],
+     "貸方科目": "未払金",
+     "金額": 33000,
+     "税率": "10%",
+     "摘要": "山田印刷所 チラシ印刷5,000部（請求書YP-2610-015）"
+    }
+   ],
+   "確からしさ": "高",
+   "要確認": false,
+   "要確認の理由": ""
+  },
+  {
+   "file": "05_領収書_まるやま商店.pdf",
+   "書類の種類": "領収書",
+   "日付": "2026-10-20",
+   "取引先": "まるやま商店",
+   "登録番号": "一部読めない",
+   "合計": 1080,
+   "税率ごとの内訳": [
+    {
+     "税率": "8%",
+     "対象額（税込）": 1080,
+     "消費税": 80
+    }
+   ],
+   "支払方法": "不明",
+   "品目・但し書き": "お茶菓子代として（手書き。令和8年10月20日、宛名 A社 御中）",
+   "仕訳": [
+    {
+     "借方科目": "会議費",
+     "借方科目の候補": [
+      "会議費",
+      "交際費"
+     ],
+     "貸方科目": "現金",
+     "金額": 1080,
+     "税率": "8%",
+     "摘要": "まるやま商店 お茶菓子代"
+    }
+   ],
+   "確からしさ": "中",
+   "要確認": true,
+   "要確認の理由": "(1)登録番号の枠がかすれていて、Tのあと13桁のうち中ほどの数字がはっきり読めない（T0000000000005 のように見えるが断定できない）。(2)金額の末尾の「0」がかすれている。1,080と読んだが、内消費税¥80・8%対象（税抜1,000円）と合うので1,080とした。(3)お茶菓子代が来客用（会議費）か贈答・接待（交際費）かが書類から分からない。支払方法は書かれていないが、領収書なので貸方は現金とした"
+  },
+  {
+   "file": "06_請求書_ひかり回線サービス.pdf",
+   "書類の種類": "請求書",
+   "日付": "2026-10-31",
+   "取引先": "ひかり回線サービス株式会社",
+   "登録番号": "T0000000000006",
+   "合計": 5478,
+   "税率ごとの内訳": [
+    {
+     "税率": "10%",
+     "対象額（税込）": 5478,
+     "消費税": 498
+    }
+   ],
+   "支払方法": "口座振替",
+   "品目・但し書き": "インターネット利用料（10月分）4,980円（税抜）。請求書発行日 2026-10-31、口座振替日 2026-11-27",
+   "仕訳": [
+    {
+     "借方科目": "通信費",
+     "借方科目の候補": [],
+     "貸方科目": "未払金",
+     "金額": 5478,
+     "税率": "10%",
+     "摘要": "ひかり回線サービス インターネット利用料 10月分"
+    }
+   ],
+   "確からしさ": "高",
+   "要確認": false,
+   "要確認の理由": ""
+  },
+  {
+   "file": "07_レシート_さくらいマート.pdf",
+   "書類の種類": "レシート",
+   "日付": "2026-10-24",
+   "取引先": "さくらいマート",
+   "登録番号": "T0000000000007",
+   "合計": 1630,
+   "税率ごとの内訳": [
+    {
+     "税率": "8%",
+     "対象額（税込）": 1080,
+     "消費税": 80
+    },
+    {
+     "税率": "10%",
+     "対象額（税込）": 550,
+     "消費税": 50
+    }
+   ],
+   "支払方法": "現金",
+   "品目・但し書き": "緑茶ティーバッグ※ 432円、インスタントコーヒー※ 648円（※軽減税率8%）、ゴミ袋45L 330円、食器用洗剤 220円",
+   "仕訳": [
+    {
+     "借方科目": "福利厚生費",
+     "借方科目の候補": [
+      "福利厚生費",
+      "会議費"
+     ],
+     "貸方科目": "現金",
+     "金額": 1080,
+     "税率": "8%",
+     "摘要": "さくらいマート 緑茶ティーバッグ・インスタントコーヒー"
+    },
+    {
+     "借方科目": "消耗品費",
+     "借方科目の候補": [],
+     "貸方科目": "現金",
+     "金額": 550,
+     "税率": "10%",
+     "摘要": "さくらいマート ゴミ袋45L・食器用洗剤"
+    }
+   ],
+   "確からしさ": "中",
+   "要確認": true,
+   "要確認の理由": "8%の行（お茶・コーヒー）が、従業員用（福利厚生費）か来客用（会議費）かが書類から分からない。10%の行（ゴミ袋・洗剤）は消耗品費でほぼ確実"
+  },
+  {
+   "file": "08_領収書_パーク中央第2.pdf",
+   "書類の種類": "領収書",
+   "日付": "2026-10-27",
+   "取引先": "パーク中央第2",
+   "登録番号": "なし",
+   "合計": 800,
+   "税率ごとの内訳": [
+    {
+     "税率": "10%",
+     "対象額（税込）": 800,
+     "消費税": 72
+    }
+   ],
+   "支払方法": "現金",
+   "品目・但し書き": "駐車料金（入庫 13:05、出庫 15:48、駐車時間 2時間43分）。書類の表題は「領収証」",
+   "仕訳": [
+    {
+     "借方科目": "旅費交通費",
+     "借方科目の候補": [
+      "旅費交通費",
+      "雑費"
+     ],
+     "貸方科目": "現金",
+     "金額": 800,
+     "税率": "10%",
+     "摘要": "パーク中央第2 駐車料金 2時間43分"
+    }
+   ],
+   "確からしさ": "中",
+   "要確認": true,
+   "要確認の理由": "登録番号（Tと13桁）の記載が見当たらない。消費税の仕入税額控除に関わる。また、駐車の用途（出張・訪問の移動に伴う旅費交通費か、ほかの科目か）が書類から分からず、科目は旅費交通費か雑費の2案。宛名の記載もない"
+  }
+ ]
+};
+</script>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const COMMON = ["消耗品費", "会議費", "交際費", "福利厚生費", "旅費交通費", "通信費", "広告宣伝費", "雑費"];
+const yen = n => "¥" + Number(n).toLocaleString("ja-JP");
+
+/* 読み取り結果を、表の行に展開する（文字は変えない） */
+const docs = DATA.documents;
+const rows = [];
+docs.forEach((d, di) => {
+  const flaggedDoc = !!d["要確認"];
+  d["仕訳"].forEach((e, ei) => {
+    const multi = d["仕訳"].length > 1;
+    rows.push({
+      di, key: di + "-" + ei,
+      no: multi ? (di + 1) + "-" + (ei + 1) : String(di + 1),
+      e, d,
+      flag: flaggedDoc && (e["借方科目の候補"] || []).length > 0
+    });
+  });
+});
+
+const st = { shown: 0, running: false, confirmed: {}, choice: {}, closed: false, selRow: null, tab: "A" };
+let timer = null;
+
+function docNeedsCheck(di) { return !!docs[di]["要確認"]; }
+function counts() {
+  const read = docs.slice(0, st.shown);
+  const flaggedDocs = read.map((d, i) => i).filter(i => docNeedsCheck(i));
+  const pending = flaggedDocs.filter(i => !st.confirmed[i]).length;
+  const confirmed = flaggedDocs.length - pending;
+  return { read: read.length, ok: read.length - flaggedDocs.length, flagged: flaggedDocs.length, pending, confirmed };
+}
+function debitOf(r) { return st.choice[r.key] || r.e["借方科目"]; }
+
+function renderFiles() {
+  $("files").innerHTML = "";
+  docs.forEach((d, i) => {
+    const li = document.createElement("li");
+    const done = i < st.shown;
+    const reading = st.running && i === st.shown;
+    li.className = done ? "done" : reading ? "reading" : "off";
+    const bt = document.createElement("button"); bt.type = "button"; bt.className = "fbtn"; bt.disabled = !done;
+    if (done) { bt.title = "押すと、この書類を見比べられます"; bt.addEventListener("click", () => openViewer(rows.find(r => r.di === i).key, bt)); }
+    const ico = document.createElement("span"); ico.className = "ico"; ico.textContent = "PDF";
+    const nm = document.createElement("span"); nm.textContent = d.file;
+    bt.append(ico, nm);
+    if (done || reading) { const s = document.createElement("span"); s.className = "st"; s.textContent = done ? "読み取り済み" : "読み取り中…"; bt.append(s); }
+    li.append(bt);
+    $("files").appendChild(li);
+  });
+}
+
+function renderProgress() {
+  const c = counts(), p = $("progress");
+  p.innerHTML = "";
+  const add = (cls, txt) => { const s = document.createElement("span"); s.className = "pill " + cls; s.textContent = txt; p.appendChild(s); };
+  if (c.read === 0) { add("idle", "まだ読み取っていません（0 / 8枚）"); }
+  else if (c.read < docs.length) { add("idle", "読み取り中 " + c.read + " / " + docs.length + "枚"); }
+  else {
+    add("ok", "8枚中 " + c.ok + "枚 迷いなし");
+    if (c.pending > 0) add("warn", c.pending + "枚 要確認");
+    if (c.confirmed > 0) add("done", c.confirmed + "枚 確認済み");
+    if (st.closed) add("done", "10月は締め済み");
+  }
+  const closeBtn = $("btn-close"), hint = $("close-hint");
+  const ready = c.read === docs.length && c.pending === 0 && !st.running;
+  closeBtn.disabled = !ready || st.closed;
+  closeBtn.textContent = st.closed ? "締め済み" : "10月を締める";
+  if (st.closed) hint.textContent = "";
+  else if (c.read < docs.length) hint.textContent = "読み取って、黄色の行を確かめると押せます";
+  else if (c.pending > 0) hint.textContent = "黄色の行を確かめると押せます（要確認が" + c.pending + "枚残っています）";
+  else hint.textContent = "全部確かめました。締められます";
+  $("btn-read").disabled = st.running || st.shown > 0;
+  $("btn-reset").hidden = st.shown === 0 || st.running;
+}
+
+function td(txt, cls) { const t = document.createElement("td"); if (cls) t.className = cls; t.textContent = txt; return t; }
+
+function renderRows() {
+  const tb = $("rows"); tb.innerHTML = "";
+  rows.filter(r => r.di < st.shown).forEach(r => {
+    const e = r.e, d = r.d;
+    const checked = r.flag && st.confirmed[r.di];
+    const tr = document.createElement("tr");
+    tr.className = "row" + (r.flag ? (checked ? " checked" : " flag") : "") + (st.selRow === r.key ? " sel" : "") + (r.isNew ? " new" : "");
+    tr.tabIndex = 0;
+    tr.dataset.key = r.key;
+    tr.setAttribute("aria-label", "No." + r.no + " " + d["取引先"] + "。押すと元の書類と見比べられます");
+    const debit = debitOf(r);
+    const dcell = td(debit, "nw");
+    if (checked && debit !== e["借方科目"]) { const s = document.createElement("small"); s.style.color = "#5b6672"; s.textContent = "（AI案：" + e["借方科目"] + "）"; dcell.appendChild(document.createElement("br")); dcell.appendChild(s); }
+    tr.append(td(r.no, "no"), td(d["日付"], "nw"), td(d["書類の種類"], "nw"), td(d["取引先"]), dcell, td(e["貸方科目"], "nw"), td(yen(e["金額"]), "num"), td(e["税率"], "nw"), td(d["登録番号"], "nw"), (() => { const c = td(e["摘要"]); if (d["仕訳"].length > 1) { const s = document.createElement("small"); s.style.color = "#5b6672"; s.textContent = "8%と10%が混ざる書類は、税率ごとに行を分けます"; c.appendChild(document.createElement("br")); c.appendChild(s); } return c; })());
+    const stc = document.createElement("td"); stc.className = "nw";
+    const tag = document.createElement("span");
+    if (r.flag) { tag.className = "st-tag " + (checked ? "done" : "warn"); tag.textContent = checked ? "確認済み" : "要確認"; }
+    else { tag.className = "st-tag ok"; tag.textContent = "迷いなし"; }
+    stc.appendChild(tag); tr.appendChild(stc);
+    tb.appendChild(tr);
+    r.isNew = false;
+    if (r.flag) {
+      const sub = document.createElement("tr");
+      sub.className = "sub" + (checked ? " checked" : "");
+      const c = document.createElement("td"); c.colSpan = 11;
+      const box = document.createElement("div"); box.className = "subrow";
+      if (!checked) {
+        const why = document.createElement("div"); why.className = "why";
+        const b = document.createElement("b"); b.textContent = "AIが迷った理由：";
+        why.append(b, document.createTextNode(d["要確認の理由"]));
+        const ctl = document.createElement("div"); ctl.className = "ctl";
+        const lab = document.createElement("label"); lab.textContent = "借方科目を選ぶ";
+        const sel = document.createElement("select"); sel.setAttribute("aria-label", "No." + r.no + " の借方科目");
+        const cands = e["借方科目の候補"] || [];
+        const opts = []; cands.forEach(x => { if (!opts.includes(x)) opts.push(x); });
+        const rest = COMMON.filter(x => !opts.includes(x));
+        opts.forEach((x, i) => sel.appendChild(new Option(x + (i === 0 ? "（AIの第一候補）" : "（AIの候補）"), x)));
+        rest.forEach(x => sel.appendChild(new Option(x, x)));
+        sel.value = st.choice[r.key] || cands[0] || e["借方科目"];
+        sel.addEventListener("change", () => { st.choice[r.key] = sel.value; });
+        lab.appendChild(sel);
+        const ok = document.createElement("button"); ok.type = "button"; ok.className = "btn small"; ok.textContent = "確認した";
+        ok.addEventListener("click", () => { st.choice[r.key] = sel.value; st.confirmed[r.di] = true; refresh(); });
+        const view = document.createElement("button"); view.type = "button"; view.className = "btn ghost small"; view.textContent = "書類と見比べる";
+        view.addEventListener("click", () => openViewer(r.key, view));
+        ctl.append(view, lab, ok);
+        box.append(why, ctl);
+      } else {
+        const line = document.createElement("div"); line.className = "done-line";
+        line.textContent = "確認済み：借方科目は「" + debit + "」にしました。" + (debit !== e["借方科目"] ? "（AIの第一候補は「" + e["借方科目"] + "」）" : "");
+        box.appendChild(line);
+      }
+      c.appendChild(box); sub.appendChild(c); tb.appendChild(sub);
+    }
+  });
+  $("empty-box").hidden = st.shown > 0;
+  const note = $("sheet-note");
+  if (st.shown === 0) note.textContent = "読み取り前です。";
+  else if (st.running) note.textContent = "読み取り中です。1枚ずつ、下書きが並びます。";
+  else if (st.closed) note.textContent = "10月は締め済みです。下に、渡す形（CSV）を出しました。";
+  else note.textContent = "行を押すと、元の書類と読み取った項目を見比べられます。黄色の行は、理由を読んで、科目を選んでから「確認した」を押します。";
+}
+
+function csvCell(v) { v = String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function buildCsv() {
+  const head = ["日付", "借方科目", "借方金額", "税率", "貸方科目", "貸方金額", "摘要", "取引先", "登録番号"];
+  const lines = [head.join(",")];
+  rows.forEach(r => {
+    const e = r.e, d = r.d;
+    lines.push([d["日付"], debitOf(r), e["金額"], e["税率"], e["貸方科目"], e["金額"], e["摘要"], d["取引先"], d["登録番号"]].map(csvCell).join(","));
+  });
+  return lines.join("\n");
+}
+
+function renderCsv() {
+  $("csv-out").hidden = !st.closed;
+  if (st.closed) $("csv-text").textContent = buildCsv();
+}
+
+function renderSummary() {
+  const tb = $("sum-rows"); tb.innerHTML = "";
+  const c = counts();
+  const total = rows.filter(r => r.di < st.shown).reduce((s, r) => s + r.e["金額"], 0);
+  let state, pdf, lines, warn, sum;
+  if (st.shown === 0) { state = "未読み取り"; pdf = "8枚（受け取りフォルダ）"; lines = "—"; warn = "—"; sum = "—"; }
+  else if (st.shown < docs.length) { state = "読み取り中"; pdf = c.read + " / 8枚"; lines = rows.filter(r => r.di < st.shown).length + "行"; warn = "—"; sum = "—"; }
+  else {
+    pdf = "8枚"; lines = rows.length + "行"; warn = c.pending + "枚が未確認（要確認 " + c.flagged + "枚中）"; sum = yen(total);
+    state = st.closed ? "締め済み（CSVを出しました）" : (c.pending > 0 ? "要確認の確認待ち" : "確認済み・締められます");
+  }
+  if (st.shown === docs.length && c.pending === 0) warn = "0枚（" + c.flagged + "枚とも確認済み）";
+  const a = document.createElement("tr");
+  [["A社", ""], [pdf, ""], [lines, ""], [warn, ""], [sum, "num"], [state, ""]].forEach(([t, cl]) => a.appendChild(td(t, cl)));
+  tb.appendChild(a);
+  ["B社", "C社"].forEach(n => { const r = document.createElement("tr"); [[n, ""], ["0枚", ""], ["—", ""], ["—", ""], ["—", "num"], ["PDFなし（見本では空）", ""]].forEach(([t, cl]) => r.appendChild(td(t, cl))); tb.appendChild(r); });
+}
+
+function refresh() { renderFiles(); renderProgress(); renderRows(); renderCsv(); renderSummary(); if (st.selRow) fillViewer(st.selRow); }
+
+/* 読み取り（見本）：1枚ずつ、0.3〜0.5秒おきに並べる */
+function startRead() {
+  if (st.running || st.shown > 0) return;
+  st.running = true; refresh();
+  const step = () => {
+    rows.filter(r => r.di === st.shown).forEach(r => { r.isNew = true; });
+    st.shown += 1;
+    if (st.shown >= docs.length) { st.running = false; refresh(); $("btn-close").focus && 0; return; }
+    refresh();
+    timer = setTimeout(step, 300 + Math.floor(Math.random() * 200));
+  };
+  timer = setTimeout(step, 400);
+}
+function resetAll() {
+  clearTimeout(timer);
+  st.shown = 0; st.running = false; st.confirmed = {}; st.choice = {}; st.closed = false; st.selRow = null;
+  closeViewer(); $("copied").textContent = "";
+  refresh();
+}
+
+/* 書類の見比べ */
+let lastFocus = null;
+function field(dl, k, v) { const dt = document.createElement("dt"); dt.textContent = k; const dd = document.createElement("dd"); dd.textContent = v; dl.append(dt, dd); }
+function fillViewer(key) {
+  const r = rows.find(x => x.key === key); if (!r) return;
+  const d = r.d, di = r.di;
+  $("viewer-title").textContent = "No." + r.no + "　" + d["取引先"] + "（" + d["書類の種類"] + "）";
+  const body = $("viewer-body"); body.innerHTML = "";
+  const fig = document.createElement("figure");
+  const img = document.createElement("img");
+  img.src = "img/doc" + String(di + 1).padStart(2, "0") + ".jpg"; img.alt = "元の書類のスキャン画像：" + d["取引先"] + "の" + d["書類の種類"];
+  img.width = 800; img.height = 1000;
+  const cap = document.createElement("figcaption"); cap.textContent = "元の書類（" + d.file + "）";
+  fig.append(img, cap);
+  const right = document.createElement("div");
+  const h = document.createElement("h4"); h.textContent = "AIが読み取った項目"; h.style.marginTop = "0";
+  const dl = document.createElement("dl");
+  field(dl, "書類の種類", d["書類の種類"]); field(dl, "日付", d["日付"]); field(dl, "取引先", d["取引先"]);
+  field(dl, "登録番号", d["登録番号"]); field(dl, "合計", yen(d["合計"]));
+  field(dl, "税率ごとの内訳", d["税率ごとの内訳"].map(x => x["税率"] + "：対象額（税込）" + yen(x["対象額（税込）"]) + "、消費税" + yen(x["消費税"])).join(" ／ "));
+  field(dl, "支払方法", d["支払方法"]); field(dl, "品目・但し書き", d["品目・但し書き"]); field(dl, "確からしさ", d["確からしさ"]);
+  right.append(h, dl);
+  const h2 = document.createElement("h4"); h2.textContent = "仕訳の下書き";
+  const tbl = document.createElement("table");
+  tbl.innerHTML = "<thead><tr><th>借方</th><th>貸方</th><th>金額</th><th>税率</th></tr></thead>";
+  const tbd = document.createElement("tbody");
+  rows.filter(x => x.di === di).forEach(x => {
+    const tr = document.createElement("tr");
+    [debitOf(x), x.e["貸方科目"], yen(x.e["金額"]), x.e["税率"]].forEach(t => tr.appendChild(td(t)));
+    tbd.appendChild(tr);
+  });
+  tbl.appendChild(tbd); right.append(h2, tbl);
+  if (d["要確認"]) {
+    const w = document.createElement("div"); w.className = "why-box";
+    const b = document.createElement("b"); b.textContent = st.confirmed[di] ? "AIが迷った理由（確認済み）" : "AIが迷った理由";
+    w.append(b, document.createTextNode(d["要確認の理由"])); right.appendChild(w);
+  }
+  body.append(fig, right);
+}
+function openViewer(key, from) {
+  lastFocus = from || document.activeElement;
+  st.selRow = key; renderRows(); fillViewer(key);
+  $("viewer").hidden = false; $("viewer-close").focus();
+}
+function closeViewer() {
+  if ($("viewer").hidden) return;
+  $("viewer").hidden = true; st.selRow = null; renderRows();
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+}
+
+/* 締める */
+function doClose() {
+  if ($("btn-close").disabled) return;
+  st.closed = true; closeViewer(); refresh();
+  $("csv-out").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+function copyCsv() {
+  const text = buildCsv(), msg = $("copied");
+  const done = ok => { msg.textContent = ok ? "コピーしました" : "コピーできませんでした。上の枠を選んでコピーしてください"; setTimeout(() => { msg.textContent = ""; }, 3000); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done(true), () => fallback());
+  else fallback();
+  function fallback() {
+    try { const ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); const ok = document.execCommand("copy"); ta.remove(); done(ok); } catch (e) { done(false); }
+  }
+}
+
+/* シートのタブ */
+function setTab(t) {
+  st.tab = t;
+  document.querySelectorAll(".tabs button").forEach(b => { const on = b.dataset.tab === t; b.setAttribute("aria-selected", on ? "true" : "false"); b.tabIndex = on ? 0 : -1; });
+  ["A", "B", "C", "S"].forEach(k => { $("panel-" + k).hidden = k !== t; });
+  if (t !== "A") closeViewer();
+}
+
+$("btn-read").addEventListener("click", startRead);
+$("btn-close").addEventListener("click", doClose);
+$("btn-reset").addEventListener("click", resetAll);
+$("btn-copy").addEventListener("click", copyCsv);
+$("viewer-close").addEventListener("click", closeViewer);
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeViewer(); });
+$("rows").addEventListener("click", e => {
+  if (e.target.closest("button, select, label")) return;
+  const tr = e.target.closest("tr.row"); if (tr) openViewer(tr.dataset.key, tr);
+});
+$("rows").addEventListener("keydown", e => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches("tr.row")) { e.preventDefault(); openViewer(e.target.dataset.key, e.target); }
+});
+document.querySelectorAll(".tabs button").forEach(b => {
+  b.addEventListener("click", () => setTab(b.dataset.tab));
+  b.addEventListener("keydown", e => {
+    const order = ["A", "B", "C", "S"], i = order.indexOf(b.dataset.tab);
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") { const n = order[(i + (e.key === "ArrowRight" ? 1 : order.length - 1)) % order.length]; setTab(n); $("tab-" + n).focus(); }
+  });
+});
+
+refresh();
+</script>
+</body>
+</html>

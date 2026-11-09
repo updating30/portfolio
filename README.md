@@ -11,6 +11,7 @@
   - 通知表所見作成アシスタント（画面の見本） … https://updating30.github.io/portfolio/shoken/
   - 社内文書のRAG検索（画面の見本） … https://updating30.github.io/portfolio/rag/
   - メール処理の自動化（画面の見本） … https://updating30.github.io/portfolio/mail/
+  - 領収書・請求書の仕訳の下書き（画面の見本。架空の領収書8枚をAIに読ませた結果を載せています） … https://updating30.github.io/portfolio/shiwake/
   - 受注・納期共有アプリ（製造業の受注から納期の確定までを共有する業務アプリの体験版） … https://updating30.github.io/order-delivery-demo/
   - バージョンの棚（ソフトの版をCDの棚のように並べ、開くとリリースノートが読める画面の体験版） … https://updating30.github.io/version-shelf-demo/
   - 町工場のホームページに置くAIチャットボット（Dify・Claude の見本。架空の会社） … https://updating30.github.io/portfolio/chatbot/
