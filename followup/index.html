@@ -1,0 +1,1373 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>商談のあとの追いかけを、毎朝の下書きに｜画面の見本</title>
+<meta name="description" content="商談のメモを入れておくと、止まりかけている商談と、次の一手、送る文の下書きが毎朝並ぶ形の画面の見本（モック）です。会社・商談はすべて架空です。">
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --ink: #1f2933;
+    --muted: #5b6672;
+    --line: #e3e8ee;
+    --grid: #d3dae3;
+    --paper: #ffffff;
+    --bg: #f6f8fb;
+    --side: #f1f4f8;
+    --head: #eef2f7;
+    --accent: #1d4ed8;
+    --accent-soft: #eaf1ff;
+    --green: #15803d;
+    --green-soft: #ecf8f0;
+    --amber: #9a5b12;
+    --amber-soft: #fff6e6;
+    --red: #b42318;
+    --red-soft: #fdecea;
+    --yellow: #fff3bf;
+    --yellow-line: #e0b400;
+    --yellow-ink: #6b4e00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--ink); font-family: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif; line-height: 1.75; font-size: 16px; overflow-x: hidden; }
+  a { color: var(--accent); }
+  button, input, select { font: inherit; }
+  :focus-visible { outline: 3px solid #f0b46a; outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  .demo-bar { background: #3b4652; color: #fff; font-size: 13.5px; padding: 8px 16px; text-align: center; line-height: 1.65; }
+  .demo-bar a { color: #ffd98a; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  .page-head { padding: 28px 0 18px; }
+  .kicker { font-size: 13.5px; font-weight: 700; color: var(--accent); }
+  h1 { font-size: clamp(22px, 4.4vw, 30px); line-height: 1.4; margin: 4px 0 6px; }
+  .page-head p { color: var(--muted); font-size: 15px; max-width: 52em; }
+
+  .app { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 6px 24px rgba(31,41,51,.06); }
+  .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: #fbfcfe; }
+  .topbar h2 { font-size: 17px; line-height: 1.4; }
+  .topbar h2 small { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 6px; }
+  .top-actions { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .date-note { font-size: 13.5px; color: var(--muted); }
+  .btn { border: 0; border-radius: 9px; background: var(--accent); color: #fff; font-weight: 700; padding: 8px 16px; cursor: pointer; }
+  .btn:hover:not(:disabled) { background: #1740b0; }
+  .btn:disabled { background: #b8c2d0; cursor: not-allowed; }
+  .btn.ghost { background: var(--paper); color: var(--accent); border: 1.5px solid var(--accent); }
+  .btn.ghost:hover:not(:disabled) { background: var(--accent-soft); }
+  .btn.small { padding: 4px 12px; font-size: 14px; }
+  .btn.green { background: var(--green); }
+  .btn.green:hover:not(:disabled) { background: #0f6a31; }
+
+  .loading { padding: 22px 18px; color: var(--muted); font-size: 15px; }
+  .empty-box { border: 1px dashed var(--grid); border-radius: 10px; background: var(--bg); padding: 16px; margin: 16px; color: var(--muted); font-size: 14.5px; }
+
+  .pane-title { font-size: 16px; line-height: 1.45; margin-bottom: 8px; }
+  .board { display: grid; grid-template-columns: 300px minmax(0, 1fr); border-bottom: 1px solid var(--line); }
+  .left { background: var(--side); padding: 16px; border-right: 1px solid var(--line); min-width: 0; }
+  .right { padding: 16px; min-width: 0; }
+  @media (max-width: 860px) {
+    .board { grid-template-columns: minmax(0, 1fr); }
+    .left { border-right: 0; border-bottom: 1px solid var(--line); }
+  }
+  .headline { font-size: 17px; font-weight: 700; margin-bottom: 8px; line-height: 1.5; }
+  .headline .num { color: var(--red); font-size: 26px; }
+  .headline .hsub { display: block; font-size: 14px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .stages { list-style: none; display: grid; gap: 8px; }
+  .grp { background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--grid); border-radius: 8px; padding: 8px 10px; font-size: 14px; line-height: 1.5; }
+  .grp.stop { border-left-color: var(--red); } .grp.warn { border-left-color: var(--yellow-line); } .grp.go { border-left-color: var(--green); } .grp.sent { border-left-color: var(--accent); }
+  .grp .gname { font-weight: 700; }
+  .grp.stop .gname { color: var(--red); } .grp.warn .gname { color: var(--yellow-ink); } .grp.go .gname { color: var(--green); } .grp.sent .gname { color: var(--accent); }
+  .grp .gdesc { color: var(--muted); font-size: 12.5px; }
+  .gitems { list-style: none; margin-top: 4px; display: grid; gap: 2px; }
+  .gitems li { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 13.5px; }
+  .gitems .gday { color: var(--muted); font-size: 12.5px; }
+  .chip.today { background: var(--accent-soft); color: var(--accent); border: 1px solid #b7caf7; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+  .chip { display: inline-block; border-radius: 999px; padding: 0 9px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+  .chip.stop { background: var(--red-soft); color: var(--red); border: 1px solid #f0b4ad; }
+  .chip.warn { background: var(--yellow); color: var(--yellow-ink); border: 1px solid var(--yellow-line); }
+  .chip.go { background: var(--green-soft); color: var(--green); border: 1px solid #9fd5b3; }
+  .chip.sent { background: var(--accent-soft); color: var(--accent); border: 1px solid #b7caf7; }
+  .rule { font-size: 12.5px; color: var(--muted); margin-top: 10px; line-height: 1.65; }
+
+  .first-one { background: var(--amber-soft); border: 1px solid #ecc88e; border-left: 4px solid var(--amber); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: 14.5px; }
+  .first-one b { color: var(--amber); }
+  .cards { display: grid; gap: 12px; }
+  .card { border: 1px solid var(--grid); border-radius: 12px; padding: 12px 14px; background: var(--paper); min-width: 0; }
+  .card.later { opacity: .55; }
+  .card.sentcard { background: var(--green-soft); border-color: #9fd5b3; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; justify-content: space-between; }
+  .card h4 { font-size: 16px; line-height: 1.45; }
+  .card .meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 13.5px; color: var(--muted); margin: 2px 0 6px; }
+  .card .meta .days { color: var(--red); font-weight: 700; }
+  .card .meta .days.warn { color: var(--yellow-ink); }
+  .lab { font-size: 12.5px; font-weight: 700; color: var(--muted); margin-top: 8px; }
+  .card p.reason { font-size: 14.5px; }
+  .next dl { display: grid; grid-template-columns: 3.5em minmax(0, 1fr); gap: 2px 8px; font-size: 14px; }
+  .next dt { color: var(--muted); font-weight: 700; }
+  .draft { background: #fbfcfe; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-size: 14px; margin-top: 4px; }
+  .draft .subject { font-weight: 700; margin-bottom: 2px; overflow-wrap: anywhere; }
+  .draft .dbody { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; }
+  .draft.clamped .dbody { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .linkbtn { all: unset; cursor: pointer; color: var(--accent); font-size: 13.5px; text-decoration: underline; margin-top: 2px; display: inline-block; }
+  .linkbtn:focus-visible { outline: 3px solid #f0b46a; outline-offset: 2px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+  .copied { font-size: 13.5px; color: var(--green); font-weight: 700; }
+
+  .list-wrap { padding: 16px; }
+  .list-wrap .sub { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+  table.deals { border-collapse: collapse; width: 100%; font-size: 14px; }
+  table.deals th, table.deals td { border: 1px solid var(--grid); padding: 6px 10px; text-align: left; vertical-align: top; line-height: 1.55; }
+  table.deals thead th { background: var(--head); color: #3b4652; white-space: nowrap; }
+  table.deals td.num { white-space: nowrap; }
+  .rowbtn { all: unset; box-sizing: border-box; cursor: pointer; font-weight: 700; color: var(--accent); display: flex; gap: 6px; align-items: baseline; width: 100%; overflow-wrap: anywhere; }
+  .rowbtn::before { content: "▸"; font-size: 12px; color: var(--muted); }
+  .rowbtn[aria-expanded="true"]::before { content: "▾"; }
+  .rowbtn:focus-visible { outline: 3px solid #f0b46a; outline-offset: 2px; }
+  tr.deal:hover td { background: #f4f8ff; }
+  tr.deal.open td { background: #f4f8ff; }
+  .tag { display: inline-block; border-radius: 999px; padding: 0 9px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+  .tag.stop { background: var(--red-soft); color: var(--red); }
+  .tag.warn { background: #ffe58a; color: var(--yellow-ink); }
+  .tag.go { background: #c9ecd5; color: #0f6a31; }
+  .tag.sent { background: var(--accent-soft); color: var(--accent); }
+  tr.detail td { background: #fbfcfe; padding: 14px; }
+  .detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 16px; }
+  .dcol { min-width: 0; }
+  .dcol h4 { font-size: 15px; margin-bottom: 6px; }
+  .dcol.human h4 { color: var(--ink); }
+  .dcol.ai h4 { color: var(--accent); }
+  .dcol h5 { font-size: 13.5px; color: var(--muted); margin: 10px 0 2px; }
+  .dcol p, .dcol li { font-size: 14px; }
+  .dcol ul, .dcol ol { padding-left: 1.3em; }
+  .memo { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .dcol dl { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 2px 8px; font-size: 14px; margin-top: 8px; }
+  .dcol dt { color: var(--muted); font-weight: 700; }
+  .dcol dd { overflow-wrap: anywhere; }
+  .evid { color: var(--muted); font-size: 13px; display: block; }
+  .check-box { background: var(--yellow); border: 1px solid var(--yellow-line); color: var(--yellow-ink); border-radius: 8px; padding: 8px 12px; margin-top: 10px; }
+  .check-box b { display: block; color: #4a3600; font-size: 14px; }
+  .check-box ul { padding-left: 1.3em; }
+  @media (max-width: 760px) {
+    .detail-grid { grid-template-columns: minmax(0, 1fr); }
+    table.deals thead { position: absolute; left: -9999px; }
+    table.deals, table.deals tbody { display: block; }
+    tr.deal { display: block; border: 1px solid var(--grid); border-radius: 10px; margin-bottom: 8px; background: var(--paper); }
+    tr.deal td { display: flex; justify-content: space-between; gap: 12px; border: 0; border-bottom: 1px solid var(--line); padding: 5px 10px; }
+    tr.deal td:last-child { border-bottom: 0; }
+    tr.deal td::before { content: attr(data-label); color: var(--muted); font-size: 12.5px; flex: none; }
+    tr.deal td:first-child::before { content: none; }
+    tr.deal td:first-child { display: block; }
+    tr.detail { display: block; margin: -4px 0 10px; }
+    tr.detail td { display: block; border: 1px solid var(--grid); border-radius: 10px; padding: 12px; }
+  }
+
+  .explain { padding: 40px 0 8px; }
+  .explain h2 { font-size: 22px; margin-bottom: 2px; }
+  .sub { color: var(--muted); font-size: 14.5px; margin-bottom: 16px; max-width: 52em; }
+  .assume { display: inline-block; background: var(--amber-soft); color: var(--amber); font-weight: 700; font-size: 12.5px; padding: 0 10px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+  .result-list { list-style: none; display: grid; gap: 8px; margin: 10px 0; }
+  .result-list li { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; font-size: 14.5px; }
+  .result-list li.diff { border-left: 4px solid var(--amber); background: var(--amber-soft); }
+  .result-list li.good { border-left: 4px solid var(--green); }
+  .arch { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+  .arch .node { flex: 1 1 170px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 14px; color: var(--muted); min-width: 0; }
+  .arch .node b { display: block; font-size: 15px; color: var(--ink); }
+  .arch .node.human { border-color: var(--yellow-line); background: #fffdf0; }
+  .arch .arrow { align-self: center; color: var(--accent); font-size: 22px; font-weight: 700; }
+  @media (max-width: 760px) { .arch { flex-direction: column; } .arch .arrow { transform: rotate(90deg); align-self: center; } }
+  .statement { margin-top: 14px; background: var(--green-soft); border-left: 4px solid var(--green); border-radius: 8px; padding: 10px 14px; font-size: 14.5px; color: #1e5b34; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .contact { background: var(--paper); border: 1.5px solid var(--accent); border-radius: 14px; padding: 16px 20px; margin-top: 26px; font-size: 15px; }
+  footer { color: var(--muted); font-size: 13px; padding: 32px 0 44px; }
+
+  /* 流れ */
+  .flow { list-style: none; display: flex; border-bottom: 1px solid var(--line); }
+  .flow li { flex: 1 1 0; min-width: 0; padding: 9px 14px; font-size: 14px; font-weight: 700; color: var(--muted); background: var(--bg); border-right: 1px solid var(--line); line-height: 1.5; }
+  .flow li:last-child { border-right: 0; }
+  .flow li.on { background: var(--accent); color: #fff; }
+  .flow li.done { background: var(--green-soft); color: var(--green); }
+  .flow li.done::after { content: "（済）"; font-weight: 400; font-size: 12.5px; }
+  @media (max-width: 760px) { .flow { flex-direction: column; } .flow li { border-right: 0; border-bottom: 1px solid var(--line); padding: 6px 14px; } .flow li:last-child { border-bottom: 0; } }
+  .run-hint { font-size: 13px; color: var(--amber); font-weight: 700; }
+
+  /* ① 読み込む */
+  .import { padding: 16px; border-bottom: 1px solid var(--line); }
+  .import .sub { margin-bottom: 10px; }
+  .srcs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 760px) { .srcs { grid-template-columns: minmax(0, 1fr); } }
+  button.src { text-align: left; border: 1.5px solid var(--grid); background: var(--paper); color: var(--ink); border-radius: 10px; padding: 10px 12px; cursor: pointer; line-height: 1.5; min-width: 0; }
+  button.src:hover { background: var(--bg); }
+  button.src[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+  button.src b { display: block; font-size: 14.5px; }
+  button.src span { display: block; font-size: 12.5px; color: var(--muted); }
+  .src-view { margin-top: 12px; }
+  .filebar { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+  .sheet-scroll { overflow-x: auto; max-width: 100%; border: 1px solid var(--grid); border-radius: 6px; background: var(--paper); }
+  table.sheet { border-collapse: collapse; font-size: 13px; line-height: 1.5; min-width: 760px; }
+  table.sheet th, table.sheet td { border: 1px solid var(--grid); padding: 3px 8px; text-align: left; vertical-align: top; }
+  table.sheet .corner { background: var(--head); width: 34px; }
+  table.sheet th.colh { background: var(--head); color: #3b4652; text-align: center; font-weight: 700; }
+  table.sheet th.rn { background: var(--head); color: #3b4652; text-align: center; font-weight: 400; width: 34px; }
+  table.sheet td.mapc { border-bottom: 0; background: #fbfcfe; padding: 4px 6px; }
+  .maptag { display: inline-block; font-size: 11.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border: 1px solid #b7caf7; border-radius: 999px; padding: 0 8px; white-space: nowrap; }
+  table.sheet tr.hd td { background: #f7f9fc; font-weight: 700; }
+  table.sheet td.nw { white-space: nowrap; }
+  .cellbtn { all: unset; box-sizing: border-box; cursor: pointer; display: block; width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cellbtn[aria-expanded="true"] { white-space: normal; overflow: visible; }
+  .cellbtn:focus-visible { outline: 3px solid #f0b46a; outline-offset: 2px; }
+  .src-view textarea { width: 100%; min-height: 130px; border: 1px solid var(--grid); border-radius: 8px; padding: 8px 12px; background: var(--paper); color: var(--ink); line-height: 1.65; resize: vertical; }
+  .import .actions { margin-top: 12px; }
+  .import-done { padding: 8px 16px; font-size: 14px; background: var(--green-soft); color: var(--green); font-weight: 700; border-bottom: 1px solid #9fd5b3; }
+
+  /* ③ 案・直す・送る */
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  button.tab { border: 1.5px solid var(--grid); background: var(--paper); color: var(--ink); border-radius: 9px; padding: 3px 12px; font-weight: 700; font-size: 14px; cursor: pointer; line-height: 1.6; }
+  button.tab:hover { background: var(--bg); }
+  button.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .aim { font-size: 13.5px; color: var(--muted); margin: 6px 0 4px; }
+  .rewnote { background: var(--accent-soft); border: 1px solid #b7caf7; border-radius: 8px; padding: 6px 12px; font-size: 13.5px; margin: 6px 0; }
+  .rewnote small { display: block; color: var(--muted); font-size: 12.5px; }
+  .rewnote .linkbtn { margin-left: 0; }
+  .chipbtns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  button.chipbtn { border: 1.5px solid var(--accent); background: var(--paper); color: var(--accent); border-radius: 999px; padding: 0 12px; font-weight: 700; font-size: 13.5px; cursor: pointer; line-height: 1.7; }
+  button.chipbtn:hover { background: var(--accent-soft); }
+  button.chipbtn[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .free { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; align-items: center; }
+  .free input { flex: 1 1 200px; min-width: 0; border: 1px solid var(--grid); border-radius: 8px; padding: 4px 10px; background: var(--paper); color: var(--ink); }
+  .infoline { font-size: 13.5px; color: var(--amber); background: var(--amber-soft); border-radius: 8px; padding: 4px 10px; margin-top: 6px; }
+  .cardnote { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+  .plan { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--paper); margin-top: 6px; }
+  .plan b { font-size: 14px; }
+  .plan .aim { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">会社・商談はすべて架空の見本です。この画面ではAIは動いていません。｜<a href="../">作品集にもどる</a></div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div class="kicker">画面の見本｜営業の現場向け</div>
+    <h1>商談のあとの追いかけを、毎朝の下書きに</h1>
+    <p>商談のメモを読み込んでおくと、止まりかけている商談と、次の一手、送る文の下書き3案が、毎朝並ぶ形です。案を選んで直し、メールかLINEで送ります。送るのは人で、AIは勝手に送りません。並ぶ下書きは、架空の商談メモ8件を実際にAIに読ませた結果で、人は文を直していません。</p>
+  </div>
+
+  <div class="app" id="app">
+    <div class="topbar">
+      <h2>商談の追いかけ　A社 <small>（会社も商談もすべて架空）</small></h2>
+      <div class="top-actions">
+        <span class="date-note">見本の日付：2026年11月10日（火）の朝</span>
+        <button class="btn" id="btn-run" type="button" disabled>朝の準備をする（見本）</button>
+        <span class="run-hint" id="run-hint">先に①で読み込んでください</span>
+        <button class="btn ghost small" id="btn-reset" type="button" hidden>最初に戻す</button>
+      </div>
+    </div>
+
+    <ol class="flow" id="flow" aria-label="画面の流れ">
+      <li data-step="1">① 今ある商談の記録を読み込む</li>
+      <li data-step="2">② 朝の準備</li>
+      <li data-step="3">③ 下書きを選ぶ・直す・送る</li>
+    </ol>
+
+    <section class="import" id="import" aria-label="① 今ある商談の記録を読み込む">
+      <h3 class="pane-title">① 今ある商談の記録を読み込む</h3>
+      <p class="sub">読み込む元を選んでください。どれを選んでも、使うのは同じ架空の商談8件です。</p>
+      <div class="srcs" role="group" aria-label="読み込む元">
+        <button class="src" type="button" data-src="0" aria-pressed="true"><b>表</b><span>（Excel・Googleスプレッドシート）</span></button>
+        <button class="src" type="button" data-src="1" aria-pressed="false"><b>顧客・商談の管理の道具</b><span>（CSV＝表の形で書き出したファイル）</span></button>
+        <button class="src" type="button" data-src="2" aria-pressed="false"><b>メモ・議事録を貼り付け</b></button>
+      </div>
+      <div class="src-view" id="src-view"></div>
+      <div class="actions">
+        <button class="btn" id="btn-import" type="button">この内容で読み込む（見本）</button>
+        <span class="copied" id="import-msg" role="status"></span>
+      </div>
+      <p class="note">見本なので、実際のファイルは読み込みません。</p>
+    </section>
+    <div class="import-done" id="import-done" hidden></div>
+
+    <div class="empty-box" id="empty-box">まず、上の①で読み込む元を選び、「この内容で読み込む（見本）」を押してください。そのあと「朝の準備をする（見本）」を押すと、ここに、止まっている商談の数と、今日追いかける3件の「次の一手」と「送る文の下書き3案」が並びます。</div>
+    <div class="loading" id="loading" role="status" aria-live="polite" hidden>メモを読んでいます…</div>
+
+    <div id="result" hidden>
+      <p class="sub" style="margin:0;padding:10px 16px 0">見る順：① 読み込む → ② 朝の準備 → ③ 今日の3件で、案を選び、直し、送り方を選ぶ</p>
+      <div class="board">
+        <section class="left" aria-label="今朝のまとめ">
+          <h3 class="pane-title">今朝のまとめ</h3>
+          <div class="headline" id="headline" aria-live="polite"></div>
+          <ul class="stages" id="stages"></ul>
+          <p class="rule">「7日」という日数は、会社ごとに変えられる形を想定しています。</p>
+        </section>
+        <section class="right" aria-label="今日、追いかける3件">
+          <h3 class="pane-title">今日、追いかける3件</h3>
+          <div class="first-one" id="first-one"></div>
+          <div class="cards" id="cards"></div>
+          <p class="rule">「メールで送る（見本）」「LINEで送る（見本）」を押すと、左の止まっている件数が減ります。下書きの「A社（担当者名）」「〇〇様」には、本番では自社名・担当者名と、相手のお名前が入ります。</p>
+        </section>
+      </div>
+
+      <section class="list-wrap" aria-label="商談の一覧">
+        <h3 class="pane-title">商談の一覧（8件）</h3>
+        <p class="sub">行を押すと、入れたメモと、AIが出した物（下書き3案を含む）が開きます。</p>
+        <table class="deals">
+          <caption style="position:absolute;left:-9999px">商談の一覧。相手の名前を押すと、詳しい所が開きます。</caption>
+          <thead><tr><th>相手</th><th>段階</th><th>最後の連絡</th><th>日数</th><th>状態</th></tr></thead>
+          <tbody id="deal-rows"></tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <section class="explain">
+    <h2>試した結果</h2>
+    <p class="sub">架空の商談メモ8件を、AI（Claude Sonnet 5.5）に、本番で使う想定の指示で読ませました。下書きの3案と書き直しの例も、同じようにAIに出させた文を、人が直さずに載せています。</p>
+    <ul class="result-list">
+      <li class="good">8件それぞれに、相手の気がかり（メモのどこから読んだか）・次の一手と、書き方の違う下書き3案が出ています。</li>
+      <li class="good">メモに無い金額・割引や、『連携できます』のような約束は、どの案にも入っていません。値引きや日程など人が決めることは、『送る前に人が確かめること』に分けて出ています。</li>
+      <li class="diff">『用件だけ』の案や『もっと短く』の書き直しは、こちらの指示に『メールは200字以上』という決まりがあったため、決まり文句（『お返事を急ぐものではありませんので、ご安心ください』など）が足されて、あまり短くなりませんでした。『もっと短く』の3件は、字数の下限を外して出し直した文（約100字）を載せています。</li>
+      <li class="diff">H社の『番号だけで』は、前に送った候補日に番号が付いていたかがメモにありません。E社は年明けに送る文なので、送る日に合わせて言葉を直します（AIも書き添えています）。だから、送る前に人が一度読む形にしています。</li>
+    </ul>
+  </section>
+
+  <section class="explain">
+    <h2>本番の形（想定）</h2>
+    <p class="sub">ここに書くのは本番の想定の形です。この見本のページでは、AIも、ファイルの読み込みも、メールやLINEの送信も動いていません。</p>
+    <div class="arch" role="list">
+      <div class="node" role="listitem"><b>読み込む</b>今ある表・顧客管理の道具（CSV）・メモを読み込む</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>毎朝、AIが読む</b>毎朝、AIがメモを読む</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node" role="listitem"><b>下書き3案が届く</b>止まりかけた商談と下書き3案が、メールかLINEで知らせとして届く</div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node human" role="listitem"><b>人が選んで送る</b>人が案を選んで直し、メールかLINEで送る（表に『送った』を付ける）</div>
+    </div>
+    <p class="statement">今お使いの表や、顧客・商談の管理の道具があれば、それに合わせます。AIが勝手に送ることはありません。送る方法は、メール（Gmailなど）と、LINE公式アカウントとのつなぎ込みの両方を想定しています。</p>
+    <ul class="result-list">
+      <li>メモは、話したこと・相手の言葉・次の約束を、数行書く形を想定しています。</li>
+      <li>お客様の情報をAIに渡す範囲と、使うAIの設定は、最初に一緒に決めます。</li>
+    </ul>
+  </section>
+
+  <section class="explain">
+    <div class="contact">お仕事のご相談は、このページをご覧になったサービス（クラウドソーシングなど）のメッセージ機能からお願いします。ほかの作品は<a href="../">作品集</a>にあります。</div>
+  </section>
+
+  <footer>© 2026 updating30｜画面の見本です。会社・商談はすべて架空です｜<a href="../">作品集にもどる</a></footer>
+</div>
+
+<script type="application/json" id="data-memo">{
+  "_説明": "見本用の架空の商談メモ。会社・商談・金額はすべて架空。人名は使わない。今日は 2026-11-10（火）とする。",
+  "今日": "2026-11-10",
+  "売る側": {
+    "会社": "A社（架空）",
+    "扱っている物": "中小企業向けの業務ツール（予約・顧客管理のクラウドサービス、問い合わせの自動返信、見積書づくりの自動化）の販売と導入支援、Web広告の運用",
+    "強み": "導入時の設定を代わりに行う／スタッフ向けの説明会（30分〜）／導入後1か月は質問をいつでも受ける",
+    "担当者の署名": "A社（担当者名）"
+  },
+  "商談": [
+    {
+      "id": "C",
+      "相手": "C社（会計事務所・所員8名）",
+      "段階": "見積を出したあと",
+      "最後の連絡": "2026-10-29",
+      "次の約束": null,
+      "連絡の手段": "メール",
+      "メモ": "10/22 オンラインで商談。所長と事務長が参加。顧問先からの質問をチャットで受け、よくある質問には自動で答える仕組みに関心。所長「年度内の予算に入るかが心配」。事務長は乗り気で、操作画面を見て「これなら所員も使えそう」。10/29 見積（初期費用30万円、月額2万円）をメールで送付。返事はまだない。所長は「月末と月初は申告の準備で手が離せない」と言っていた。"
+    },
+    {
+      "id": "D",
+      "相手": "D社（不動産仲介・2店舗）",
+      "段階": "提案書を送ったあと",
+      "最後の連絡": "2026-11-01",
+      "次の約束": null,
+      "連絡の手段": "メール",
+      "メモ": "10/27 店舗で商談。物件サイトからの問い合わせに、夜間や休日もAIで一次返信したいという相談。社長は前向き。同席した店長が「社員が使いこなせるか心配。前に入れたツールは結局使わなくなった」。11/1 提案書をメールで送付。社長から「店長とも話して返事します」と返信があり、その後は連絡なし。"
+    },
+    {
+      "id": "E",
+      "相手": "E社（工務店）",
+      "段階": "初回の商談のあと",
+      "最後の連絡": "2026-10-20",
+      "次の約束": null,
+      "連絡の手段": "メール",
+      "メモ": "展示会で名刺交換。10/20 オンラインで初回の商談。ホームページからの問い合わせが月に1〜2件と少ないのが悩み。Web広告の運用と、問い合わせフォームの見直しを紹介した。専務「今は繁忙期なので、年明けに考えたい」。次の約束はしていない。決算は3月。"
+    },
+    {
+      "id": "F",
+      "相手": "F社（歯科医院）",
+      "段階": "資料を送ったあと",
+      "最後の連絡": "2026-11-03",
+      "次の約束": null,
+      "連絡の手段": "LINE",
+      "メモ": "紹介でつながり、院長とLINEでやり取りしている。予約の電話が多く、受付が手いっぱいとのこと。11/3 予約受付の自動化（Web予約と、予約の確認・変更の自動返信）の資料をLINEで送った。既読はついたが返事はない。院長は診療中は電話に出られず、夜にLINEを見ると言っていた。"
+    },
+    {
+      "id": "G",
+      "相手": "G社（美容室・3店舗）",
+      "段階": "見積を出したあと",
+      "最後の連絡": "2026-11-05",
+      "次の約束": null,
+      "連絡の手段": "メール",
+      "メモ": "3店舗の予約とお客様の情報を、1つにまとめたいという相談。11/5 見積をメールで送ったところ、オーナーから「他社とも比べています」と返信。比べている相手は月額が安いらしい（金額は聞けていない）。スタッフは15名ほどで、入れ替わりが多いとのこと。"
+    },
+    {
+      "id": "H",
+      "相手": "H社（部品加工）",
+      "段階": "デモの予定待ち",
+      "最後の連絡": "2026-10-30",
+      "次の約束": null,
+      "連絡の手段": "メール",
+      "メモ": "見積書づくりに毎回時間がかかるという相談。10/24 電話で概要を説明したら「実際に動くところを見たい」。10/30 デモの候補日を3つメールで送ったが、返事はない。窓口は工場長で、現場が忙しい様子。導入を決めるのは社長。"
+    },
+    {
+      "id": "J",
+      "相手": "J社（税理士法人）",
+      "段階": "デモの予定あり",
+      "最後の連絡": "2026-11-06",
+      "次の約束": "2026-11-12 14:00 オンラインでデモ（参加3名）",
+      "連絡の手段": "メール",
+      "メモ": "問い合わせの自動返信に関心。11/12 にデモの予定。事前に「今使っている会計ソフトと連携できるか」と聞かれている（まだ答えていない）。"
+    },
+    {
+      "id": "K",
+      "相手": "K社（学習塾・4教室）",
+      "段階": "提案書を送ったあと",
+      "最後の連絡": "2026-11-07",
+      "次の約束": "2026-11-14 までに返事をもらう約束",
+      "連絡の手段": "メール",
+      "メモ": "保護者からの問い合わせと面談の予約をまとめたい。11/7 提案書を送り、教室長会議で話し合って11/14までに返事をもらう約束。"
+    }
+  ]
+}</script>
+<script type="application/json" id="data-draft">{
+  "model": "claude-sonnet-5-5",
+  "作った日時": "2026-11-10 01:12（台湾時間）",
+  "今日追いかける順": [
+    {
+      "id": "C",
+      "理由": "見積を出して12日たち、事務長は前向き。所長の予算の心配に答えれば進む見込みが一番高い。"
+    },
+    {
+      "id": "D",
+      "理由": "社長は前向きで、店長の不安に答える材料（説明会・導入後の質問対応）がA社の強みにある。"
+    },
+    {
+      "id": "H",
+      "理由": "デモを見たいと言われたのに候補日の返事がなく、番号だけで返せる形にすれば前に進めやすい。"
+    }
+  ],
+  "まずこの1件": {
+    "id": "C",
+    "理由": "見積まで出ていて、事務長が乗り気。残る気がかりは所長の年度内の予算だけなので、費用の内訳を1枚で渡せば、契約に一番近い。月初の忙しさが明けるこの時期が、送るのにちょうどよい。"
+  },
+  "商談": [
+    {
+      "id": "C",
+      "相手の気がかり": [
+        {
+          "内容": "年度内の予算に入るかどうか",
+          "根拠": "所長「年度内の予算に入るかが心配」（10/22）"
+        },
+        {
+          "内容": "所員が使いこなせるか（事務長は前向き）",
+          "根拠": "事務長「これなら所員も使えそう」"
+        }
+      ],
+      "止まっている理由の見立て": "所長が月末月初の申告の準備で手が離せず、見積を社内で検討する時間が取れていないのかもしれない。予算の心配が残っていて、決める材料が足りないのかもしれない。",
+      "次の一手": {
+        "何を": "費用の内訳を1枚にまとめた資料を送ってよいかを、1つだけ尋ねる",
+        "いつ": "今日（11/10）",
+        "手段": "メール"
+      },
+      "下書き": {
+        "手段": "メール",
+        "件名": "年度内のご予算に向けた費用のまとめについて",
+        "本文": "C社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n先日お送りした見積について、ご連絡いたしました。年度内のご予算に入るかどうかが気がかりとのお話でしたので、費用の内訳を1枚にまとめた資料をご用意できればと考えております。お送りしてもよろしいでしょうか。「はい」の一言だけでも大丈夫です。お忙しい時期かと存じますので、お手すきの際にお知らせください。こちらからお急ぎいただくものではありませんので、ご負担のない時でお願いいたします。\n\nA社（担当者名）"
+      },
+      "契約までの道筋": [
+        "内訳の1枚資料を送り、所長が予算を検討できる材料にする",
+        "事務長にも読んでもらい、所内で検討してもらう",
+        "検討の結果を伺い、必要なら導入時期や進め方を相談する"
+      ],
+      "送る前に人が確かめること": [
+        "内訳の資料は、10/29の見積（初期費用30万円、月額2万円）の数字だけで作ること。新しい金額・割引は入れない",
+        "支払い方法や分割、値引きの相談が出た場合は人が決める",
+        "月末月初の忙しさが明けたか、送る日は人が判断する"
+      ]
+    },
+    {
+      "id": "D",
+      "相手の気がかり": [
+        {
+          "内容": "社員が使いこなせるか、また使わなくなるのではないか",
+          "根拠": "店長「社員が使いこなせるか心配。前に入れたツールは結局使わなくなった」（10/27）"
+        },
+        {
+          "内容": "社長が店長と話したうえで決めたいこと",
+          "根拠": "社長「店長とも話して返事します」（11/1）"
+        }
+      ],
+      "止まっている理由の見立て": "店長の不安が解けないまま社内で話し合いが続いているのかもしれない。または、社長と店長の都合が合わず、話し合いがまだ進んでいないのかもしれない。",
+      "次の一手": {
+        "何を": "導入後に使い続けてもらうための支えを1枚にまとめて送ってよいかを、1つだけ尋ねる",
+        "いつ": "今日（11/10）",
+        "手段": "メール"
+      },
+      "下書き": {
+        "手段": "メール",
+        "件名": "導入後の使い方の支えについて（提案書の補足）",
+        "本文": "D社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n先日の提案書について、店長様ともお話しいただけるとのこと、ありがとうございます。以前のツールが使われなくなったというお話があり、使い続けられるかが大切な点だと受け止めております。弊社では、導入時の設定を代わりに行い、スタッフの皆さま向けの説明会（30分〜）と、導入後1か月の質問対応をご用意しています。この進め方を1枚にまとめて、店長様にもご覧いただけるようお送りしてもよろしいでしょうか。\n\nA社（担当者名）"
+      },
+      "契約までの道筋": [
+        "支えの1枚資料を送り、店長の不安に答える",
+        "社長と店長の返事を待ち、質問があれば答える",
+        "スタッフ向け説明会の進め方を決め、導入に進む"
+      ],
+      "送る前に人が確かめること": [
+        "説明会の回数・日程、質問対応の範囲は、メモにある強み（30分〜、導入後1か月）の範囲を超えて約束しない",
+        "1枚資料に載せる内容は、人が事実を確認してから作る"
+      ]
+    },
+    {
+      "id": "E",
+      "相手の気がかり": [
+        {
+          "内容": "ホームページからの問い合わせを増やしたい",
+          "根拠": "問い合わせが月に1〜2件なのが悩み（10/20）"
+        },
+        {
+          "内容": "今は繁忙期で、考える余裕がない",
+          "根拠": "専務「今は繁忙期なので、年明けに考えたい」"
+        }
+      ],
+      "止まっている理由の見立て": "止まっているというより、専務が言う通り繁忙期のため後回しになっているのかもしれない。急ぐ理由は今のところ見えない。",
+      "次の一手": {
+        "何を": "年明けに話を再開する都合のよい週を、1つだけ尋ねる",
+        "いつ": "2026年1月第1週（それまでは連絡を控える。送る日は人が決める）",
+        "手段": "メール"
+      },
+      "下書き": {
+        "手段": "メール",
+        "件名": "年明けのご相談について",
+        "本文": "E社 〇〇様\n\nあけましておめでとうございます。A社（担当者名）です。\n昨年10月にお話しした、ホームページからのお問い合わせを増やす件について、年明けに考えたいとのことでしたので、ご連絡いたしました。新年のお忙しい時期かとも思いますので、お話を伺いやすい週があれば教えていただけますか。「1月の後半」のようなおおまかな目安で構いません。その頃に改めてご連絡いたします。それまでは、こちらからのご連絡は控えます。\n\nA社（担当者名）"
+      },
+      "契約までの道筋": [
+        "年明けに連絡し、話を再開できる時期を決める",
+        "改めて現状を伺い、広告運用か問い合わせフォームの見直しのどちらから始めるか絞る",
+        "見積や提案に進む"
+      ],
+      "送る前に人が確かめること": [
+        "この下書きは年明け用。送る日と文面中の「昨年10月」「あけましておめでとうございます」は、送る日に合わせて人が直す",
+        "広告や見直しの具体的な内容・金額はまだ入れていない。入れる場合は人が決める"
+      ]
+    },
+    {
+      "id": "F",
+      "相手の気がかり": [
+        {
+          "内容": "導入の手間や、資料を読む時間が取れるか",
+          "根拠": "院長は診療中は電話に出られず、夜にLINEを見る"
+        },
+        {
+          "内容": "予約の電話で受付が手いっぱいの状態を軽くしたい",
+          "根拠": "予約の電話が多く、受付が手いっぱい（11/3）"
+        }
+      ],
+      "止まっている理由の見立て": "資料は見てもらえたが、診療でお忙しく、どこから返事をすればよいか迷っているのかもしれない。資料の中で気になる点があっても、LINEで長く書く余裕がないのかもしれない。",
+      "次の一手": {
+        "何を": "資料で一番気になった所を、一言で教えてもらうよう1つだけ尋ねる",
+        "いつ": "今日（11/10）の夜（院長がLINEを見る時間帯）",
+        "手段": "LINE"
+      },
+      "下書き": {
+        "手段": "LINE",
+        "本文": "〇〇様、A社（担当者名）です。夜分に失礼します。先日の予約受付の資料、お忙しい中ご覧いただきありがとうございます。資料の中で、一番気になった点はどこでしょうか。一言だけでも大丈夫です。お手すきの時にお返事ください。\n\nA社（担当者名）"
+      },
+      "契約までの道筋": [
+        "気になった点に答える",
+        "必要なら、受付の電話の中で多い内容を伺い、自動化する範囲を決める",
+        "見積に進む"
+      ],
+      "送る前に人が確かめること": [
+        "LINEの送信は夜に人が行う",
+        "「大丈夫です」など、返事の負担を下げる言い回しが院長に合うか、人が見る"
+      ]
+    },
+    {
+      "id": "G",
+      "相手の気がかり": [
+        {
+          "内容": "他社と比べたときの金額の差",
+          "根拠": "オーナー「他社とも比べています」。相手は月額が安いらしい（金額は未確認）"
+        },
+        {
+          "内容": "スタッフの入れ替わりが多くても使い続けられるか",
+          "根拠": "スタッフ15名ほどで入れ替わりが多い"
+        }
+      ],
+      "止まっている理由の見立て": "金額を中心に比べていて、A社の良さが金額以外で伝わっていないのかもしれない。入れ替わりが多いことを、まだ強みの話に結びつけられていないのかもしれない。",
+      "次の一手": {
+        "何を": "比べるときに一番重視している点を、1つだけ尋ねる",
+        "いつ": "明日（11/11）までに",
+        "手段": "メール"
+      },
+      "下書き": {
+        "手段": "メール",
+        "件名": "ご比較のポイントについて",
+        "本文": "G社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n見積をご覧いただき、ありがとうございます。他社とも比べておられるとのこと、よく分かります。金額に加えて、スタッフの入れ替わりがあっても使い続けやすいかも大切かと思います。弊社では、導入時の設定の代行、スタッフ向けの説明会（30分〜）、導入後1か月の質問対応をご用意しています。比べておられる中で、特に重視されている点を教えていただけますか。\n\nA社（担当者名）"
+      },
+      "契約までの道筋": [
+        "重視する点を聞き、それに合わせて話を整理する",
+        "相手が気にする点に答える資料や説明を用意する",
+        "必要ならオンラインで3店舗の使い方を一緒に確認する"
+      ],
+      "送る前に人が確かめること": [
+        "値引き・価格の見直しは書いていない。必要な場合は人が決める",
+        "他社の金額は未確認。調べて書かないこと",
+        "新しいスタッフが入ったときの説明会を追加で行えるかは、メモに無いので確約しない"
+      ]
+    },
+    {
+      "id": "H",
+      "相手の気がかり": [
+        {
+          "内容": "実際に動くところを見て、役に立つか確かめたい",
+          "根拠": "「実際に動くところを見たい」（10/24）"
+        },
+        {
+          "内容": "現場が忙しく、日程を決める時間が取れない",
+          "根拠": "窓口の工場長は現場が忙しい様子。10/30の候補日に返事なし"
+        }
+      ],
+      "止まっている理由の見立て": "工場長が現場で手が離せず、候補日を見て返事をする時間がないのかもしれない。または、候補の日が合わず、そう言い出しにくいのかもしれない。",
+      "次の一手": {
+        "何を": "10/30の候補日のうち、合う日があるかを、番号だけで答えられる形で尋ねる",
+        "いつ": "今日（11/10）",
+        "手段": "メール"
+      },
+      "下書き": {
+        "手段": "メール",
+        "件名": "デモの日程について（番号だけのお返事で大丈夫です）",
+        "本文": "H社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n見積書づくりのお手間が減る様子を、実際にご覧いただく機会について、ご連絡いたしました。10月30日にお送りした候補日のうち、ご都合のつく日がありましたら、番号だけお知らせください。合う日がなければ、「難しい」の一言だけでも大丈夫です。現場のお忙しいところ恐れ入りますが、お手すきの時にお知らせください。ご都合の合う日が別にあれば、そのご希望をお知らせいただくのでも構いません。\n\nA社（担当者名）"
+      },
+      "契約までの道筋": [
+        "日程を決め、デモを行う",
+        "決裁者の社長にも見てもらえるよう、デモへの同席を相談する",
+        "デモ後に見積や進め方を相談する"
+      ],
+      "送る前に人が確かめること": [
+        "10/30の候補日が、今も空いているか人が確認する。過ぎた日があれば入れ替える",
+        "社長の同席は、この1通では聞かない（聞くことは1つに絞るため）。人が次の連絡で決める"
+      ]
+    },
+    {
+      "id": "J",
+      "相手の気がかり": [
+        {
+          "内容": "今使っている会計ソフトと連携できるか",
+          "根拠": "事前に「今使っている会計ソフトと連携できるか」と聞かれている（未回答）"
+        },
+        {
+          "内容": "問い合わせの自動返信が、自分たちの事務所で役に立つか",
+          "根拠": "問い合わせの自動返信に関心。デモ参加は3名"
+        }
+      ],
+      "止まっている理由の見立て": "止まっているのではなく、11/12のデモの前に連携の答えを待っているのかもしれない。",
+      "次の一手": {
+        "何を": "使っている会計ソフトの名前を尋ね、デモの前に確かめる準備をする",
+        "いつ": "今日（11/10）。デモ（11/12 14:00）の前に答えられるようにする",
+        "手段": "メール"
+      },
+      "下書き": {
+        "手段": "メール",
+        "件名": "11/12のデモの準備について（会計ソフトのお名前）",
+        "本文": "J社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n11月12日14時のデモに向けて、ご連絡いたしました。事前にいただいた会計ソフトとの連携のご質問について、デモの場でご説明できるよう確認を進めたいと思います。ご利用中の会計ソフトの名前（製品名）を教えていただけますか。お返事をいただいたあと、できる範囲でデモ当日にご説明いたします。当日、3名様のご参加をお待ちしております。当日に向けて、ご不明な点があれば、お気軽にお知らせください。\n\nA社（担当者名）"
+      },
+      "契約までの道筋": [
+        "会計ソフトの名前を聞き、連携できるかを社内で確認する",
+        "11/12のデモで、連携の答えと自動返信の動きを見せる",
+        "デモ後に、見積や進め方を相談する"
+      ],
+      "送る前に人が確かめること": [
+        "連携できるか・できないかは、メモに無い。社内の担当者に確認してから伝えること。下書きは連携できるとは書いていない",
+        "デモ当日の3名参加は、メモ通り",
+        "返事が来ない場合に備え、デモ当日の説明の仕方は人が決める"
+      ]
+    },
+    {
+      "id": "K",
+      "相手の気がかり": [
+        {
+          "内容": "教室長会議で、4教室の教室長に説明できる材料があるか",
+          "根拠": "教室長会議で話し合い、11/14までに返事をもらう約束（11/7）"
+        },
+        {
+          "内容": "保護者の問い合わせと面談の予約を1つにまとめられるか",
+          "根拠": "保護者からの問い合わせと面談の予約をまとめたい"
+        }
+      ],
+      "止まっている理由の見立て": "止まっているのではなく、11/14までの返事に向けて社内で話し合う準備をしているのかもしれない。会議で説明する材料があるとよいと考えているのかもしれない。",
+      "次の一手": {
+        "何を": "会議で使える提案書の要点を1枚にまとめて送ってよいかを、1つだけ尋ねる",
+        "いつ": "明日（11/11）",
+        "手段": "メール"
+      },
+      "下書き": {
+        "手段": "メール",
+        "件名": "教室長会議に向けた資料について",
+        "本文": "K社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n11月14日までのお返事に向けて、教室長会議でお話しされると伺いました。会議でご説明しやすいように、提案書の要点を1枚にまとめたものをお送りしてもよろしいでしょうか。お送りする場合は、保護者の方からのお問い合わせと面談予約をまとめる点を中心にいたします。お手すきの時にお知らせください。会議のあとで構いませんので、気づかれた点があればご質問もお待ちしております。\n\nA社（担当者名）"
+      },
+      "契約までの道筋": [
+        "要点の1枚資料を送り、教室長会議で使ってもらう",
+        "11/14までに返事をもらう",
+        "返事を受けて、導入の進め方を相談する"
+      ],
+      "送る前に人が確かめること": [
+        "1枚資料は、提案書にある内容だけで作る。新しい金額・機能は入れない",
+        "11/14の返事の約束を催促する文にならないよう、人が見る"
+      ]
+    }
+  ]
+}</script>
+<script type="application/json" id="data-plans">{
+  "model": "claude-sonnet-5-5",
+  "作った日時": "2026-11-10 08:29（台湾時間）",
+  "商談": [
+    {
+      "id": "C",
+      "案": [
+        {
+          "名前": "気がかりに先に",
+          "ねらい": "予算の心配に先に触れ、内訳の資料を1つ提案",
+          "手段": "メール",
+          "件名": "年度内のご予算に向けた費用のまとめについて",
+          "本文": "C社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n先日お送りした見積について、ご連絡いたしました。10月22日のお打ち合わせで、年度内のご予算に入るかどうかが気がかりとのお話がありました。検討の材料として、見積の費用の内訳を1枚にまとめた資料をご用意できればと考えております。事務長様と所内でお話しされる際にも、お使いいただけます。この資料をお送りしてもよろしいでしょうか。「はい」の一言だけでも大丈夫です。申告のご準備でお忙しい時期かと存じますので、お手すきの際にお知らせください。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "用件だけ",
+          "ねらい": "短く、返事は一言で足りる形にする",
+          "手段": "メール",
+          "件名": "見積の費用の内訳資料について",
+          "本文": "C社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n先日の見積について、年度内のご予算の検討に使っていただけるよう、費用の内訳を1枚にまとめた資料をご用意できます。お送りしてもよろしいでしょうか。「はい」の一言で大丈夫です。お忙しい時期かと存じますので、お手すきの際にお知らせください。ご負担のない時で構いません。ご不明な点があれば、お気軽にお知らせください。お返事を急ぐものではありませんので、ご安心ください。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "事務長経由で",
+          "ねらい": "前向きな事務長の声に触れ、所長に見せやすい形を添える",
+          "手段": "メール",
+          "件名": "見積の費用の内訳資料について（所長様へ）",
+          "本文": "C社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n先日は、操作画面をご覧になって、所員の皆さまにも使えそうとのお声をいただき、うれしく存じました。見積につきましては、所長様のご予算のご検討に役立つよう、費用の内訳を1枚にまとめた資料をご用意できます。事務長様から所長様へご覧いただく形でお送りしてもよろしいでしょうか。お返事は「はい」の一言で結構です。お忙しい時期ですので、お手すきの際にお願いいたします。\n\nA社（担当者名）"
+        }
+      ],
+      "書き直し": [
+        {
+          "id": "C",
+          "指示": "もっと短く",
+          "変えたこと": "予算の心配に触れる一文と、事務長・申告時期への気遣い文を削り、資料を送ってよいかの一点だけ残した",
+          "手段": "メール",
+          "件名": "費用の内訳を1枚にした資料の件",
+          "本文": "C社 〇〇様\n\n先日お送りした見積について、初期費用と月額それぞれの内訳を1枚にまとめた資料をご用意できます。年度内のご予算をご検討いただく際の材料になればと考えております。この資料をお送りしてもよろしいでしょうか。\n\nA社（担当者名）",
+          "出し直し": "最初は字数の下限（200字）の決まりがあり短くならなかったため、下限を外して出し直した"
+        },
+        {
+          "指示": "もう少し丁寧に",
+          "変えたこと": "敬語を整え、お忙しい中での連絡であることへの気遣いを足した",
+          "手段": "メール",
+          "件名": "年度内のご予算に向けた費用のまとめについて",
+          "本文": "C社 〇〇様\n\nいつも大変お世話になっております。A社（担当者名）でございます。\n先日お送りいたしました見積につきまして、ご連絡を差し上げました。10月22日のお打ち合わせの際に、年度内のご予算に収まるかどうかが気がかりとのお話を頂戴いたしました。ご検討の一助となりますよう、見積の費用の内訳を1枚にまとめた資料をご用意できればと存じます。この資料をお送りしてもよろしいでしょうか。「はい」の一言だけでも差し支えございません。お忙しい折に恐れ入りますが、お手すきの際にお知らせいただけますと幸いです。\n\nA社（担当者名）"
+        },
+        {
+          "指示": "LINE向けに",
+          "変えたこと": "件名をなくし、依頼の1文だけにした",
+          "手段": "LINE",
+          "本文": "C社 〇〇様、A社（担当者名）です。先日の見積について、年度内のご予算の検討に使える費用の内訳を、1枚にまとめてお送りしてもよろしいでしょうか。「はい」の一言で大丈夫です。"
+        }
+      ]
+    },
+    {
+      "id": "D",
+      "案": [
+        {
+          "名前": "不安に先に答える",
+          "ねらい": "店長の不安に先に触れ、1枚資料を提案",
+          "手段": "メール",
+          "件名": "導入後の使い方の支えについて（提案書の補足）",
+          "本文": "D社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n先日の提案書について、店長様ともお話しいただけるとのこと、ありがとうございます。10月27日のお打ち合わせで、以前のツールが使われなくなったというお話があり、使い続けられるかが大切な点だと受け止めております。弊社では、導入時の設定を代わりに行い、スタッフの皆さま向けの説明会（30分〜）と、導入後1か月の質問対応をご用意しています。この進め方を1枚にまとめて、店長様にもご覧いただけるようお送りしてもよろしいでしょうか。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "用件だけ",
+          "ねらい": "短く、資料を送ってよいかだけを尋ねる",
+          "手段": "メール",
+          "件名": "導入後の進め方の1枚資料について",
+          "本文": "D社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n先日の提案書の補足として、導入後に使い続けやすくするための進め方（設定の代わりの作業、スタッフ向けの説明会、導入後1か月の質問対応）を、1枚にまとめてお送りしてもよろしいでしょうか。店長様とお話しされる際に、お使いいただけます。お手すきの際に、一言お知らせいただければ十分です。ご不明な点があれば、お気軽にお知らせください。お返事を急ぐものではありませんので、ご安心ください。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "説明の場を提案",
+          "ねらい": "具体的な場（説明の時間）を提案して前に進める",
+          "手段": "メール",
+          "件名": "導入後の進め方のご説明について",
+          "本文": "D社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n先日の提案書について、店長様とのお話し合いの前に、ご案内したいことがあります。スタッフの皆さま向けの説明会（30分〜）を、導入時の設定のあとに行い、その後1か月は質問をいつでも受けつける形です。具体的な進め方の案を、店長様にも一度ご説明する時間をいただけないでしょうか。日程は、ご都合に合わせてご相談させてください。お手すきの際にお知らせいただければ幸いです。\n\nA社（担当者名）"
+        }
+      ],
+      "書き直し": [
+        {
+          "id": "D",
+          "指示": "もっと短く",
+          "変えたこと": "お礼・前のツールの話・受け止めの文を削り、支えの中身と資料を送ってよいかの一点だけ残した",
+          "手段": "メール",
+          "件名": "導入後の支えをまとめた資料の件",
+          "本文": "D社 〇〇様\n\n提案書の補足です。導入時の設定の代行、スタッフ向けの説明会（30分〜）、導入後1か月の質問対応を、使い続けていただくための支えとして1枚にまとめ、店長様にもご覧いただけるようお送りしてもよろしいでしょうか。\n\nA社（担当者名）",
+          "出し直し": "最初は字数の下限（200字）の決まりがあり短くならなかったため、下限を外して出し直した"
+        },
+        {
+          "指示": "もう少し丁寧に",
+          "変えたこと": "敬語を整え、店長様への気遣いの言葉を足した",
+          "手段": "メール",
+          "件名": "導入後の使い方の支えについて（提案書の補足）",
+          "本文": "D社 〇〇様\n\nいつも大変お世話になっております。A社（担当者名）でございます。\n先日お送りいたしました提案書につきまして、店長様ともご相談くださるとのこと、誠にありがとうございます。10月27日のお打ち合わせで、以前のツールが使われなくなったとのお話を伺い、使い続けられるかが大切な点と受け止めております。弊社では、導入時の設定の代行、スタッフの皆さま向けの説明会（30分〜）、導入後1か月の質問対応をご用意しております。この進め方を1枚にまとめ、店長様にもご覧いただけるようお送りしてもよろしいでしょうか。\n\nA社（担当者名）"
+        },
+        {
+          "指示": "LINE向けに",
+          "変えたこと": "件名をなくし、資料を送る提案の1文だけにした",
+          "手段": "LINE",
+          "本文": "D社 〇〇様、A社（担当者名）です。提案書の補足として、導入後に使い続けやすくする進め方を、1枚にまとめて送ってもよろしいでしょうか。店長様にもご覧いただけます。"
+        }
+      ]
+    },
+    {
+      "id": "E",
+      "案": [
+        {
+          "名前": "先回りして待つ",
+          "ねらい": "時期の目安だけ尋ね、それまで連絡しないと約束する",
+          "手段": "メール",
+          "件名": "年明けのご相談について",
+          "本文": "E社 〇〇様\n\nあけましておめでとうございます。A社（担当者名）です。\n昨年10月にお話しした、ホームページからのお問い合わせを増やす件について、年明けに考えたいとのことでしたので、ご連絡いたしました。新年のお忙しい時期かとも思いますので、お話を伺いやすい週があれば教えていただけますか。「1月の後半」のようなおおまかな目安で構いません。その頃に改めてご連絡いたします。それまでは、こちらからのご連絡は控えます。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "用件だけ",
+          "ねらい": "短く、週の目安だけを尋ねる",
+          "手段": "メール",
+          "件名": "年明けのご相談について",
+          "本文": "E社 〇〇様\n\nあけましておめでとうございます。A社（担当者名）です。\n昨年10月にお話しした、ホームページからのお問い合わせを増やす件の続きを、お話しできればと思っています。お話を伺いやすい週はありますか。「1月の後半」のような目安で構いません。お返事はお手すきの時で結構です。本年もどうぞよろしくお願いいたします。ご不明な点があれば、お気軽にお知らせください。お返事を急ぐものではありませんので、ご安心ください。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "前回の話を思い出す",
+          "ねらい": "前回の2つの紹介内容を振り返り、再開しやすくする",
+          "手段": "メール",
+          "件名": "ホームページのお問い合わせの件、年明けのご相談",
+          "本文": "E社 〇〇様\n\nあけましておめでとうございます。A社（担当者名）です。\n昨年10月に、ホームページからのお問い合わせを増やしたいとのご相談をいただきました。広告の運用と、問い合わせフォームの見直しの2つを、お伝えしたと思います。年明けに考えるとのお話でしたので、あらためてご状況を伺う時間をいただきたく存じます。お話を伺いやすい週はありますか。おおまかな目安で構いません。ご不明な点があれば、お気軽にお知らせください。お返事を急ぐものではありませんので、ご安心ください。\n\nA社（担当者名）"
+        }
+      ],
+      "書き直し": []
+    },
+    {
+      "id": "F",
+      "案": [
+        {
+          "名前": "気がかりに先に",
+          "ねらい": "受付の忙しさに触れ、資料で気になった点を一言で聞く",
+          "手段": "LINE",
+          "本文": "〇〇様、A社（担当者名）です。夜分に失礼します。予約の電話で受付がお忙しいとのお話でしたので、資料をお送りしました。資料で、一番気になった点はどこでしょうか。一言だけで大丈夫です。"
+        },
+        {
+          "名前": "用件だけ",
+          "ねらい": "短く、一言で返せる形にする",
+          "手段": "LINE",
+          "本文": "〇〇様、A社（担当者名）です。先日の資料で、気になった点が1つあれば教えてください。診療のあとのお手すきの時で大丈夫です。一言で結構です。お急ぎではありませんので、ご安心ください。"
+        },
+        {
+          "名前": "選んで返せる",
+          "ねらい": "2つから選ぶだけで返事ができる形にする",
+          "手段": "LINE",
+          "本文": "〇〇様、A社（担当者名）です。先日の資料の「Web予約」と「予約の確認・変更の自動返信」では、どちらが気になりましたか。どちらかの一言で大丈夫です。診療のあとにお返事ください。"
+        }
+      ],
+      "書き直し": []
+    },
+    {
+      "id": "G",
+      "案": [
+        {
+          "名前": "強みを添えて",
+          "ねらい": "入れ替わりへの不安に触れ、強みを伝えて重視点を聞く",
+          "手段": "メール",
+          "件名": "ご比較のポイントについて",
+          "本文": "G社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n見積をご覧いただき、ありがとうございます。他社とも比べておられるとのこと、よく分かります。金額に加えて、スタッフの入れ替わりがあっても使い続けやすいかも大切かと思います。弊社では、導入時の設定の代行、スタッフ向けの説明会（30分〜）、導入後1か月の質問対応をご用意しています。比べておられる中で、特に重視されている点を教えていただけますか。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "用件だけ",
+          "ねらい": "短く、重視点だけを聞く",
+          "手段": "メール",
+          "件名": "ご比較のポイントについて",
+          "本文": "G社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n見積をご覧いただき、ありがとうございます。他社とも比べておられるとのこと、承知しました。比べておられる中で、特に重視されている点を1つ教えていただけますか。その点に絞って、弊社でお答えできることをお伝えします。お手すきの際に、一言いただければ十分です。お忙しいところ恐れ入ります。ご不明な点があれば、お気軽にお知らせください。お返事を急ぐものではありませんので、ご安心ください。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "整理を手伝う",
+          "ねらい": "比べる点の整理を手伝う姿勢で重視点を聞く",
+          "手段": "メール",
+          "件名": "ご比較のポイントの整理について",
+          "本文": "G社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n3店舗の予約とお客様の情報を1つにまとめたいというご相談をいただいております。他社とも比べておられるとのことですので、比べる点を整理するお手伝いができればと思います。お客様の情報の扱いやすさ、スタッフの方への教えやすさ、導入後の支えなど、特に重視されている点を教えていただけますか。その点に合わせて、ご説明をまとめます。お手すきの時で大丈夫です。お急ぎではありません。\n\nA社（担当者名）"
+        }
+      ],
+      "書き直し": []
+    },
+    {
+      "id": "H",
+      "案": [
+        {
+          "名前": "番号だけで",
+          "ねらい": "番号だけで返せる形にして、返事の手間を減らす",
+          "手段": "メール",
+          "件名": "デモの日程について（番号だけのお返事で大丈夫です）",
+          "本文": "H社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n見積書づくりのお手間が減る様子を、実際にご覧いただく機会について、ご連絡いたしました。10月24日のお電話で、実際に動くところを見たいとのお話をいただいております。10月30日にお送りした候補日のうち、ご都合のつく日がありましたら、番号だけお知らせください。合う日がなければ、「難しい」の一言だけでも大丈夫です。現場のお忙しいところ恐れ入りますが、お手すきの時にお知らせください。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "用件だけ",
+          "ねらい": "短く、番号か「難しい」の一言で返せる形にする",
+          "手段": "メール",
+          "件名": "デモの候補日について",
+          "本文": "H社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n10月30日にお送りしたデモの候補日について、ご都合のつく日があれば、番号だけお知らせください。合う日がなければ、「難しい」の一言で大丈夫です。現場がお忙しい時期かと存じますので、お手すきの時にお知らせください。ご負担のない時で構いません。ご不明な点があれば、お気軽にお知らせください。お返事を急ぐものではありませんので、ご安心ください。どうぞよろしくお願いいたします。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "日程を出し直す",
+          "ねらい": "候補日が合わなかった場合に備え、時間帯を聞いて出し直す",
+          "手段": "メール",
+          "件名": "デモの日程のご都合について",
+          "本文": "H社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n見積書づくりのお手間が減る様子を、実際にご覧いただく機会について、ご連絡いたしました。10月30日にお送りした候補日が合わなかったかもしれないと思い、改めて伺います。現場の手が空きやすい曜日や時間帯があれば、教えていただけますか。そこに合わせて、候補日を出し直します。「午前なら」のような一言で結構です。お手すきの時にお知らせください。\n\nA社（担当者名）"
+        }
+      ],
+      "書き直し": [
+        {
+          "id": "H",
+          "指示": "もっと短く",
+          "変えたこと": "電話の経緯と気遣い文、逃げ道の一文を削り、候補日に合う日があるかを番号で聞く一点だけ残した",
+          "手段": "メール",
+          "件名": "デモ日程のご都合（番号のみで）",
+          "本文": "H社 〇〇様\n\n10月24日のお電話でご希望いただいた、見積書づくりが実際に動くところをご覧いただくデモについて、10月30日にお送りした候補日のうち、ご都合のつく日はございますでしょうか。番号だけのお返事で結構です。\n\nA社（担当者名）",
+          "出し直し": "最初は字数の下限（200字）の決まりがあり短くならなかったため、下限を外して出し直した"
+        },
+        {
+          "指示": "もう少し丁寧に",
+          "変えたこと": "敬語を整え、現場への気遣いの言葉を足した",
+          "手段": "メール",
+          "件名": "デモの日程について（番号だけのお返事で大丈夫です）",
+          "本文": "H社 〇〇様\n\nいつも大変お世話になっております。A社（担当者名）でございます。\n見積書づくりのお手間が減る様子を、実際にご覧いただく機会につきまして、ご連絡を差し上げました。10月24日のお電話で、実際に動くところをご覧になりたいとのお話を頂戴しております。10月30日にお送りいたしました候補日のうち、ご都合のつく日がございましたら、番号のみお知らせいただけますでしょうか。合う日がない場合は、「難しい」の一言でも差し支えございません。現場のお忙しい折に恐れ入りますが、お手すきの際にお知らせいただけますと幸いです。\n\nA社（担当者名）"
+        },
+        {
+          "指示": "LINE向けに",
+          "変えたこと": "件名をなくし、番号で返せる形の1文にした",
+          "手段": "LINE",
+          "本文": "H社 〇〇様、A社（担当者名）です。10月30日にお送りしたデモの候補日で、ご都合のつく日があれば番号だけお知らせください。難しければ、その一言で大丈夫です。お急ぎではありません。"
+        }
+      ]
+    },
+    {
+      "id": "J",
+      "案": [
+        {
+          "名前": "確認を約束",
+          "ねらい": "連携の質問に答える姿勢を示し、ソフト名を聞く",
+          "手段": "メール",
+          "件名": "11/12のデモの準備について（会計ソフトのお名前）",
+          "本文": "J社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n11月12日14時のデモに向けて、ご連絡いたしました。事前にいただいた会計ソフトとの連携のご質問について、デモの場でご説明できるよう確認を進めたいと思います。ご利用中の会計ソフトの名前（製品名）を教えていただけますか。お返事をいただいたあと、できる範囲でデモ当日にご説明いたします。当日、3名様のご参加をお待ちしております。当日に向けて、ご不明な点があれば、お気軽にお知らせください。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "用件だけ",
+          "ねらい": "短く、ソフト名だけを聞く",
+          "手段": "メール",
+          "件名": "11/12のデモの準備について（会計ソフトのお名前）",
+          "本文": "J社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n11月12日のデモの前に、会計ソフトとの連携のご質問について確認を進めます。ご利用中の会計ソフトの名前（製品名）を、教えていただけますか。お返事をいただいたあと、できる範囲でデモ当日にご説明いたします。お手すきの際に、お知らせください。ご不明な点があれば、お気軽にお知らせください。お返事を急ぐものではありませんので、ご安心ください。どうぞよろしくお願いいたします。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "当日の流れ",
+          "ねらい": "当日の見どころを先に伝え、安心してもらってソフト名を聞く",
+          "手段": "メール",
+          "件名": "11/12のデモの流れと会計ソフトのお名前",
+          "本文": "J社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n11月12日14時のデモでは、問い合わせの自動返信の動きを中心にご覧いただく予定です。あわせて、事前にいただいた会計ソフトとの連携のご質問にも、できる範囲でお答えしたいと考えています。確認のため、ご利用中の会計ソフトの名前（製品名）を教えていただけますか。当日、3名様のご参加をお待ちしております。ご不明な点があれば、お気軽にお知らせください。お返事を急ぐものではありませんので、ご安心ください。\n\nA社（担当者名）"
+        }
+      ],
+      "書き直し": []
+    },
+    {
+      "id": "K",
+      "案": [
+        {
+          "名前": "会議に合わせて",
+          "ねらい": "会議での説明を助ける資料として1枚を提案",
+          "手段": "メール",
+          "件名": "教室長会議に向けた資料について",
+          "本文": "K社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n11月14日までのお返事に向けて、教室長会議でお話しされると伺いました。会議でご説明しやすいように、提案書の要点を1枚にまとめたものをお送りしてもよろしいでしょうか。お送りする場合は、保護者の方からのお問い合わせと面談予約をまとめる点を中心にいたします。お手すきの時にお知らせください。会議のあとで構いませんので、気づかれた点があればご質問もお待ちしております。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "用件だけ",
+          "ねらい": "短く、送ってよいかだけを聞く",
+          "手段": "メール",
+          "件名": "教室長会議に向けた資料について",
+          "本文": "K社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n教室長会議でお話しいただくと伺いました。会議でお使いいただけるよう、提案書の要点を1枚にまとめたものをお送りしてもよろしいでしょうか。お手すきの時に、一言お知らせください。会議のお時間は、こちらからは急ぎません。ご質問は、会議のあとでも大丈夫です。ご不明な点があれば、お気軽にお知らせください。お返事を急ぐものではありませんので、ご安心ください。\n\nA社（担当者名）"
+        },
+        {
+          "名前": "中身を先に示す",
+          "ねらい": "1枚に載せる内容を先に示し、安心して返事できるようにする",
+          "手段": "メール",
+          "件名": "教室長会議に向けた1枚の資料について",
+          "本文": "K社 〇〇様\n\nお世話になっております。A社（担当者名）です。\n教室長会議に向けて、提案書の要点を1枚にまとめることを考えています。内容は、保護者の方からのお問い合わせと面談の予約を1つにまとめる点を中心に、提案書にある内容に絞ります。4つの教室の教室長の皆さまにも、お伝えしやすいかと思います。この1枚を、お送りしてもよろしいでしょうか。お手すきの時にお知らせください。ご不明な点があれば、お気軽にお知らせください。お返事を急ぐものではありませんので、ご安心ください。\n\nA社（担当者名）"
+        }
+      ],
+      "書き直し": []
+    }
+  ]
+}</script>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const MEMO = JSON.parse($("data-memo").textContent);
+const DRAFT = JSON.parse($("data-draft").textContent);
+const PLANS = JSON.parse($("data-plans").textContent);
+
+/* 決まり（日数は変えられる形） */
+const STOP_DAYS = 7, WARN_DAYS = 4;
+const TODAY = MEMO["今日"];
+const dayNum = s => { const p = s.split("-").map(Number); return Date.UTC(p[0], p[1] - 1, p[2]) / 86400000; };
+const md = s => { const p = s.split("-").map(Number); return p[1] + "/" + p[2]; };
+const addDays = (s, n) => { const d = new Date((dayNum(s) + n) * 86400000); return d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, "0") + "-" + String(d.getUTCDate()).padStart(2, "0"); };
+const LABEL = { stop: "止まっている", warn: "気をつける", go: "動いている", sent: "送った（確かめ待ち）" };
+
+const deals = MEMO["商談"].map(m => {
+  const days = dayNum(TODAY) - dayNum(m["最後の連絡"]);
+  const base = m["次の約束"] ? "go" : days >= STOP_DAYS ? "stop" : days >= WARN_DAYS ? "warn" : "go";
+  const pl = PLANS["商談"].find(x => x.id === m.id);
+  return { id: m.id, m, days, base, ai: DRAFT["商談"].find(x => x.id === m.id), plans: pl["案"], rewrites: pl["書き直し"] || [] };
+});
+const byId = id => deals.find(d => d.id === id);
+
+const SRC = [
+  { name: "表（Excel・Googleスプレッドシート）", file: "商談の記録.xlsx（見本）" },
+  { name: "顧客・商談の管理の道具（CSV）", file: "書き出したファイル.csv（見本）" },
+  { name: "貼り付けたメモ", file: null }
+];
+const COLS = [["相手", "相手として読む"], ["段階", "段階として読む"], ["最後の連絡", "最後の連絡として読む"], ["次の約束", "次の約束として読む"], ["連絡の手段", "連絡の手段として読む"], ["メモ", "メモとして読む"]];
+
+const st = { imported: false, shown: false, src: 0, sent: {}, later: {}, openDraft: {}, openRow: {}, tab: {}, rew: {}, rewMsg: {}, chan: {}, free: {}, freeMsg: {} };
+const stateOf = d => st.sent[d.id] ? "sent" : d.base;
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function draftText(dr) { return (dr["件名"] ? "件名：" + dr["件名"] + "\n\n" : "") + dr["本文"]; }
+
+function copyDraft(dr, selEl, msgEl) {
+  const text = draftText(dr);
+  const say = t => { msgEl.textContent = t; setTimeout(() => { msgEl.textContent = ""; }, 3500); };
+  const fallback = () => {
+    try { const r = document.createRange(); r.selectNodeContents(selEl); const s = window.getSelection(); s.removeAllRanges(); s.addRange(r); say("選択しました。コピーしてお使いください"); }
+    catch (e) { say("コピーできませんでした。文を選んでコピーしてください"); }
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => say("コピーしました"), fallback);
+  else fallback();
+}
+
+function draftBox(dr, open) {
+  const box = el("div", "draft" + (open ? "" : " clamped"));
+  if (dr["件名"]) box.appendChild(el("div", "subject", "件名：" + dr["件名"]));
+  box.appendChild(el("div", "dbody", dr["本文"]));
+  return box;
+}
+
+/* ---------- ① 読み込む ---------- */
+function sheetView(file) {
+  const wrap = el("div");
+  wrap.appendChild(el("p", "filebar", file));
+  const sc = el("div", "sheet-scroll"); sc.tabIndex = 0; sc.setAttribute("role", "region"); sc.setAttribute("aria-label", "読み込む表の見本（横に動かせます）");
+  const t = el("table", "sheet");
+  const thead = el("thead");
+  const r0 = el("tr", "maps"); r0.appendChild(el("td", "corner"));
+  COLS.forEach(c => { const td = el("td", "mapc"); td.appendChild(el("span", "maptag", "→ " + c[1])); r0.appendChild(td); });
+  const r1 = el("tr"); r1.appendChild(el("th", "corner"));
+  "ABCDEF".split("").forEach(ch => r1.appendChild(el("th", "colh", ch)));
+  thead.append(r0, r1); t.appendChild(thead);
+  const tb = el("tbody");
+  const hd = el("tr", "hd"); hd.appendChild(el("th", "rn", "1"));
+  COLS.forEach(c => hd.appendChild(el("td", null, c[0])));
+  tb.appendChild(hd);
+  MEMO["商談"].forEach((m, i) => {
+    const tr = el("tr"); tr.appendChild(el("th", "rn", String(i + 2)));
+    tr.appendChild(el("td", "nw", m["相手"]));
+    tr.appendChild(el("td", "nw", m["段階"]));
+    tr.appendChild(el("td", "nw", m["最後の連絡"]));
+    tr.appendChild(el("td", null, m["次の約束"] || ""));
+    tr.appendChild(el("td", "nw", m["連絡の手段"]));
+    const tdm = el("td"); const b = el("button", "cellbtn", m["メモ"]); b.type = "button"; b.setAttribute("aria-expanded", "false"); b.title = "押すと全文が開きます";
+    b.addEventListener("click", () => b.setAttribute("aria-expanded", b.getAttribute("aria-expanded") === "true" ? "false" : "true"));
+    tdm.appendChild(b); tr.appendChild(tdm); tb.appendChild(tr);
+  });
+  t.appendChild(tb); sc.appendChild(t); wrap.appendChild(sc);
+  wrap.appendChild(el("p", "note", "列の名前が違っていても、最初にどの列を何として読むかを決めます。"));
+  return wrap;
+}
+function memoView() {
+  const wrap = el("div");
+  const lab = el("label", "filebar", "貼り付け欄（見本：C社のメモ）"); lab.htmlFor = "memo-paste";
+  const ta = el("textarea"); ta.id = "memo-paste"; ta.value = MEMO["商談"].find(m => m.id === "C")["メモ"];
+  wrap.append(lab, ta);
+  wrap.appendChild(el("p", "note", "貼り付けたメモは、AIが『相手・段階・最後の連絡・次の約束』に分けて、表に足す形を想定しています（見本では、上の8件を使います）。"));
+  return wrap;
+}
+function renderImport() {
+  document.querySelectorAll("button.src").forEach(b => b.setAttribute("aria-pressed", String(Number(b.dataset.src) === st.src)));
+  const v = $("src-view"); v.textContent = "";
+  v.appendChild(st.src === 2 ? memoView() : sheetView(SRC[st.src].file));
+}
+function setStep() {
+  const cur = st.shown ? 3 : st.imported ? 2 : 1;
+  document.querySelectorAll("#flow li").forEach(li => {
+    const n = Number(li.dataset.step);
+    li.className = n === cur ? "on" : n < cur ? "done" : "";
+    if (n === cur) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
+  });
+}
+
+/* ---------- ② 今朝のまとめ ---------- */
+const shortName = d => { const a = d.m["相手"]; const i = a.indexOf("（"); if (i < 0) return a; return a.slice(0, i) + "（" + a.slice(i + 1).split(/[・）]/)[0] + "）"; };
+const GROUPS = [
+  { k: "stop", t: "止まっている", desc: "次の約束が無いまま、7日以上たった商談", item: d => d.days + "日" },
+  { k: "warn", t: "気をつける", desc: "このままだと、もうすぐ7日になる商談", item: d => d.days + "日" },
+  { k: "sent", t: "今日送った", desc: "3日後に、返事が来たかを確かめる商談", item: d => "11/13に確かめる" },
+  { k: "go", t: "動いている", desc: "次の約束が決まっている商談", item: d => (d.m["次の約束"] || "").split(" ")[0].slice(5).replace("-", "/") + "に約束" }
+];
+
+function renderLeft() {
+  const todayIds = DRAFT["今日追いかける順"].map(x => x.id);
+  const stopN = deals.filter(d => stateOf(d) === "stop").length;
+  const readyN = todayIds.filter(id => !st.sent[id]).length;
+  const h = $("headline"); h.textContent = "";
+  h.append("今朝は、" + deals.length + "件中 ", el("span", "num", String(stopN)), "件が止まっています。");
+  if (readyN) h.append(el("span", "hsub", "そのうち" + readyN + "件に、今日送る下書きを用意しました。"));
+  const ul = $("stages"); ul.textContent = "";
+  GROUPS.forEach(g => {
+    const ds = deals.filter(d => stateOf(d) === g.k).sort((a, b) => b.days - a.days);
+    if (!ds.length) return;
+    const li = el("li", "grp " + g.k);
+    li.append(el("div", "gname", g.t + "　" + ds.length + "件"), el("div", "gdesc", g.desc));
+    const items = el("ul", "gitems");
+    ds.forEach(d => {
+      const it = el("li");
+      it.append(el("span", "gco", shortName(d)), el("span", "gday", g.item(d)));
+      if (g.k === "stop" && todayIds.includes(d.id)) it.appendChild(el("span", "chip today", "今日の3件"));
+      items.appendChild(it);
+    });
+    li.appendChild(items); ul.appendChild(li);
+  });
+}
+
+/* ---------- ③ 今日の3件 ---------- */
+const chanOf = d => st.chan[d.id] || (d.m["連絡の手段"] === "LINE" ? "LINE" : "メール");
+const curDraft = d => st.rew[d.id] != null ? d.rewrites[st.rew[d.id]] : d.plans[st.tab[d.id] || 0];
+function rc(fk) { renderCards(); if (fk) { const e = document.querySelector('[data-fk="' + fk + '"]'); if (e) e.focus(); } }
+
+function renderCards() {
+  const fo = DRAFT["まずこの1件"], fd = byId(fo.id);
+  const box = $("first-one"); box.textContent = "";
+  box.append(el("b", null, "まずこの1件：" + fd.m["相手"]), el("div", null, fo["理由"]));
+
+  const order = DRAFT["今日追いかける順"].slice();
+  const sorted = order.filter(x => !st.later[x.id]).concat(order.filter(x => st.later[x.id]));
+  const wrap = $("cards"); wrap.textContent = "";
+  sorted.forEach(item => {
+    const d = byId(item.id), ai = d.ai, nx = ai["次の一手"];
+    if (st.sent[d.id]) {
+      const c = el("div", "card sentcard");
+      c.appendChild(el("div", null, d.m["相手"] + "　" + st.sent[d.id] + "で送った（" + md(TODAY) + "）。次の確かめ：" + md(addDays(TODAY, 3))));
+      const undo = el("button", "btn ghost small", "取り消す"); undo.type = "button";
+      undo.addEventListener("click", () => { delete st.sent[d.id]; refreshAll(); });
+      c.appendChild(undo); wrap.appendChild(c); return;
+    }
+    const tabIdx = st.tab[d.id] || 0, rewI = st.rew[d.id], cur = curDraft(d), chan = chanOf(d);
+    const c = el("article", "card" + (st.later[d.id] ? " later" : ""));
+    c.appendChild(el("h4", null, d.m["相手"]));
+    const meta = el("div", "meta");
+    meta.append(el("span", null, d.m["段階"]), el("span", "days" + (d.base === "warn" ? " warn" : ""), d.days + "日前から連絡なし"));
+    c.appendChild(meta);
+    c.appendChild(el("div", "lab", "AIが選んだ理由"));
+    c.appendChild(el("p", "reason", item["理由"]));
+    c.appendChild(el("div", "lab", "次の一手"));
+    const nxb = el("div", "next"), dl = el("dl");
+    [["何を", nx["何を"]], ["いつ", nx["いつ"]], ["手段", nx["手段"]]].forEach(kv => { dl.append(el("dt", null, kv[0]), el("dd", null, kv[1])); });
+    nxb.appendChild(dl); c.appendChild(nxb);
+
+    /* 案を選ぶ */
+    c.appendChild(el("div", "lab", "送る文の下書き3案（案を選ぶ）"));
+    const tabs = el("div", "tabs"); tabs.setAttribute("role", "tablist"); tabs.setAttribute("aria-label", "下書きの案");
+    d.plans.forEach((p, i) => {
+      const b = el("button", "tab", "案" + (i + 1) + " " + p["名前"]); b.type = "button";
+      b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(i === tabIdx)); b.dataset.fk = "tab-" + d.id + "-" + i;
+      b.addEventListener("click", () => { st.tab[d.id] = i; st.rew[d.id] = null; st.rewMsg[d.id] = null; rc(b.dataset.fk); });
+      tabs.appendChild(b);
+    });
+    c.appendChild(tabs);
+    c.appendChild(el("p", "aim", "ねらい：" + d.plans[tabIdx]["ねらい"]));
+    if (rewI != null) {
+      const r = d.rewrites[rewI], rn = el("div", "rewnote");
+      rn.appendChild(el("div", null, st.rewMsg[d.id].main));
+      if (st.rewMsg[d.id].extra) rn.appendChild(el("small", null, st.rewMsg[d.id].extra));
+      if (r["出し直し"]) rn.appendChild(el("small", null, "出し直し：" + r["出し直し"]));
+      const back = el("button", "linkbtn", "元の案に戻す"); back.type = "button"; back.dataset.fk = "back-" + d.id;
+      back.addEventListener("click", () => { st.rew[d.id] = null; st.rewMsg[d.id] = null; rc("tab-" + d.id + "-0"); });
+      rn.appendChild(back); c.appendChild(rn);
+    }
+    const key = "card-" + d.id;
+    const db = draftBox(cur, !!st.openDraft[key]);
+    c.appendChild(db);
+    const tg = el("button", "linkbtn", st.openDraft[key] ? "たたむ" : "全文を見る"); tg.type = "button";
+    tg.setAttribute("aria-expanded", st.openDraft[key] ? "true" : "false");
+    tg.addEventListener("click", () => { st.openDraft[key] = !st.openDraft[key]; renderCards(); });
+    c.appendChild(tg);
+
+    /* 直す指示 */
+    if (d.rewrites.length) {
+      c.appendChild(el("div", "lab", "直す指示"));
+      const cb = el("div", "chipbtns");
+      d.rewrites.forEach((r, i) => {
+        const b = el("button", "chipbtn", r["指示"]); b.type = "button"; b.setAttribute("aria-pressed", String(rewI === i)); b.dataset.fk = "rew-" + d.id + "-" + i;
+        b.addEventListener("click", () => {
+          const was = st.tab[d.id] || 0;
+          st.tab[d.id] = 0; st.rew[d.id] = i;
+          st.rewMsg[d.id] = { main: "案1を『" + r["指示"] + "』で書き直しました：" + r["変えたこと"], extra: was !== 0 ? "見本では、案1の書き直しを見られます。" : "" };
+          rc(b.dataset.fk);
+        });
+        cb.appendChild(b);
+      });
+      c.appendChild(cb);
+      const fr = el("div", "free");
+      const inp = el("input"); inp.type = "text"; inp.placeholder = "自由に書く（例：電話の候補日も入れて）"; inp.setAttribute("aria-label", "直す指示を自由に書く"); inp.value = st.free[d.id] || "";
+      inp.addEventListener("input", () => { st.free[d.id] = inp.value; });
+      const fb = el("button", "btn small", "書き直す（見本）"); fb.type = "button"; fb.dataset.fk = "free-" + d.id;
+      fb.addEventListener("click", () => { st.freeMsg[d.id] = "本番では、ここに書いた指示（例：電話の候補日も入れて）で、AIが書き直します。見本では、上の3つの指示を試せます。"; rc(fb.dataset.fk); });
+      fr.append(inp, fb); c.appendChild(fr);
+      if (st.freeMsg[d.id]) { const fm = el("p", "infoline", st.freeMsg[d.id]); fm.setAttribute("role", "status"); c.appendChild(fm); }
+    }
+
+    /* 送る方法 */
+    c.appendChild(el("div", "lab", "送る方法"));
+    const ch = el("div", "chipbtns"); ch.setAttribute("role", "group"); ch.setAttribute("aria-label", "送る方法");
+    ["メール", "LINE"].forEach(name => {
+      const b = el("button", "chipbtn", name); b.type = "button"; b.setAttribute("aria-pressed", String(chan === name)); b.dataset.fk = "chan-" + d.id + "-" + name;
+      b.addEventListener("click", () => { st.chan[d.id] = name; rc(b.dataset.fk); });
+      ch.appendChild(b);
+    });
+    c.appendChild(ch);
+    if (chan === "LINE" && cur["手段"] === "メール") c.appendChild(el("p", "infoline", "LINEで送る時は、LINE向けの短い文に直す形を想定しています（『LINE向けに』を押すと、AIが書いた例を見られます）。"));
+
+    const act = el("div", "actions"), msg = el("span", "copied"); msg.setAttribute("role", "status");
+    const bc = el("button", "btn small", "下書きをコピー"); bc.type = "button";
+    bc.addEventListener("click", () => { db.classList.remove("clamped"); copyDraft(cur, db, msg); });
+    const bs = el("button", "btn green small", chan + "で送る（見本）"); bs.type = "button";
+    bs.addEventListener("click", () => { st.sent[d.id] = chan; refreshAll(); });
+    const bl = el("button", "btn ghost small", st.later[d.id] ? "戻す" : "あとで"); bl.type = "button";
+    bl.addEventListener("click", () => { st.later[d.id] = !st.later[d.id]; renderCards(); });
+    act.append(bs, bc, bl, msg); c.appendChild(act);
+    c.appendChild(el("p", "cardnote", "見本なので、実際には送りません。本番では、メール（Gmailなど）や、LINE公式アカウントとつないで、確かめてからボタンで送る形を想定しています。"));
+    wrap.appendChild(c);
+  });
+}
+
+/* ---------- 一覧 ---------- */
+function detailCell(d) {
+  const m = d.m, ai = d.ai, nx = ai["次の一手"];
+  const grid = el("div", "detail-grid");
+  const L = el("div", "dcol human");
+  L.appendChild(el("h4", null, "入れたメモ（人が書いた物）"));
+  L.appendChild(el("div", "memo", m["メモ"]));
+  const dl = el("dl");
+  [["連絡の手段", m["連絡の手段"]], ["最後の連絡", md(m["最後の連絡"]) + "（" + d.days + "日前）"], ["次の約束", m["次の約束"] || "なし"]].forEach(kv => { dl.append(el("dt", null, kv[0]), el("dd", null, kv[1])); });
+  L.appendChild(dl);
+
+  const R = el("div", "dcol ai");
+  R.appendChild(el("h4", null, "AIが出した物"));
+  R.appendChild(el("h5", null, "相手の気がかり（メモのどこから読んだか）"));
+  const u1 = el("ul");
+  ai["相手の気がかり"].forEach(x => { const li = el("li", null, x["内容"]); li.appendChild(el("span", "evid", "根拠：" + x["根拠"])); u1.appendChild(li); });
+  R.appendChild(u1);
+  R.appendChild(el("h5", null, "止まっている理由の見立て"));
+  R.appendChild(el("p", null, ai["止まっている理由の見立て"]));
+  R.appendChild(el("h5", null, "次の一手"));
+  R.appendChild(el("p", null, nx["何を"] + "（いつ：" + nx["いつ"] + "／手段：" + nx["手段"] + "）"));
+  R.appendChild(el("h5", null, "送る文の下書き3案"));
+  d.plans.forEach((p, i) => {
+    const blk = el("div", "plan");
+    blk.appendChild(el("b", null, "案" + (i + 1) + " " + p["名前"] + "（" + p["手段"] + "）"));
+    blk.appendChild(el("p", "aim", "ねらい：" + p["ねらい"]));
+    const db = draftBox(p, true); blk.appendChild(db);
+    const act = el("div", "actions"), msg = el("span", "copied"); msg.setAttribute("role", "status");
+    const bc = el("button", "btn small", "案" + (i + 1) + "をコピー"); bc.type = "button";
+    bc.addEventListener("click", () => copyDraft(p, db, msg));
+    act.append(bc, msg); blk.appendChild(act); R.appendChild(blk);
+  });
+  R.appendChild(el("h5", null, "契約までの道筋"));
+  const ol = el("ol"); ai["契約までの道筋"].forEach(t => ol.appendChild(el("li", null, t))); R.appendChild(ol);
+  const cb = el("div", "check-box"); cb.appendChild(el("b", null, "送る前に人が確かめること"));
+  const u2 = el("ul"); ai["送る前に人が確かめること"].forEach(t => u2.appendChild(el("li", null, t))); cb.appendChild(u2);
+  R.appendChild(cb);
+  grid.append(L, R);
+  return grid;
+}
+
+function renderRows() {
+  const tb = $("deal-rows"); tb.textContent = "";
+  deals.forEach(d => {
+    const s = stateOf(d), open = !!st.openRow[d.id];
+    const tr = el("tr", "deal" + (open ? " open" : ""));
+    const t1 = el("td"); t1.dataset.label = "相手";
+    const bt = el("button", "rowbtn", d.m["相手"]); bt.type = "button";
+    bt.setAttribute("aria-expanded", open ? "true" : "false"); bt.setAttribute("aria-controls", "detail-" + d.id);
+    bt.addEventListener("click", () => { st.openRow[d.id] = !st.openRow[d.id]; renderRows(); const nb = document.querySelector('[aria-controls="detail-' + d.id + '"]'); if (nb) nb.focus(); });
+    t1.appendChild(bt);
+    const cell = (label, txt, cls) => { const t = el("td", cls || null, txt); t.dataset.label = label; return t; };
+    const t5 = el("td"); t5.dataset.label = "状態"; t5.appendChild(el("span", "tag " + s, LABEL[s]));
+    tr.append(t1, cell("段階", d.m["段階"]), cell("最後の連絡", md(d.m["最後の連絡"]), "num"), cell("日数", d.days + "日", "num"), t5);
+    tb.appendChild(tr);
+    if (open) {
+      const dt = el("tr", "detail"); dt.id = "detail-" + d.id;
+      const c = el("td"); c.colSpan = 5; c.appendChild(detailCell(d)); dt.appendChild(c); tb.appendChild(dt);
+    }
+  });
+}
+
+function refreshAll() { renderLeft(); renderCards(); renderRows(); }
+
+/* ---------- 操作 ---------- */
+let timer = null;
+function doImport() {
+  if (st.imported) return;
+  st.imported = true;
+  $("btn-import").disabled = true; $("btn-import").textContent = "読み込み済み";
+  $("import-msg").textContent = MEMO["商談"].length + "件を読み込みました";
+  $("btn-run").disabled = false; $("run-hint").hidden = true;
+  setStep();
+}
+function run() {
+  if (st.shown || !st.imported) return;
+  $("btn-run").disabled = true; $("empty-box").hidden = true; $("loading").hidden = false;
+  timer = setTimeout(() => {
+    st.shown = true; $("loading").hidden = true; $("result").hidden = false; $("btn-reset").hidden = false;
+    $("import").hidden = true;
+    const dn = $("import-done"); dn.textContent = "① 読み込み済み：" + SRC[st.src].name + " から" + MEMO["商談"].length + "件"; dn.hidden = false;
+    setStep(); refreshAll();
+  }, 1000);
+}
+function reset() {
+  clearTimeout(timer);
+  Object.assign(st, { imported: false, shown: false, src: 0, sent: {}, later: {}, openDraft: {}, openRow: {}, tab: {}, rew: {}, rewMsg: {}, chan: {}, free: {}, freeMsg: {} });
+  $("result").hidden = true; $("loading").hidden = true; $("empty-box").hidden = false; $("btn-reset").hidden = true;
+  $("btn-run").disabled = true; $("run-hint").hidden = false;
+  $("import").hidden = false; $("import-done").hidden = true; $("import-msg").textContent = "";
+  $("btn-import").disabled = false; $("btn-import").textContent = "この内容で読み込む（見本）";
+  renderImport(); setStep();
+}
+document.querySelectorAll("button.src").forEach(b => b.addEventListener("click", () => { st.src = Number(b.dataset.src); renderImport(); }));
+$("btn-import").addEventListener("click", doImport);
+$("btn-run").addEventListener("click", run);
+$("btn-reset").addEventListener("click", reset);
+renderImport(); setStep();
+</script>
+</body>
+</html>
