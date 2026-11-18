@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>説明会予約の入口（画面の見本）</title>
+<style>
+:root{
+  --ink:#1d2b2a; --sub:#4a5d5b; --line:#cfdedb; --bg:#f1f7f6; --card:#fff;
+  --teal:#0f766e; --teal-d:#0b5a54; --teal-l:#d9efec;
+  --auto:#c2410c; --auto-l:#ffedd5; --human:#475569; --human-l:#e8edf2;
+  --alert:#b91c1c; --alert-l:#fee2e2; --glow:#fde68a;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:17px;line-height:1.7;
+  font-family:"BIZ UDPGothic","BIZ UDゴシック","Meiryo","メイリオ","Hiragino Sans","Yu Gothic UI",sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px 48px}
+h1{font-size:26px;line-height:1.4;margin:24px 0 8px}
+h2{font-size:21px;margin:0 0 6px;line-height:1.4}
+h3{font-size:18px;margin:0 0 6px;line-height:1.4}
+p{margin:0 0 8px}
+.lead{color:var(--sub)}
+.badge-fake{display:inline-block;background:#fff7d6;border:1px solid #e6c84a;border-radius:6px;padding:2px 10px;font-size:15px;margin-bottom:8px}
+.point{font-size:17px;color:var(--teal-d);font-weight:700;margin:0 0 12px}
+section.block{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:20px}
+button,.btn{font:inherit;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:8px 20px;border-radius:10px;border:2px solid var(--teal);background:var(--teal);color:#fff;font-weight:700;font-size:17px;text-decoration:none}
+.btn:hover{background:var(--teal-d)}
+.btn.sub{background:#fff;color:var(--teal-d)}
+.btn.sub:hover{background:var(--teal-l)}
+.btn.block{display:flex;width:100%}
+.link{background:none;border:0;color:var(--teal-d);text-decoration:underline;padding:10px 4px;min-height:44px;font-size:15px}
+:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+
+/* flow */
+.legend{font-size:15px;color:var(--sub);margin-bottom:10px}
+.tag{display:inline-block;font-size:14px;font-weight:700;border-radius:999px;padding:0 10px;line-height:24px;white-space:nowrap}
+.tag.auto{background:var(--auto);color:#fff}
+.tag.human{background:var(--human-l);color:var(--human);border:1px solid var(--human)}
+.flow{display:grid;grid-template-columns:repeat(7,1fr);gap:10px 18px;position:relative}
+.step{background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 10px 12px;font-size:15px;line-height:1.55;position:relative}
+.step.auto{border-color:#f0b48b}
+.step.human{border-color:#94a3b8;background:#f6f8fa}
+.step .no{display:block;font-weight:700;color:var(--teal-d);font-size:14px}
+.step b{display:block;font-size:16px;margin:2px 0 6px;line-height:1.45}
+.step:not(:last-child)::after{content:"▶";position:absolute;right:-17px;top:42%;color:var(--teal);font-size:14px}
+.note{font-size:14px;line-height:1.55;background:var(--auto-l);border:1px dashed var(--auto);border-radius:10px;padding:8px 10px}
+.note strong{color:var(--auto)}
+.s1{grid-column:1;grid-row:1}.s2{grid-column:2;grid-row:1}.s3{grid-column:3;grid-row:1}.s4{grid-column:4;grid-row:1}
+.s5{grid-column:5;grid-row:1}.s6{grid-column:6;grid-row:1}.s7{grid-column:7;grid-row:1}
+.n1{grid-column:2 / 4;grid-row:2}.n2{grid-column:5 / 7;grid-row:2}
+.s3::after,.s7::after{display:none}
+.flow-foot{margin-top:14px;font-weight:700;color:var(--teal-d)}
+.howto{margin-top:12px;font-size:15px;background:var(--teal-l);border-radius:10px;padding:10px 14px}
+
+/* main two cols */
+.cols{display:grid;grid-template-columns:400px 1fr;gap:24px;margin-top:20px;align-items:start}
+.tryhint{background:var(--auto);color:#fff;border-radius:10px;padding:8px 12px;font-size:16px;line-height:1.55;margin:0 0 10px;max-width:380px}
+.ar-m{display:none}
+.ph{font-size:18px;color:var(--teal-d);margin:0 0 6px}
+.side-title{font-size:15px;font-weight:700;color:var(--sub);margin:0 0 6px}
+.phone{width:380px;max-width:100%;border:10px solid #22302f;border-radius:36px;background:#fff;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.phone .bar{height:22px;background:#22302f;display:flex;justify-content:center}
+.phone .bar i{display:block;width:90px;height:8px;background:#0c1514;border-radius:6px;margin-top:0}
+.screen{padding:16px 16px 20px;font-size:16px;line-height:1.65;min-height:640px}
+.screen h3{font-size:19px}
+.pg{font-size:13px;color:var(--sub);margin-bottom:4px}
+.pgdots{display:flex;gap:6px;margin:0 0 12px}
+.pgdots span{flex:1;height:6px;border-radius:4px;background:var(--line)}
+.pgdots span.on{background:var(--teal)}
+label.f{display:block;font-weight:700;margin:12px 0 4px}
+.req{font-size:12px;color:#fff;background:var(--alert);border-radius:4px;padding:0 5px;margin-left:4px;font-weight:400}
+.opt{font-size:12px;color:var(--sub);border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-left:4px;font-weight:400}
+input[type=text],input[type=email],select,textarea{width:100%;font:inherit;font-size:16px;min-height:46px;padding:8px 10px;border:2px solid #9bb5b1;border-radius:8px;background:#fff;color:var(--ink)}
+textarea{min-height:96px}
+.err{color:var(--alert);font-size:14px;margin-top:4px;display:none}
+.err.on{display:block}
+.chk{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;margin:5px 0;font-size:16px}
+.chk input{width:22px;height:22px;accent-color:var(--teal);flex:none}
+.chk:has(input:checked){background:var(--teal-l);border-color:var(--teal)}
+.cards2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.mc{border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;font-size:14px;line-height:1.45}
+.pdf{width:52px;height:64px;margin:0 auto 6px;background:#fff;border:2px solid #cbd5d3;border-radius:4px;position:relative;box-shadow:2px 2px 0 var(--line)}
+.pdf::before{content:"PDF";position:absolute;left:0;right:0;top:6px;font-size:12px;font-weight:700;color:var(--alert)}
+.pdf::after{content:"";position:absolute;left:8px;right:8px;top:26px;height:24px;background:repeating-linear-gradient(#cbd5d3 0 3px,transparent 3px 8px)}
+.vid{width:92px;height:64px;margin:0 auto 6px;background:linear-gradient(135deg,#0f766e,#164e63);border-radius:6px;position:relative}
+.vid::after{content:"";position:absolute;left:38px;top:20px;border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent}
+.okbox{background:var(--teal-l);border-radius:10px;padding:10px 12px;font-weight:700}
+.dates{margin:10px 0}
+.dopt{display:block;position:relative;margin:8px 0}
+.dopt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.dopt span{display:block;border:2px solid var(--line);border-radius:10px;padding:10px 12px 10px 44px;min-height:56px;font-size:16px;position:relative;background:#fff}
+.dopt span::before{content:"";position:absolute;left:12px;top:50%;margin-top:-10px;width:20px;height:20px;border:2px solid #7a9c97;border-radius:50%;background:#fff}
+.dopt input:checked + span{border-color:var(--teal);background:var(--teal-l)}
+.dopt input:checked + span::before{background:var(--teal);box-shadow:inset 0 0 0 4px #fff}
+.dopt input:focus-visible + span{outline:3px solid #f59e0b}
+.near{font-size:12px;background:var(--teal);color:#fff;border-radius:4px;padding:0 6px;margin-left:6px}
+.bkbox{border:2px solid var(--teal);border-radius:12px;padding:12px;margin:10px 0;background:#f7fcfb}
+.bkbox .dt{font-size:19px;font-weight:700}
+.toast{display:none;margin:8px 0;font-size:14px;background:#fff7d6;border:1px solid #e6c84a;border-radius:8px;padding:6px 10px}
+.toast.on{display:block}
+.mobile-only{display:none;font-size:14px;background:var(--glow);border-radius:8px;padding:6px 10px;margin:8px 0;font-weight:700}
+.timeline{margin:6px 0 0;padding:0;list-style:none;border-left:3px solid var(--teal);margin-left:8px}
+.timeline li{margin:0 0 6px 0;padding-left:12px;position:relative}
+.timeline li::before{content:"";position:absolute;left:-9px;top:13px;width:12px;height:12px;border-radius:50%;background:var(--teal);border:2px solid #fff}
+details.mail{background:#fff}
+details.mail>summary{cursor:pointer;min-height:44px;padding:8px 4px;list-style:none;font-size:15px;line-height:1.5}
+details.mail>summary::-webkit-details-marker{display:none}
+details.mail>summary .w{display:block;font-size:13px;color:var(--sub)}
+details.mail>summary .t{text-decoration:underline;color:var(--teal-d);font-weight:700}
+details.mail>summary .t::after{content:" ▼";font-size:11px}
+details.mail[open]>summary .t::after{content:" ▲"}
+.mailbody{font-size:14px;line-height:1.7;background:#fbfdfc;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:2px 0 8px}
+.mailbody .h{color:var(--sub);font-size:13px;border-bottom:1px dashed var(--line);margin-bottom:6px;padding-bottom:4px}
+.mailbody p{margin:0 0 6px}
+
+/* dashboard */
+.desk{border:2px solid #22302f;border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.desk .tb{background:#22302f;color:#fff;font-size:14px;padding:6px 12px;display:flex;gap:6px;align-items:center}
+.desk .tb i{width:10px;height:10px;border-radius:50%;background:#7a8f8d;display:inline-block}
+.desk .in{padding:16px}
+.dh{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;align-items:baseline;margin-bottom:10px}
+.dh b{font-size:19px}
+.dh span{font-size:14px;color:var(--sub)}
+.part{border-top:1px solid var(--line);padding-top:16px;margin-top:18px}
+.part:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.part .one{font-size:16px;font-weight:700;line-height:1.6;margin-bottom:10px}
+.kicker{display:inline-block;background:var(--teal);color:#fff;font-size:13px;border-radius:5px;padding:0 8px;margin-right:6px}
+.brow{display:grid;grid-template-columns:100px 1fr;gap:4px 10px;align-items:center;margin:6px 0}
+.brow .lb{font-weight:700;font-size:16px}
+.barline{display:flex;align-items:center;gap:8px;min-width:0}
+.bar-o{flex:0 0 auto;height:26px;border-radius:5px;background:var(--teal);min-width:6px;transition:width .4s}
+.num{font-size:22px;font-weight:700;white-space:nowrap;border-radius:6px;padding:0 6px;transition:background .6s}
+.num small{font-size:14px;font-weight:400}
+.num.flash{background:var(--glow)}
+.newtag{display:none;font-size:13px;background:var(--glow);border:1px solid #d6a800;border-radius:6px;padding:0 6px;line-height:1.5;margin-left:4px}
+.newtag.on{display:inline-block}
+.brow .ex{grid-column:2;font-size:14px;color:var(--sub);line-height:1.5}
+.drop{margin:2px 0 2px 110px;font-size:14px;color:var(--alert);border-left:3px solid var(--alert);padding:1px 0 1px 8px;background:var(--alert-l);border-radius:0 6px 6px 0}
+.nextmove{margin:18px 0 14px 0;background:var(--auto-l);border:1px solid var(--auto);border-radius:10px;padding:8px 12px;font-size:15px}
+.nextmove strong{color:var(--auto)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top;line-height:1.5}
+th{background:var(--teal-l);font-size:14px}
+td.n,th.n{text-align:right;width:78px;white-space:nowrap}
+th.n{font-size:13px}
+td.pp,#tbC th:nth-child(2){white-space:nowrap;width:76px}
+tr.total td{font-weight:700;background:#f4f8f7}
+td.hot{background:var(--alert-l);color:var(--alert);font-weight:700;outline:2px solid var(--alert);outline-offset:-2px}
+tr.mine td{background:var(--glow);font-weight:700}
+.minetag{font-size:12px;background:#fff;border:1px solid #d6a800;border-radius:4px;padding:0 5px;margin-left:4px;font-weight:400}
+.subnote{font-size:13px;color:var(--sub);margin:6px 0}
+.addline{margin-top:8px;font-size:15px;background:var(--glow);border-radius:8px;padding:6px 10px}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.mo{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfdfc}
+.mo h3{color:var(--teal-d)}
+.mo ul{margin:6px 0 0;padding-left:20px;font-size:16px}
+.mo li{margin-bottom:6px}
+.mo .time{font-size:14px;color:var(--sub)}
+footer{margin-top:20px;font-size:14px;color:var(--sub)}
+
+@media (max-width:1100px){
+  .flow{grid-template-columns:1fr;gap:10px}
+  .flow>*{grid-column:1 !important;grid-row:auto !important}
+  .s1{order:1}.s2{order:2}.n1{order:3}.s3{order:4}.s4{order:5}.s5{order:6}.n2{order:7}.s6{order:8}.s7{order:9}
+  .step:not(:last-child)::after{content:"▼";right:auto;left:50%;top:auto;bottom:-16px}
+  .step.s2::after,.step.s5::after{display:none}
+  .cols{grid-template-columns:minmax(0,1fr)}
+  .cols>div{min-width:0}
+  .phone{margin:0 auto}
+}
+@media (max-width:760px){
+  body{font-size:17px}
+  h1{font-size:22px}
+  .wrap{padding:0 16px 40px}
+  section.block{padding:16px 14px}
+  .mobile-only{display:block}
+  .road{grid-template-columns:1fr}
+  .desk .in{padding:12px}
+  .drop{margin-left:0}
+  .ar-d{display:none}.ar-m{display:inline}
+  table.stack td.n{display:inline-block;width:auto;margin-right:14px;text-align:left}
+  table.stack td.pp{display:inline-block;width:auto;margin-right:14px}
+  .brow{grid-template-columns:90px 1fr}
+  /* tables become cards */
+  table.stack thead{display:none}
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block;width:100%}
+  table.stack tr{border:1px solid var(--line);border-radius:8px;margin-bottom:8px;padding:6px 8px}
+  table.stack td{border:0;padding:2px 0}
+  table.stack td::before{content:attr(data-l) "：";color:var(--sub);font-size:13px}
+  table.stack td.nm::before{content:""}
+  table.stack td.nm{font-weight:700}
+  .tb2 th,.tb2 td{padding:5px 4px;font-size:14px}
+  .tb2 td.n,.tb2 th.n{width:46px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="badge-fake">応募のために作った画面の見本です（会社名・人・数字はすべて架空）</span>
+  <h1>問い合わせから説明会の予約まで、人の手を介さずに進む入口（画面の見本）</h1>
+  <p class="lead">左のスマホでお客様として問い合わせ・予約をすると、右の担当者の画面の数に入ります。会社・人・数字はすべて架空です。</p>
+  <p class="lead" style="font-size:15px">架空の会社「そよかぜ産業保健」のサービス「小さな会社の健康管理パック」（ストレスチェック・健康診断のあとのフォロー・オンラインの健康相談）。相手は従業員50人未満の会社です。</p>
+</header>
+
+<!-- ① 流れ -->
+<section class="block" id="flow">
+  <h2>① 入口の流れ（問い合わせから契約まで）</h2>
+  <p class="point">説明会の予約までは、すべて自動です。担当者が手を動かすのは「説明会で話す」と「申込みの質問に答える」の2つだけです。</p>
+  <p class="legend"><span class="tag auto">自動</span> ＝ しくみが自動で進めます　／　<span class="tag human">人</span> ＝ 担当者が行います</p>
+  <div class="flow">
+    <div class="step auto s1"><span class="no">1</span><b>問い合わせ（フォーム）</b><span class="tag auto">自動で受付</span></div>
+    <div class="step auto s2"><span class="no">2</span><b>資料と3分の動画がメールで届く</b><span class="tag auto">自動</span></div>
+    <div class="step auto s3"><span class="no">3</span><b>説明会の日を、候補日から自分で選ぶ</b>日を変える・取り消すも自分で<br><span class="tag auto">自動</span></div>
+    <div class="step auto s4"><span class="no">4</span><b>予約の確認・前日・1時間前のお知らせ</b><span class="tag auto">自動</span></div>
+    <div class="step human s5"><span class="no">5</span><b>合同オンライン説明会</b>（45分）<br><small>（いくつかの会社が一緒に聞く説明会）</small><br><span class="tag human">人</span></div>
+    <div class="step auto s6"><span class="no">6</span><b>申込みの案内（参加した方）／録画と次の回の案内（来られなかった方）</b><span class="tag auto">自動</span></div>
+    <div class="step human s7"><span class="no">7</span><b>申込み・契約</b><span class="tag human">人：質問に答える</span></div>
+    <div class="note n1"><strong>止まった方には</strong><br>資料を送って3日たっても予約が無い方には、動画と次の日程を自動でもう一度お送りします。</div>
+    <div class="note n2"><strong>止まった方には</strong><br>来られなかった方には、録画と次の回を自動でお送りします。</div>
+  </div>
+  <p class="flow-foot">問い合わせ・予約・参加・契約の4つの数は、自動で右の担当者の画面に入ります。</p>
+  <div class="howto"><b>本番の作り方（例）</b>：Googleのフォーム・カレンダー・メール・表計算など、無料〜低い費用の道具で組めます。気がかりのまとめにはAIを使います。いまお使いの道具（HubSpotなど）があれば、それに合わせます。</div>
+</section>
+
+<!-- ②③ -->
+<div class="cols">
+  <!-- 左 -->
+  <div>
+    <p class="side-title">② お客様のスマホの画面（触れます）</p>
+    <p class="tryhint"><b>ここから試せます。</b>見本の値が入っているので「送る」を押すだけ <span class="ar-d">→ 右の数が増えます</span><span class="ar-m">→ 下の数が増えます</span></p>
+    <div class="phone">
+      <div class="bar"><i></i></div>
+      <div class="screen" id="screen">
+
+        <!-- 段1 -->
+        <div id="p1">
+          <div class="pg">そよかぜ産業保健 ／ 1 / 4 問い合わせ</div>
+          <div class="pgdots"><span class="on"></span><span></span><span></span><span></span></div>
+          <h3>資料と動画をお送りします</h3>
+          <p style="font-size:15px;color:var(--sub)">下の内容は見本の値が入っています。そのまま「送る」を押してください。</p>
+          <form id="form" novalidate>
+            <label class="f" for="f_co">会社名<span class="req">必須</span></label>
+            <input type="text" id="f_co" value="はるかぜ印刷" autocomplete="off">
+            <div class="err" id="e_co">会社名を教えてください。</div>
+            <label class="f" for="f_nm">お名前<span class="req">必須</span></label>
+            <input type="text" id="f_nm" value="見本 太郎" autocomplete="off">
+            <div class="err" id="e_nm">お名前を教えてください。</div>
+            <label class="f" for="f_ml">メール<span class="req">必須</span></label>
+            <input type="email" id="f_ml" value="sample@example.com" autocomplete="off">
+            <div class="err" id="e_ml">資料をお送りするメールアドレスを入れてください（例：sample@example.com）。</div>
+            <label class="f" for="f_sz">従業員数</label>
+            <select id="f_sz"><option>〜9人</option><option selected>10〜29人</option><option>30〜49人</option><option>50人以上</option></select>
+            <label class="f">気になっていること（いくつでも）</label>
+            <label class="chk"><input type="checkbox" checked> ストレスチェック</label>
+            <label class="chk"><input type="checkbox"> 健康診断のあとのフォロー</label>
+            <label class="chk"><input type="checkbox"> 産業医</label>
+            <label class="chk"><input type="checkbox"> 心の不調の相談</label>
+            <label class="chk"><input type="checkbox"> 費用</label>
+            <label class="f" for="f_src">どこで知りましたか</label>
+            <select id="f_src">
+              <option selected>社労士事務所からの紹介</option><option>税理士事務所からの紹介</option><option>検索・ホームページ</option><option>展示会</option><option>その他</option>
+            </select>
+            <label class="f" for="f_cm">ひとこと<span class="opt">任意</span></label>
+            <textarea id="f_cm">来年からストレスチェックを始めたいが、何から手をつければよいか分からない</textarea>
+            <div style="margin-top:14px"><button type="submit" class="btn block" id="btnSend">送る</button></div>
+          </form>
+          <div style="text-align:center"><button class="link" data-reset>最初からやり直す</button></div>
+        </div>
+
+        <!-- 段2 -->
+        <div id="p2" hidden>
+          <div class="pg">2 / 4 受け付け</div>
+          <div class="pgdots"><span class="on"></span><span class="on"></span><span></span><span></span></div>
+          <div class="okbox">受け付けました。資料と3分の動画をメールでお送りしました。</div>
+          <div class="mobile-only">下の担当者の画面の数が1つ増えました（問い合わせ）</div>
+          <div class="cards2">
+            <div class="mc"><div class="pdf"></div>資料（PDF）<br>パックのご案内</div>
+            <div class="mc"><div class="vid"></div>3分の動画<br>ようすが分かります</div>
+          </div>
+          <details class="mail" id="mail1sum"><summary><span class="t">届いたメールを見る</span></summary><div id="mail1"></div></details>
+          <div style="margin-top:12px"><button class="btn block" id="btnToDate">合同説明会の日を選ぶ</button></div>
+          <div style="text-align:center"><button class="link" data-reset>最初からやり直す</button></div>
+        </div>
+
+        <!-- 段3 -->
+        <div id="p3" hidden>
+          <div class="pg">3 / 4 日を選ぶ</div>
+          <div class="pgdots"><span class="on"></span><span class="on"></span><span class="on"></span><span></span></div>
+          <h3>合同オンライン説明会の日を選ぶ</h3>
+          <p style="font-size:15px;color:var(--sub)">45分・オンライン。毎回、ほかの会社さまも一緒に参加します。</p>
+          <div class="dates" id="dates"></div>
+          <div class="err" id="e_date">日を1つ選んでください。</div>
+          <button class="btn block" id="btnBook">この日で予約する</button>
+          <div style="text-align:center">
+            <button class="link" id="btnCancel" hidden>この予約を取り消す</button><br>
+            <button class="link" data-reset>最初からやり直す</button>
+          </div>
+        </div>
+
+        <!-- 段4 -->
+        <div id="p4" hidden>
+          <div class="pg">4 / 4 予約できました</div>
+          <div class="pgdots"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></div>
+          <div class="okbox">予約できました。</div>
+          <div class="mobile-only">下の担当者の画面の数が1つ増えました（予約）</div>
+          <div class="bkbox">
+            <div class="dt" id="bkDate"></div>
+            <div style="font-size:15px">オンライン（参加のURLはメールでお送りします）</div>
+          </div>
+          <button class="btn sub block" id="btnCal">カレンダーに入れる</button>
+          <div class="toast" id="toastCal">見本ではカレンダーに入りません。</div>
+          <div style="text-align:center"><button class="link" id="btnChange">日を変える・取り消す</button></div>
+          <h3 style="margin-top:10px">このあと届くご案内</h3>
+          <p style="font-size:14px;color:var(--sub)">押すと、メールの全文が開きます。</p>
+          <ol class="timeline" id="mailList"></ol>
+          <div style="text-align:center"><button class="link" data-reset>最初からやり直す</button></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 右 -->
+  <div>
+    <p class="side-title">③ 担当者のパソコンの画面（左の操作で数が変わります）</p>
+    <div class="desk">
+      <div class="tb"><i></i><i></i><i></i>&nbsp;そよかぜ産業保健　説明会係の画面</div>
+      <div class="in">
+        <div class="dh"><b>11月の入口（11月1日〜18日）</b><span>今日：2026年11月18日（水）の夜</span></div>
+
+        <!-- A -->
+        <div class="part" id="partA">
+          <p class="one"><span class="kicker">数</span><span id="sentA"></span></p>
+          <div id="bars"></div>
+          <p class="subnote">横棒の長さは、問い合わせの数に対する割合です。赤い帯は、そこで減った数です。</p>
+        </div>
+
+        <!-- B -->
+        <div class="part">
+          <h3 class="ph">どこからの紹介か（紹介元）ごとの数</h3>
+          <p class="one"><span id="sentB"></span></p>
+          <table class="tb2 stack" id="tbB">
+            <thead><tr><th>紹介元</th><th class="n">問い合わせ</th><th class="n">予約</th><th class="n">参加</th><th class="n">契約</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <!-- C -->
+        <div class="part">
+          <h3 class="ph">次の説明会に来る会社が、気にしていること（AIのまとめ）</h3>
+          <p class="one">説明会の前に、来る会社が何を気にしているかが分かる</p>
+          <h3 id="cHead"></h3>
+          <p id="cSum" style="font-weight:700"></p>
+          <p class="subnote">問い合わせのひとことを、AIが読んでまとめました。回の前日の朝に、担当者へ届きます。</p>
+          <table class="stack" id="tbC">
+            <thead><tr><th>会社</th><th>人数</th><th>紹介元</th><th>気がかり（AIのまとめ）</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="addline" id="cLine" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ -->
+<section class="block">
+  <h2>④ 3か月の進め方（案）</h2>
+  <p class="point">まず入口を動かし、数を見て直し、社内で同じ画面を見られるようにします。</p>
+  <div class="road">
+    <div class="mo">
+      <h3>1か月目</h3><div class="time">はじめの5時間で</div>
+      <ul>
+        <li>入口の流れを図にして決める</li>
+        <li>問い合わせ・説明会の予約・自動のお知らせを、いまお使いの道具で動く形に</li>
+        <li>4つの数が見られる表</li>
+      </ul>
+    </div>
+    <div class="mo">
+      <h3>2か月目</h3><div class="time">6時間目からの続きで：数を見て直す</div>
+      <ul>
+        <li>数を見て、いちばん流れている所から直す（例：予約していない方への2回目の案内、紹介元にお渡しする案内文）</li>
+        <li>資料・動画を、よく出る質問に合わせて整える</li>
+        <li>説明会のあとのフォロー（申込みの案内・個別相談の予約）</li>
+      </ul>
+    </div>
+    <div class="mo">
+      <h3>3か月目</h3><div class="time">6時間目からの続きで：社内で共有する</div>
+      <ul>
+        <li>社内の情報共有：問い合わせの中身とどこまで進んだかを、営業の皆さんが同じ画面で見られる。週に1回、数と気がかりのまとめが自動で届く</li>
+        <li>6時間目からの続け方を、私からご提案</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>この画面は応募用の見本です。「そよかぜ産業保健」「はるかぜ印刷」などの会社名・人名・数字・URLはすべて架空です。</footer>
+</div>
+
+<script>
+(function(){
+  var DEF_COMMENT = '来年からストレスチェックを始めたいが、何から手をつければよいか分からない';
+  var SESS = [
+    {d:'11月26日（木）', t:'12:00〜12:45', prev:'11月25日（水）', near:true},
+    {d:'12月2日（水）',  t:'19:00〜19:45', prev:'12月1日（火）'},
+    {d:'12月4日（金）',  t:'10:00〜10:45', prev:'12月3日（木）'},
+    {d:'12月10日（木）', t:'12:00〜12:45', prev:'12月9日（水）'},
+    {d:'12月16日（水）', t:'19:00〜19:45', prev:'12月15日（火）'}
+  ];
+  var BASE_SRC = [
+    {k:'社労士事務所からの紹介', i:18, b:12, p:6, c:3},
+    {k:'税理士事務所からの紹介', i:12, b:3, p:1, c:0},
+    {k:'検索・ホームページ', i:8, b:4, p:2, c:1},
+    {k:'展示会', i:4, b:1, p:1, c:0}
+  ];
+  var SHORT = {'社労士事務所からの紹介':'社労士事務所','税理士事務所からの紹介':'税理士事務所','検索・ホームページ':'検索・ホームページ','展示会':'展示会','その他':'その他'};
+  var BASE_C = [
+    ['こもれび製作所','28人','社労士事務所','来年からのストレスチェックを、何から始めればよいか知りたい'],
+    ['しろくま運輸','45人','社労士事務所','健康診断で再検査になった人への声かけができていない'],
+    ['ふたば保育園','22人','検索・ホームページ','ストレスチェックの費用と、職員の負担が少ないやり方を知りたい'],
+    ['みなと設計事務所','12人','税理士事務所','人数が少なくても頼めるか、月々いくらかかるか'],
+    ['やまびこ食品','38人','社労士事務所','ストレスチェックの結果を、会社はどこまで見てよいか'],
+    ['つばさ介護サービス','49人','展示会','もうすぐ50人になるので、ストレスチェックと産業医をまとめて相談したい']
+  ];
+  var S; // state
+  function fresh(){
+    return {src:BASE_SRC.map(function(r){return {k:r.k,i:r.i,b:r.b,p:r.p,c:r.c};}),
+            booked:null, entered:null, flash:null, form:null, mailsOpen:false, newInq:false, newBook:false};
+  }
+  S = fresh();
+
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function sum(k){return S.src.reduce(function(a,r){return a+r[k];},0);}
+  function srcRow(name){
+    for(var j=0;j<S.src.length;j++){ if(S.src[j].k===name) return S.src[j]; }
+    var r={k:name,i:0,b:0,p:0,c:0,extra:true}; S.src.push(r); return r;
+  }
+
+  /* ---- mail texts ---- */
+  function who(){
+    var f=S.form||{co:'はるかぜ印刷',nm:'見本 太郎'};
+    return esc(f.co)+' '+esc(f.nm)+' 様';
+  }
+  function mailBox(from,subj,lines){
+    var h='<div class="mailbody"><div class="h">送り主：そよかぜ産業保健 説明会係（見本）<br>件名：'+esc(subj)+'</div><p>'+who()+'</p>';
+    lines.forEach(function(l){h+='<p>'+l+'</p>';});
+    return h+'<p>そよかぜ産業保健 説明会係</p></div>';
+  }
+  var URL='https://example.com/meet';
+  function sessText(s){return s.d+' '+s.t;}
+  function nextSess(i){ return (i==null||i>=SESS.length-1)?null:SESS[i+1]; }
+  function mails(idx){
+    var s=SESS[idx==null?0:idx];
+    var nx=nextSess(idx==null?0:idx);
+    var cal = nx ? ('次の回は '+esc(sessText(nx))+' です。ご都合が合えば、あらためて日を選べます。') : '次の日程が決まりましたら、あらためてお知らせします。';
+    return {
+      m1:{ttl:'資料と動画（問い合わせの直後）',when:'問い合わせの直後',subj:'【そよかぜ産業保健】資料と3分の動画をお送りします',
+        l:['お問い合わせありがとうございます。「小さな会社の健康管理パック」の資料（PDF）と、3分でようすが分かる動画をお送りします。',
+           '資料：https://example.com/shiryo.pdf（見本のURLです）','動画：https://example.com/video（見本のURLです）',
+           'ご覧になって気になることは、合同オンライン説明会で、そのままお聞きいただけます。']},
+      m2:{ttl:'予約の確認',when:'今すぐ',subj:'【そよかぜ産業保健】説明会のご予約を受け付けました',
+        l:['合同オンライン説明会のご予約を受け付けました。','日時：'+esc(sessText(s))+'（45分）','参加のURL：'+URL+'（見本のURLです）',
+           '当日は、このURLを開くだけで入れます。日を変えたいとき・取り消したいときは、メール下のリンクからできます。','前日と1時間前にも、おしらせをお送りします。']},
+      m3:{ttl:'前日のお知らせ',when:'前日の12:00（'+s.prev+'）',subj:'【そよかぜ産業保健】明日は合同オンライン説明会です',
+        l:['明日 '+esc(sessText(s))+' に、合同オンライン説明会があります。','ほかの会社さまも一緒に参加します。お話は45分です。','参加のURL：'+URL+'（見本のURLです）','お持ちいただく物は、特にありません。']},
+      m4:{ttl:'1時間前のお知らせ',when:'当日、開始の1時間前',subj:'【そよかぜ産業保健】まもなく、1時間後に説明会が始まります',
+        l:['本日 '+esc(s.t.split('〜')[0])+' から、合同オンライン説明会が始まります。','参加のURL：'+URL+'（見本のURLです）','音声がつながるか、始まる前に一度ご確認いただくと安心です。']},
+      m5:{ttl:'終わったあと：参加した方へ（申込みの案内）',when:'説明会のあと',subj:'【そよかぜ産業保健】本日はご参加ありがとうございました',
+        l:['本日は説明会にご参加いただき、ありがとうございました。','お話しした内容と、お申込みのご案内をお送りします。','申込みのご案内：https://example.com/moushikomi（見本のURLです）','ご不明な点は、案内のページから質問をお送りいただければ、担当がお答えします。']},
+      m6:{ttl:'終わったあと：来られなかった方へ（録画と次の回）',when:'説明会のあと',subj:'【そよかぜ産業保健】説明会の録画をお送りします',
+        l:['今回はご都合が合わなかったようですね。説明会の録画をお送りします。','録画：https://example.com/rokuga（見本のURLです）','45分の内容ですが、気になる所だけご覧いただいても大丈夫です。',cal]},
+      m7:{ttl:'予約していない方へ（資料を送って3日後）',when:'資料を送って3日後',subj:'【そよかぜ産業保健】3分の動画と、次の説明会の日程をお送りします',
+        l:['先日お送りした資料に続けて、3分の動画と、次の合同オンライン説明会の日程をあらためてお送りします。','動画：https://example.com/video（見本のURLです）','日程：'+esc(sessText(SESS[0]))+'　／　'+esc(sessText(SESS[2])),'ご都合のよい日があれば、こちらから選べます：https://example.com/yoyaku（見本のURLです）']}
+    };
+  }
+  function mailDetails(m, lead){
+    return '<details class="mail"><summary>'+(lead||'')+'<span class="t">'+esc(m.ttl)+'</span><span class="w">'+esc(m.when)+'</span></summary>'+mailBox('',m.subj,m.l)+'</details>';
+  }
+
+  /* ---- steps ---- */
+  function show(n){
+    ['p1','p2','p3','p4'].forEach(function(id,i){ $(id).hidden = (i+1)!==n; });
+    document.getElementById('screen').scrollTop=0;
+  }
+  function renderDates(){
+    var h='';
+    SESS.forEach(function(s,i){
+      h+='<label class="dopt"><input type="radio" name="sess" value="'+i+'"'+(S.booked===i?' checked':'')+'><span><b>'+s.d+'</b> '+s.t+(s.near?'<em class="near" style="font-style:normal">いちばん近い回</em>':'')+'</span></label>';
+    });
+    $('dates').innerHTML=h;
+    $('btnCancel').hidden = (S.booked==null);
+    $('e_date').classList.remove('on');
+  }
+  function renderMailList(){
+    var m=mails(S.booked), keys=['m2','m3','m4','m5','m6'], h='';
+    keys.forEach(function(k,i){ h+='<li>'+mailDetails(m[k])+'</li>'; });
+    $('mailList').innerHTML=h;
+    $('bkDate').textContent=sessText(SESS[S.booked]);
+  }
+  function validate(){
+    var ok=true;
+    var co=$('f_co').value.trim(), nm=$('f_nm').value.trim(), ml=$('f_ml').value.trim();
+    var c1=!!co, c2=!!nm, c3=!!ml && /.+@.+/.test(ml);
+    $('e_co').classList.toggle('on',!c1);$('e_nm').classList.toggle('on',!c2);$('e_ml').classList.toggle('on',!c3);
+    return c1&&c2&&c3;
+  }
+  $('form').addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!validate()) return;
+    var f={co:$('f_co').value.trim(),nm:$('f_nm').value.trim(),ml:$('f_ml').value.trim(),sz:$('f_sz').value,src:$('f_src').value,cm:$('f_cm').value.trim()};
+    S.form=f;
+    if(!S.newInq){
+      S.newInq=true; S.entered=f.co;
+      var r=srcRow(f.src); r.i+=1; S.enteredSrc=f.src;
+      flashOn('inq');
+    }
+    $('mail1').innerHTML = (function(){var m=mails(null).m1;return mailBox('',m.subj,m.l);})();
+    renderAll(); show(2);
+  });
+  $('btnToDate').addEventListener('click',function(){renderDates();show(3);});
+  $('btnBook').addEventListener('click',function(){
+    var sel=document.querySelector('input[name=sess]:checked');
+    if(!sel){ $('e_date').classList.add('on'); return; }
+    var idx=parseInt(sel.value,10);
+    if(S.booked==null){
+      var r=srcRow(S.form.src); r.b+=1; flashOn('book');
+      S.newBook=true;
+    }
+    S.booked=idx;
+    renderMailList(); renderAll(); show(4);
+  });
+  $('btnCancel').addEventListener('click',function(){
+    if(S.booked!=null){
+      var r=srcRow(S.form.src); r.b-=1; S.booked=null; S.newBook=false; S.flash=null;
+      renderAll(); renderDates(); show(2);
+    }
+  });
+  $('btnChange').addEventListener('click',function(){renderDates();show(3);});
+  $('btnCal').addEventListener('click',function(){ $('toastCal').classList.add('on'); });
+
+  function resetAll(){
+    S=fresh();
+    $('f_co').value='はるかぜ印刷';$('f_nm').value='見本 太郎';$('f_ml').value='sample@example.com';
+    $('f_sz').value='10〜29人';$('f_src').value='社労士事務所からの紹介';$('f_cm').value=DEF_COMMENT;
+    var cs=document.querySelectorAll('#form .chk input'); for(var i=0;i<cs.length;i++){cs[i].checked=(i===0);}
+    ['e_co','e_nm','e_ml'].forEach(function(id){$(id).classList.remove('on');});
+    $('toastCal').classList.remove('on');
+    $('mail1sum').open=false;
+    renderAll(); show(1);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-reset]'),function(b){b.addEventListener('click',resetAll);});
+
+  var flashTimer=null;
+  function flashOn(which){
+    S.flash=which;
+    clearTimeout(flashTimer);
+    flashTimer=setTimeout(function(){S.flash=null;var els=document.querySelectorAll('.num.flash');for(var i=0;i<els.length;i++)els[i].classList.remove('flash');},1600);
+  }
+
+  /* ---- dashboard ---- */
+  var nextOpen=false;
+  function renderAll(){
+    var inq=sum('i'), bk=sum('b'), pt=sum('p'), ct=sum('c');
+    $('sentA').textContent='11月は問い合わせ'+inq+'社に対して、説明会の予約は'+bk+'社。いちばん話が流れているのは「資料を受け取ったあと、予約する前」です。';
+    var pending=6+(S.booked!=null?1:0);
+    var in26 = 6+(S.booked===0?1:0);
+    var pct=function(v){return Math.max(2,Math.round(v/inq*100));};
+    var nm = S.entered?esc(S.entered):'';
+    var tagInq=S.newInq?'<span class="newtag on">＋1 '+nm+'（いま見本で入れた会社）</span>':'';
+    var tagBk=S.newBook?'<span class="newtag on">＋1 '+nm+'（いま見本で入れた会社）</span>':'';
+    function row(lb,v,label,ex,tag,fl){
+      return '<div class="brow"><div class="lb">'+lb+'</div><div class="barline"><div class="bar-o" style="width:calc('+pct(v)+'% * .55)"></div><span class="num'+(fl?' flash':'')+'">'+v+'<small>社</small></span>'+(tag||'')+'</div>'+(ex?'<div class="ex">'+ex+'</div>':'')+'</div>';
+    }
+    var h='';
+    h+=row('問い合わせ',inq,'', '',tagInq,S.flash==='inq');
+    h+='<div class="drop">予約していない　'+(inq-bk)+'社</div>';
+    h+='<div class="nextmove"><strong>次の一手</strong>　資料を送って3日たっても予約が無い方には、動画と次の日程を自動でもう一度お送りしています。'
+      +' <button class="link" id="btnNext" aria-expanded="'+nextOpen+'">（送っている文面を見る）</button>'
+      +'<div id="nextMail" '+(nextOpen?'':'hidden')+'>'+(function(){var m=mails(null).m7;return mailBox('',m.subj,m.l);})()+'</div></div>';
+    h+=row('予約',bk,'','うち'+in26+'社は11月26日の回',tagBk,S.flash==='book');
+    h+='<div class="drop">来られなかった　'+(bk-pt-pending)+'社（ほかの'+pending+'社は、これからの回です）</div>';
+    h+=row('参加',pt,'','説明会が済んだ14社のうち10社。来られなかった4社には録画を自動でお送りしました','',false);
+    h+='<div class="drop">まだ申込みに進んでいない　'+(pt-ct)+'社</div>';
+    h+=row('契約',ct,'','','',false);
+    $('bars').innerHTML=h;
+    $('btnNext').addEventListener('click',function(){nextOpen=!nextOpen;var el=$('nextMail');el.hidden=!nextOpen;this.setAttribute('aria-expanded',nextOpen);});
+
+    /* B */
+    var tax=null; S.src.forEach(function(r){if(r.k==='税理士事務所からの紹介')tax=r;});
+    $('sentB').textContent='税理士事務所からの'+tax.i+'社は、予約が'+tax.b+'社だけです。紹介のときに説明会のことが伝わっていないのかもしれません。紹介の時にお渡しする案内文（説明会の日程つき）をご用意する案です。';
+    var tb='';
+    S.src.forEach(function(r){
+      if(r.extra && r.i===0 && r.b===0) return;
+      var mine = S.form && S.entered && (S.newInq) && r.k===S.enteredSrc;
+      tb+='<tr'+(mine?' class="mine"':'')+'><td class="nm">'+esc(r.k)+(mine?'<span class="minetag">見本で入れた会社を含む</span>':'')+'</td><td class="n" data-l="問い合わせ">'+r.i+'</td><td class="n'+(r.k==='税理士事務所からの紹介'?' hot':'')+'" data-l="予約">'+r.b+'</td><td class="n" data-l="参加">'+r.p+'</td><td class="n" data-l="契約">'+r.c+'</td></tr>';
+    });
+    tb+='<tr class="total"><td class="nm">合計</td><td class="n" data-l="問い合わせ">'+inq+'</td><td class="n" data-l="予約">'+bk+'</td><td class="n" data-l="参加">'+pt+'</td><td class="n" data-l="契約">'+ct+'</td></tr>';
+    $('tbB').querySelector('tbody').innerHTML=tb;
+
+    /* C */
+    var n=BASE_C.length+(S.booked===0?1:0);
+    $('cHead').textContent='11月26日（木）12:00の回に来る'+n+'社';
+    var f=S.form, def=f&&f.cm===DEF_COMMENT;
+    var ch='';
+    var cnt=BASE_C.filter(function(r){return r[3].indexOf('ストレスチェック')>=0;}).length;
+    BASE_C.forEach(function(r){
+      ch+='<tr><td class="nm" data-l="会社">'+esc(r[0])+'</td><td class="pp" data-l="人数">'+r[1]+'</td><td data-l="紹介元">'+esc(r[2])+'</td><td data-l="気がかり">'+esc(r[3])+'</td></tr>';
+    });
+    if(S.booked===0){
+      var cm = def ? 'ストレスチェックを来年から始めたい。始めるまでの手順を知りたい' : (f.cm? (f.cm.length>40? f.cm.slice(0,40)+'…' : f.cm) : '（ひとこと無し）');
+      if(cm.indexOf('ストレスチェック')>=0) cnt++;
+      ch+='<tr class="mine"><td class="nm" data-l="会社">'+esc(f.co)+'<span class="minetag">7社目・いま入りました</span></td><td class="pp" data-l="人数">'+esc(f.sz)+'</td><td data-l="紹介元">'+esc(SHORT[f.src]||f.src)+'</td><td data-l="気がかり">'+esc(cm)+'</td></tr>';
+    }
+    $('cSum').textContent=n+'社のうち'+cnt+'社が、ストレスチェックのこと（始め方・費用・結果の扱い）を気にしています。説明会では、ストレスチェックを始めるまでの流れと結果の扱いを、長めに話すとよさそうです。';
+    $('tbC').querySelector('tbody').innerHTML=ch;
+    var cl=$('cLine');
+    if(S.booked!=null && S.booked!==0){
+      cl.hidden=false; cl.textContent=esc0(S.form.co)+'は'+SESS[S.booked].d+'の回に入りました。その回の前日に、同じまとめが届きます。';
+    } else cl.hidden=true;
+  }
+  function esc0(s){return s;}
+
+  resetAll();
+})();
+</script>
+</body>
+</html>
