@@ -15,6 +15,7 @@
   - 商談のあとの追いかけを、毎朝の下書きに（画面の見本。架空の商談メモ8件をAIに読ませた結果を載せています） … https://updating30.github.io/portfolio/followup/
   - 建機レンタルの受注と貸し出しを、1枚の表に（画面の見本。電話・FAXの注文から、営業所をまたいで空いている機械を選び、貸し出し表に入れる） … https://updating30.github.io/portfolio/rental/
   - 問い合わせから説明会の予約まで、人の手を介さずに（画面の見本。お客様のスマホで予約すると、担当者の画面の問い合わせ・予約・参加・契約の数に入る） … https://updating30.github.io/portfolio/seminar/
+  - 細った紹介を、月10件から30件へ（画面の見本。紹介元ごとの紹介の数と止まった所、金融機関以外の紹介元の候補、紹介する方がスマホで1分で入れる窓口） … https://updating30.github.io/portfolio/referral/
   - 受注・納期共有アプリ（製造業の受注から納期の確定までを共有する業務アプリの体験版） … https://updating30.github.io/order-delivery-demo/
   - バージョンの棚（ソフトの版をCDの棚のように並べ、開くとリリースノートが読める画面の体験版） … https://updating30.github.io/version-shelf-demo/
   - 町工場のホームページに置くAIチャットボット（Dify・Claude の見本。架空の会社） … https://updating30.github.io/portfolio/chatbot/
