@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>建機レンタルの受注と貸し出しを、1枚の表に｜画面の見本</title>
+<meta name="description" content="電話やFAXで受けた注文を押すだけで入れると、その日に空いている機械が営業所をまたいで並び、日付×機械の貸し出し表に入る画面の見本（モック）です。会社・現場はすべて架空です。">
+<meta name="robots" content="noindex">
+<style>
+:root{
+  --bg:#F2F3EE; --surface:#FFFFFF; --surface-2:#F7F8F4;
+  --ink:#17201B; --sub:#46524A; --faint:#6B766F;
+  --line:#D5DAD0; --line-strong:#AEB6A8;
+  --brand:#1F5F3B; --brand-deep:#174A2E; --brand-soft:#E2EFE6;
+  --warn:#8A3B00; --warn-soft:#FFF1D6;
+  --ng:#B42318; --ng-soft:#FDECEA;
+  --today:#FFF6D6; --tomorrow:#EEF6EA;
+  --radius:12px;
+  --shadow:0 1px 3px rgba(23,32,27,.08), 0 10px 24px -14px rgba(23,32,27,.25);
+  --font:"BIZ UDPGothic","BIZ UDゴシック","Meiryo","メイリオ","Hiragino Sans","Yu Gothic UI",sans-serif;
+  --namecol:262px; --daycol:116px;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:3px solid #2B6CB0;outline-offset:2px}
+h1,h2,h3,p{margin:0}
+.kic{width:1.25em;height:1.25em;vertical-align:-0.25em;flex-shrink:0}
+
+.band{background:var(--ink);color:#fff;font-size:.8rem;padding:6px 16px;text-align:center}
+.band a{color:#fff}
+.foot-note a{color:var(--brand-deep)}
+header.top{background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1320px;margin:0 auto;padding:12px 16px 10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:42px;height:42px;border-radius:10px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:1.3rem}
+.logo-name{font-size:1.35rem;font-weight:700;line-height:1.2}
+.logo-sub{font-size:.78rem;color:var(--sub)}
+.who{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:.88rem;color:var(--sub);flex-wrap:wrap}
+.who b{color:var(--ink)}
+.btn-reset{border:1px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:.82rem;color:var(--sub)}
+nav.tabs{max-width:1320px;margin:0 auto;padding:4px 16px 14px;display:flex;gap:10px}
+.tab{flex:1 1 0;min-height:62px;border:2px solid var(--line-strong);background:var(--surface);border-radius:var(--radius);font-size:1.12rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 10px}
+.tab:hover{border-color:var(--brand)}
+.tab[aria-current="page"]{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-deep);box-shadow:inset 0 -5px 0 var(--brand)}
+.tab .ic{font-size:1.4rem}
+.tab .step{font-size:.75rem;font-weight:700;background:var(--ink);color:#fff;border-radius:999px;padding:1px 8px}
+
+main{max-width:1320px;margin:0 auto;padding:18px 16px 120px}
+.h1{font-size:1.5rem;font-weight:700;line-height:1.35}
+.h1 .date{font-size:1rem;color:var(--sub);font-weight:700;margin-left:8px}
+.h2{font-size:1.2rem;font-weight:700}
+.lead{color:var(--sub);margin-top:4px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:20px}
+
+/* はじめての方へ */
+.guide{display:flex;gap:14px;align-items:center;background:#FFFBEA;border:2px solid #E9C46A;border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.guide-ic{font-size:1.6rem}
+.guide p{flex:1}
+.guide ol{margin:4px 0 0;padding-left:1.4em}
+.guide li{margin:2px 0}
+
+/* 今日やること */
+.today{margin-bottom:22px}
+.lead-strong{font-size:1.15rem;font-weight:700;margin:6px 0 12px}
+.lead-strong .hot{color:var(--ng)}
+.today-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;display:flex;flex-direction:column;gap:8px}
+.tcard h2{font-size:1.05rem;display:flex;align-items:center;gap:8px}
+.tcard .cnt{margin-left:auto;font-size:.95rem;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:0 10px}
+.tcard-alert{border:2px solid var(--ng);background:#FFFBFA}
+.tcard-alert .cnt{background:var(--ng);color:#fff;border-color:var(--ng)}
+.tcard .none{color:var(--faint);padding:8px 2px}
+.titem{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:60px}
+button.titem:hover{border-color:var(--brand);background:#fff}
+.titem-time{font-weight:700;font-size:1.05rem;min-width:3.2em}
+.titem-main{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.45}
+.titem-main small{color:var(--sub);font-size:.85rem}
+.titem .chev{font-size:1.5rem;color:var(--faint)}
+.late{font-style:normal;color:var(--ng);font-weight:700}
+
+/* 貸し出し表 */
+.boardwrap{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+.board-head{display:flex;align-items:center;gap:12px 18px;flex-wrap:wrap;margin-bottom:12px}
+.weeknav{display:flex;align-items:center;gap:6px}
+.weeknav .range-l{font-weight:700;margin:0 6px}
+.navbtn{border:1px solid var(--line-strong);background:#fff;border-radius:10px;min-height:44px;padding:4px 12px;font-weight:700}
+.navbtn:hover{border-color:var(--brand)}
+.board-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.board{min-width:calc(var(--namecol) + 7 * var(--daycol))}
+.brow{display:grid;grid-template-columns:var(--namecol) repeat(7,minmax(var(--daycol),1fr));min-height:68px;border-bottom:1px solid var(--line)}
+.brow:last-child{border-bottom:0}
+.brow > *{grid-row:1}
+.bname{grid-column:1;position:sticky;left:0;z-index:3;background:#fff;border-right:1px solid var(--line-strong);display:flex;align-items:center;gap:10px;padding:8px 12px;line-height:1.35}
+.bname b{display:block}
+.bicon{font-size:1.4rem}
+.pill{display:inline-block;font-size:.75rem;border:1px solid var(--line-strong);border-radius:999px;padding:0 8px;color:var(--sub);margin-top:2px}
+.pill.mine{border-color:var(--brand);color:var(--brand-deep);background:var(--brand-soft)}
+.bcell{border-left:1px solid var(--line)}
+.bcell.is-today{background:var(--today)}
+.bcell.is-tomorrow{background:var(--tomorrow)}
+.bhead{min-height:52px;background:var(--surface-2);position:relative}
+.bhead .bname{background:var(--surface-2);font-size:.85rem;color:var(--sub);font-weight:700}
+.bday{border-left:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;line-height:1.25}
+.bday.is-today{background:#FCE9A8}
+.bday.is-tomorrow{background:#DCEED3}
+.bday em{font-style:normal;font-size:.75rem;background:var(--ink);color:#fff;border-radius:999px;padding:0 8px;margin-top:2px}
+.bday.sun{color:#B42318}.bday.sat{color:#1D4ED8}
+.bgroup{background:var(--surface-2);border-bottom:1px solid var(--line);padding:4px 12px;font-weight:700;font-size:.9rem;color:var(--sub)}
+.bgroup span{position:sticky;left:12px}
+.bar{z-index:1;margin:7px 3px;border-radius:9px;border:2px solid var(--c);border-left-width:9px;background:#fff;text-align:left;display:flex;align-items:center;gap:6px;padding:3px 8px;min-width:0;overflow:hidden;line-height:1.3}
+.bar:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent)}
+.bar-out{background:color-mix(in srgb,var(--c) 15%,#fff)}
+.bar-plan{border-style:dashed;border-left-style:solid}
+.bar-maint{--c:#6B7280;background:repeating-linear-gradient(135deg,#F3F4F6 0 8px,#E2E4E8 8px 16px)}
+.bar-back{opacity:.5;border-style:dotted}
+.bar-t{display:flex;flex-direction:column;min-width:0;flex:1}
+.bar-t b,.bar-t span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-t span{font-size:.8rem;color:var(--sub)}
+.tag{font-size:.72rem;padding:1px 7px;border-radius:999px;background:#fff;border:1px solid var(--c);white-space:nowrap;flex-shrink:0;font-weight:700}
+.bar.narrow .tag{display:none}
+.cont{font-size:.75rem;color:var(--sub);flex-shrink:0}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:10px;font-size:.88rem;color:var(--sub);align-items:center;background:var(--surface-2);border-radius:10px;padding:8px 12px}
+.legend b{color:var(--ink)}
+.scroll-hint{display:none;font-weight:700;color:var(--sub);margin-bottom:6px}
+.tcard .why{font-size:.85rem;color:var(--sub);margin-top:-4px}
+.lg{display:inline-flex;align-items:center;gap:6px}
+.lg i{display:inline-block;width:34px;height:18px;border-radius:5px;border:2px solid #57534E;border-left-width:6px;background:#fff}
+.lg i.l-plan{border-style:dashed;border-left-style:solid}
+.lg i.l-out{background:#E7E5E4}
+.lg i.l-maint{border-color:#6B7280;background:repeating-linear-gradient(135deg,#F3F4F6 0 5px,#E2E4E8 5px 10px)}
+.lg i.l-back{opacity:.5;border-style:dotted}
+
+/* 共通の部品 */
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:2px solid var(--line-strong);background:#fff;border-radius:999px;min-height:46px;padding:4px 16px;font-weight:700;display:inline-flex;align-items:center;gap:8px}
+.chip:hover{border-color:var(--brand)}
+.chip.on{border-color:var(--brand);background:var(--brand);color:#fff}
+.chip small{font-weight:400;font-size:.82rem;opacity:.9}
+.chip.big{min-height:56px;padding:6px 20px;font-size:1.05rem;border-radius:14px;flex-direction:column;gap:0;justify-content:center;line-height:1.25}
+.chip .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.chip.big.withdot{flex-direction:row;gap:10px}
+.btn-primary{background:var(--brand);color:#fff;border:2px solid var(--brand);border-radius:12px;min-height:52px;padding:6px 20px;font-weight:700;font-size:1.05rem}
+.btn-primary:hover{background:var(--brand-deep)}
+.btn-primary:disabled{background:#B9C0B4;border-color:#B9C0B4;color:#fff}
+.btn-primary.xl{min-height:64px;font-size:1.2rem;padding:8px 28px}
+.btn-primary.sm{min-height:44px;font-size:.95rem;padding:4px 14px;flex-shrink:0}
+.btn-ghost{background:#fff;color:var(--ink);border:2px solid var(--line-strong);border-radius:12px;min-height:52px;padding:6px 18px;font-weight:700}
+.btn-ghost:hover:not(:disabled){border-color:var(--brand)}
+.btn-ghost:disabled{color:var(--faint);background:var(--surface-2);border-style:dashed}
+.btn-danger{background:#fff;color:var(--ng);border:2px solid var(--ng);border-radius:12px;min-height:52px;padding:6px 18px;font-weight:700}
+.w{width:100%}
+.linkbtn{background:none;border:0;color:var(--ng);font-weight:700;text-decoration:underline;min-height:44px;padding:0 8px}
+input[type=text],input[type=search],input[type=date]{border:2px solid var(--line-strong);border-radius:12px;min-height:52px;padding:6px 14px;background:#fff;font-size:1.05rem}
+input:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 3px rgba(31,95,59,.2)}
+
+/* 注文を受ける */
+.order{display:flex;flex-direction:column;gap:14px;max-width:980px}
+.stepbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.stepbox h2{font-size:1.15rem;display:flex;align-items:center;gap:10px}
+.num{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:1rem;flex-shrink:0}
+.stepbox.done .num{background:var(--brand)}
+.req{font-size:.75rem;color:var(--ng);border:1px solid var(--ng);border-radius:999px;padding:0 8px;font-weight:700}
+.opt{font-size:.75rem;color:var(--sub);border:1px solid var(--line-strong);border-radius:999px;padding:0 8px}
+.sub-q{font-weight:700;color:var(--sub);font-size:.95rem}
+.ktiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ktile{border:2px solid var(--line-strong);background:#fff;border-radius:14px;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:700;font-size:1.05rem}
+.ktile:hover{border-color:var(--brand)}
+.ktile.on{border-color:var(--brand);background:var(--brand-soft);box-shadow:inset 0 0 0 2px var(--brand)}
+.kicon{font-size:2rem}
+.field{display:flex;flex-direction:column;gap:4px;max-width:520px}
+.field span{font-weight:700;color:var(--sub);font-size:.95rem}
+.range{font-size:1.1rem;font-weight:700;background:var(--brand-soft);border-radius:10px;padding:8px 14px;align-self:flex-start}
+.order-foot{background:var(--surface);border:2px solid var(--brand);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.missing{font-weight:700}
+.missing.ok{color:var(--brand-deep)}
+.foot-btns{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+/* 機械を探す */
+.ctx{display:flex;align-items:center;gap:14px;background:var(--brand);color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:14px}
+.ctx-label{font-size:.85rem;opacity:.9}
+.ctx-main{font-size:1.15rem;font-weight:700}
+.ctx-sub{font-size:.85rem;opacity:.9}
+.ctx .btn-ghost{margin-left:auto;flex-shrink:0}
+.filters{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:12px;margin:14px 0}
+.searchbar{display:flex;align-items:center;gap:8px;border:2px solid var(--line-strong);border-radius:14px;padding:0 14px;background:#fff}
+.searchbar:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px rgba(31,95,59,.2)}
+.searchbar input{border:0;flex:1;min-height:54px;padding:0;box-shadow:none !important}
+.frow{display:flex;gap:12px;align-items:center}
+.flabel{width:5.5em;flex-shrink:0;font-weight:700;color:var(--sub);font-size:.92rem;line-height:1.3}
+.toggle{border:2px solid var(--line-strong);background:#fff;border-radius:12px;min-height:48px;padding:4px 16px;font-weight:700}
+.toggle.on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-deep)}
+.rhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.count{font-size:1.1rem}
+.count b{font-size:1.5rem}
+.count .sub{color:var(--sub);font-size:.95rem}
+.sorttabs{margin-left:auto}
+.slegend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--sub);margin-bottom:10px}
+.slegend i{display:inline-block;width:16px;height:16px;border-radius:4px;vertical-align:-3px;margin-right:4px;border:1px solid var(--line-strong)}
+.ugrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ucard{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:10px;animation:rise .35s ease both;animation-delay:calc(var(--i,0) * 40ms)}
+.ucard.is-free{border:2px solid var(--brand)}
+.uc-top{display:flex;gap:12px;align-items:center}
+.uc-ic{width:52px;height:52px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-size:1.7rem;flex-shrink:0}
+.uc-name{font-size:1.12rem}
+.uc-br{color:var(--sub);font-size:.9rem}
+.uc-st{font-weight:700;border-radius:10px;padding:8px 12px;font-size:1rem}
+.uc-st.ok{background:var(--brand-soft);color:var(--brand-deep)}
+.uc-st.ng{background:var(--surface-2);color:var(--sub)}
+.uc-next{color:var(--warn);font-weight:700;font-size:.92rem;margin-top:-4px}
+.strip{display:flex;flex-direction:column;gap:4px}
+.strip-l{font-size:.8rem;color:var(--sub)}
+.sds{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.sd{height:30px;border-radius:6px;display:grid;place-items:center;font-size:.72rem;border:1px solid var(--line)}
+.sd small{font-size:.72rem}
+.sd-free{background:#fff;color:var(--sub)}
+.sd-busy{background:color-mix(in srgb,var(--c) 70%,#fff);border-color:var(--c);color:#fff;font-weight:700}
+.sd-maint{background:repeating-linear-gradient(135deg,#E5E7EB 0 4px,#C9CDD3 4px 8px);color:#374151}
+.sd-req{outline:3px solid var(--ink);outline-offset:-1px}
+.empty{text-align:center;background:var(--surface);border:2px dashed var(--line-strong);border-radius:16px;padding:32px 16px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty-ic{font-size:2.4rem}
+.empty-t{font-size:1.2rem;font-weight:700}
+
+/* 小窓 */
+.overlay{position:fixed;inset:0;background:rgba(17,24,20,.5);display:grid;place-items:center;padding:16px;z-index:50;animation:fade .15s ease}
+.dialog{background:#fff;border-radius:18px;max-width:580px;width:100%;max-height:92vh;overflow:auto;padding:22px;box-shadow:0 30px 60px -20px rgba(0,0,0,.45);animation:pop .2s ease}
+.dialog h2{font-size:1.3rem;margin-bottom:12px;line-height:1.4}
+.dl{display:grid;grid-template-columns:7em 1fr;border-top:1px solid var(--line)}
+.dl dt,.dl dd{margin:0;padding:9px 4px;border-bottom:1px solid var(--line)}
+.dl dt{color:var(--sub);font-weight:700;font-size:.92rem}
+.dl dd{font-weight:700}
+.note{background:var(--warn-soft);border:1px solid #F2C46D;border-radius:10px;padding:10px 12px;margin-top:12px;font-size:.95rem}
+.note.share{background:#EAF2FB;border-color:#A9C7EA}
+.d-actions{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+
+/* お知らせ */
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:14px;padding:12px 14px 12px 18px;display:flex;align-items:center;gap:14px;z-index:60;box-shadow:0 18px 40px -12px rgba(0,0,0,.5);max-width:calc(100vw - 32px);animation:up .2s ease}
+.toast[hidden]{display:none}
+.toast button{background:#fff;color:var(--ink);border:0;border-radius:10px;min-height:44px;padding:4px 14px;font-weight:700;flex-shrink:0}
+
+.is-flash{animation:flash 1.2s ease 2}
+.foot-note{max-width:1320px;margin:0 auto;padding:0 16px 40px;color:var(--faint);font-size:.8rem}
+
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes up{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes flash{0%,100%{box-shadow:0 0 0 0 rgba(234,179,8,0)}50%{box-shadow:0 0 0 6px rgba(234,179,8,.85)}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:1ms !important;animation-iteration-count:1 !important}}
+
+@media (max-width: 1020px){
+  .ugrid{grid-template-columns:repeat(2,1fr)}
+  .today-grid{grid-template-columns:1fr}
+  .scroll-hint{display:block}
+}
+@media (max-width: 680px){
+  html{font-size:16px}
+  :root{--namecol:150px;--daycol:104px}
+  .who{margin-left:0;width:100%;justify-content:space-between}
+  nav.tabs{gap:6px}
+  .tab{flex-direction:column;gap:0;font-size:.92rem;min-height:68px;padding:6px 4px}
+  .tab .step{display:none}
+  .ugrid{grid-template-columns:1fr}
+  .ktiles{grid-template-columns:repeat(2,1fr)}
+  .frow{flex-direction:column;align-items:flex-start;gap:6px}
+  .flabel{width:auto}
+  .flabel br{display:none}
+  .guide{flex-direction:column;align-items:flex-start}
+  .ctx{flex-direction:column;align-items:flex-start}
+  .ctx .btn-ghost{margin-left:0}
+  .sorttabs{margin-left:0}
+  .bname{padding:6px 8px;gap:6px;font-size:.88rem}
+  .bicon{display:none}
+}
+</style>
+</head>
+<body>
+<div class="band">画面の見本です（会社名・現場名・人の名前はすべて架空）｜<a href="../">作品集にもどる</a></div>
+<header class="top">
+  <div class="top-in">
+    <div class="logo">
+      <div class="logo-mark" aria-hidden="true">貸</div>
+      <div><div class="logo-name">貸し出し表</div><div class="logo-sub">つばさ建機レンタル（架空）の受注・貸し出し</div></div>
+    </div>
+    <div class="who"><span>いま使っている人：<b>本社・受付　山田</b></span><button class="btn-reset" data-act="askReset">見本を最初に戻す</button></div>
+  </div>
+  <nav class="tabs" aria-label="画面の切り替え">
+    <button class="tab" data-act="nav" data-view="order"><span class="ic" aria-hidden="true">📞</span><span>注文を受ける</span><span class="step">①</span></button>
+    <button class="tab" data-act="nav" data-view="search"><span class="ic" aria-hidden="true">🔍</span><span>機械を探す</span><span class="step">②</span></button>
+    <button class="tab" data-act="nav" data-view="board"><span class="ic" aria-hidden="true">📋</span><span>貸し出し表</span><span class="step">③</span></button>
+  </nav>
+</header>
+<main id="main"></main>
+<p class="foot-note">この見本は、建設機械のレンタル会社で「電話・FAXで受けた注文」「どの機械が空いているか」「営業所どうしの共有」を1つの表にまとめる形を試すものです。入れたデータはこのブラウザの中だけに残り、外へは送られません。<br>お仕事のご相談は、このページをご覧になったサービス（クラウドソーシングなど）のメッセージ機能からお願いします。ほかの作品は<a href="../">作品集</a>にあります。<br>© 2026 updating30</p>
+<div id="dlg"></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 日付 ---------- */
+const pad=n=>String(n).padStart(2,'0');
+const toISO=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d);};
+const addDays=(iso,n)=>{const d=parse(iso);d.setDate(d.getDate()+n);return toISO(d);};
+const diff=(a,b)=>Math.round((parse(b)-parse(a))/86400000);
+const WD=['日','月','火','水','木','金','土'];
+const fmt=iso=>{const d=parse(iso);return `${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`;};
+const TODAY=toISO(new Date());
+const TOMORROW=addDays(TODAY,1);
+const rangeText=(s,e)=>s===e?`${fmt(s)}（1日）`:`${fmt(s)} 〜 ${fmt(e)}（${diff(s,e)+1}日間）`;
+
+/* ---------- 見本のデータ（すべて架空） ---------- */
+const svg=(color,body)=>`<svg class="kic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:${color}" aria-hidden="true">${body}</svg>`;
+const KINDS={
+  gen:{name:'発電機',icon:svg('#C2410C','<rect x="3" y="5" width="18" height="13" rx="2"/><path d="M13 7.5l-3.5 5h3l-1 4 3.5-5h-3z" fill="currentColor" stroke="none"/><path d="M6.5 18v2.5M17.5 18v2.5"/>')},
+  comp:{name:'コンプレッサー',icon:svg('#0E7490','<rect x="2.5" y="8" width="15" height="8" rx="4"/><circle cx="7" cy="19.5" r="1.8"/><circle cx="14" cy="19.5" r="1.8"/><path d="M10 8V5.8"/><circle cx="10" cy="4" r="1.7"/><path d="M17.5 12H21.5"/>')},
+  lift:{name:'高所作業台',icon:svg('#4D7C0F','<path d="M3 4.5h18M4.5 4.5V2M19.5 4.5V2M4.5 2h15"/><path d="M6 4.5l12 6.5-12 6.5M18 4.5L6 11l12 6.5"/><rect x="3" y="17.5" width="18" height="2.5" rx="1"/><circle cx="6.5" cy="22" r="1.1"/><circle cx="17.5" cy="22" r="1.1"/>')},
+  light:{name:'投光器',icon:svg('#B45309','<circle cx="12" cy="7" r="5"/><path d="M12 2.8v1.4M8.6 7h-1M16.4 7h-1"/><path d="M12 12v8M12 16.5l-5 5M12 16.5l5 5"/>')}
+};
+const KIND_ORDER=['gen','comp','lift','light'];
+const BRANCHES=['本社','北営業所','南営業所'];
+const MY_BRANCH='本社';
+const UNITS=[
+  {id:'G25-1',kind:'gen',name:'発電機 25kVA',no:'①',n:1,branch:'本社'},
+  {id:'G25-2',kind:'gen',name:'発電機 25kVA',no:'②',n:2,branch:'本社'},
+  {id:'G25-3',kind:'gen',name:'発電機 25kVA',no:'③',n:3,branch:'北営業所'},
+  {id:'G45-1',kind:'gen',name:'発電機 45kVA',no:'①',n:1,branch:'南営業所'},
+  {id:'C-1',kind:'comp',name:'コンプレッサー エンジン式',no:'①',n:1,branch:'本社'},
+  {id:'C-2',kind:'comp',name:'コンプレッサー エンジン式',no:'②',n:2,branch:'南営業所'},
+  {id:'K-1',kind:'lift',name:'高所作業台 2.5m',no:'①',n:1,branch:'本社'},
+  {id:'K-2',kind:'lift',name:'高所作業台 2.5m',no:'②',n:2,branch:'北営業所'},
+  {id:'T-1',kind:'light',name:'投光器 バルーン型',no:'①',n:1,branch:'北営業所'},
+  {id:'T-2',kind:'light',name:'投光器 バルーン型',no:'②',n:2,branch:'本社'}
+];
+const CUSTS={
+  aoki:{name:'青木建設',color:'#1D4ED8'},
+  kitayama:{name:'北山工務店',color:'#15803D'},
+  marukawa:{name:'丸川土木',color:'#B45309'},
+  morita:{name:'森田組',color:'#7E22CE'},
+  chuo:{name:'中央舗装',color:'#0F766E'},
+  towa:{name:'東和設備',color:'#BE123C'}
+};
+function seed(){
+  const T=n=>addDays(TODAY,n);
+  return {anchor:TODAY,guideHidden:false,bookings:[
+    {id:'b1',unitId:'G25-1',cust:'aoki',site:'駅前ビル新築',start:T(-3),end:T(1),how:'届ける',time:'',status:'貸出中',via:'電話'},
+    {id:'b2',unitId:'G25-1',cust:'morita',site:'市民体育館の改修',start:T(3),end:T(5),how:'届ける',time:'9:00',status:'予定',via:'FAX'},
+    {id:'b3',unitId:'G25-2',cust:'kitayama',site:'みなみ台の住宅',start:T(0),end:T(4),how:'届ける',time:'8:30',status:'予定',via:'電話'},
+    {id:'b4',unitId:'G25-3',cust:null,site:'定期点検',start:T(0),end:T(1),status:'点検'},
+    {id:'b5',unitId:'G45-1',cust:'marukawa',site:'河川の護岸工事',start:T(-5),end:T(0),how:'届ける',time:'',status:'貸出中',via:'電話'},
+    {id:'b6',unitId:'C-1',cust:'morita',site:'市民体育館の改修',start:T(-2),end:T(3),how:'取りに来る',time:'',status:'貸出中',via:'来店'},
+    {id:'b7',unitId:'C-2',cust:'chuo',site:'県道の舗装',start:T(1),end:T(2),how:'届ける',time:'7:30',status:'予定',via:'電話'},
+    {id:'b8',unitId:'K-1',cust:'towa',site:'工場の配管',start:T(0),end:T(1),how:'取りに来る',time:'10:00',status:'予定',via:'FAX'},
+    {id:'b9',unitId:'K-2',cust:'aoki',site:'駅前ビル新築',start:T(2),end:T(6),how:'届ける',time:'8:00',status:'予定',via:'電話'},
+    {id:'b10',unitId:'T-1',cust:'marukawa',site:'河川の護岸工事',start:T(-5),end:T(0),how:'届ける',time:'',status:'貸出中',via:'電話'},
+    /* 機械がまだ決まっていない注文 */
+    {id:'b11',unitId:null,kind:'gen',cust:'chuo',site:'県道の舗装',start:T(1),end:T(3),how:'届ける',time:'7:30',status:'予定',via:'電話'},
+    {id:'b12',unitId:null,kind:'lift',cust:'kitayama',site:'みなみ台の住宅',start:T(2),end:T(3),how:'取りに来る',time:'13:00',status:'予定',via:'FAX'}
+  ]};
+}
+
+/* ---------- 状態 ---------- */
+const KEY='b010-kashidashi-v1';
+let S;
+function load(){
+  try{const raw=localStorage.getItem(KEY);if(raw){const d=JSON.parse(raw);if(d&&d.anchor===TODAY&&Array.isArray(d.bookings)){S=d;return;}}}catch(e){}
+  S=seed();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const newDraft=()=>({cust:null,custOther:'',kind:null,startMode:null,startDate:'',days:null,site:'',how:'届ける',via:'電話'});
+const newSearch=()=>({q:'',kind:'all',branch:'すべて',onlyFree:false,sort:'free',from:TODAY,days:1});
+const UI={view:'board',weekOffset:0,boardBranch:'すべて',ctx:null,search:newSearch(),draft:newDraft(),flash:null,flashUnit:null,dialog:null};
+let undoSnap=null,toastTimer=null;
+
+/* ---------- 小さな道具 ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const unitById=id=>UNITS.find(u=>u.id===id);
+const bookingById=id=>S.bookings.find(b=>b.id===id);
+const kindOf=b=>b.unitId?unitById(b.unitId).kind:b.kind;
+const custName=b=>b.cust==='other'?(b.custName||'お客様'):(CUSTS[b.cust]?CUSTS[b.cust].name:'');
+const custColor=b=>b.status==='点検'?'#6B7280':(CUSTS[b.cust]?CUSTS[b.cust].color:'#57534E');
+const unitLabel=u=>`${u.name} ${u.n}号機`;
+const timeKey=t=>t?t.padStart(5,'0'):'99:99';
+const bIndex=br=>BRANCHES.indexOf(br);
+function chip(act,id,label,on,extra){return `<button class="chip ${extra||''} ${on?'on':''}" data-act="${act}" data-id="${esc(id)}" aria-pressed="${on?'true':'false'}">${label}</button>`;}
+
+function conflictOf(unitId,start,end,exceptId){
+  return S.bookings.find(b=>b.unitId===unitId&&b.id!==exceptId&&b.status!=='返却済'&&!(b.end<start||b.start>end))||null;
+}
+function occupant(unitId,d,exceptId){
+  return S.bookings.find(b=>b.unitId===unitId&&b.id!==exceptId&&b.status!=='返却済'&&b.start<=d&&b.end>=d)||null;
+}
+function unitInfo(u,from,to,exceptId){
+  const c=conflictOf(u.id,from,to,exceptId);
+  if(!c) return {free:true,text:'空いています'};
+  if(c.status==='点検') return {free:false,text:`${fmt(c.end)}まで 点検中`};
+  if(c.status==='貸出中') return {free:false,text:`${fmt(c.end)}まで ${custName(c)}さんに貸出中`};
+  return {free:false,text:`${fmt(c.start)}から ${custName(c)}さんの予約あり`};
+}
+function nextFreeStart(u,from,len,exceptId){
+  for(let i=1;i<=30;i++){const s=addDays(from,i);if(!conflictOf(u.id,s,addDays(s,len-1),exceptId)) return s;}
+  return null;
+}
+function statusLabel(b){
+  if(b.status==='予定') return b.unitId?'予定（まだ出していません）':'予定（機械がまだ決まっていません）';
+  if(b.status==='貸出中') return '貸出中（お客様のところにあります）';
+  if(b.status==='返却済') return `戻ってきました（${fmt(b.returnedAt||b.end)}）`;
+  return '点検中';
+}
+
+/* ---------- 画面：貸し出し表 ---------- */
+function viewBoard(){
+  const outs=S.bookings.filter(b=>b.unitId&&b.status==='予定'&&b.start<=TODAY).sort((a,b)=>timeKey(a.time)<timeKey(b.time)?-1:1);
+  const backs=S.bookings.filter(b=>b.status==='貸出中'&&b.end<=TODAY);
+  const pend=S.bookings.filter(b=>!b.unitId&&b.status==='予定').sort((a,b)=>a.start<b.start?-1:1);
+  const pendSoon=pend.filter(b=>b.start<=TOMORROW).length;
+  let lead=`今日は、出す<b>${outs.length}件</b>・戻ってくる<b>${backs.length}件</b>。`;
+  lead+=pend.length?`<span class="hot">機械が決まっていない注文が${pend.length}件あります${pendSoon?`（明日までに使う分が${pendSoon}件）`:''}。</span>`:'機械が決まっていない注文はありません。';
+
+  const itemOut=b=>{const u=unitById(b.unitId);return `<button class="titem ${UI.flash===b.id?'is-flash':''}" data-act="openBooking" data-id="${b.id}"><span class="titem-time">${esc(b.time)||'—'}</span><span class="titem-main"><span><b>${esc(custName(b))}さん</b>　${unitLabel(u)}</span><small>${b.how==='届ける'?'🚚 現場へ届ける':'🏢 お客様が取りに来る'}・${esc(b.site)}${b.start<TODAY?'・<em class="late">出す日を過ぎています</em>':''}</small></span><span class="chev" aria-hidden="true">›</span></button>`;};
+  const itemBack=b=>{const u=unitById(b.unitId);return `<button class="titem ${UI.flash===b.id?'is-flash':''}" data-act="openBooking" data-id="${b.id}"><span class="titem-main"><span><b>${esc(custName(b))}さん</b>　${unitLabel(u)}</span><small>📍 戻り先：${u.branch}・${esc(b.site)}${b.end<TODAY?'・<em class="late">予定より遅れています</em>':''}</small></span><span class="chev" aria-hidden="true">›</span></button>`;};
+  const itemPend=b=>`<div class="titem ${UI.flash===b.id?'is-flash':''}"><span class="titem-main"><span><b>${esc(custName(b))}さん</b>　${KINDS[b.kind].icon} ${KINDS[b.kind].name}</span><small>${rangeText(b.start,b.end)}・${esc(b.via)}で受付</small></span><button class="btn-primary sm" data-act="pick" data-id="${b.id}">機械を選ぶ →</button></div>`;
+
+  const start=addDays(TODAY,UI.weekOffset*7);
+  const days=[...Array(7)].map((_,i)=>addDays(start,i));
+  const last=days[6];
+  const dcls=d=>(d===TODAY?'is-today':d===TOMORROW?'is-tomorrow':'');
+  const wcls=d=>{const w=parse(d).getDay();return w===0?'sun':w===6?'sat':'';};
+
+  let html='';
+  if(!S.guideHidden){
+    html+=`<div class="guide"><span class="guide-ic" aria-hidden="true">🔰</span><div style="flex:1"><b>はじめての方へ</b><ol><li>電話やFAXが来たら、上の「① 注文を受ける」を押します。</li><li>空いている機械が並ぶので、1つ選びます。</li><li>この「貸し出し表」に入ります。どの営業所からも同じ表が見られます。</li></ol><div style="margin-top:4px">どこを押しても壊れません。間違えたら「元に戻す」で戻せます。</div></div><button class="btn-ghost" data-act="hideGuide">わかった（閉じる）</button></div>`;
+  }
+  html+=`<section class="today" aria-labelledby="todayH"><h1 class="h1" id="todayH">今日やること<span class="date">${fmt(TODAY)}</span></h1><p class="lead-strong">${lead}</p><div class="today-grid">
+    <div class="tcard"><h2><span aria-hidden="true">🚚</span>今日 出す<span class="cnt">${outs.length}件</span></h2>${outs.length?outs.map(itemOut).join(''):'<p class="none">ありません</p>'}</div>
+    <div class="tcard"><h2><span aria-hidden="true">↩️</span>今日 戻ってくる<span class="cnt">${backs.length}件</span></h2>${backs.length?backs.map(itemBack).join(''):'<p class="none">ありません</p>'}</div>
+    <div class="tcard ${pend.length?'tcard-alert':''}"><h2><span aria-hidden="true">❗</span>機械が決まっていない注文<span class="cnt">${pend.length}件</span></h2><p class="why">注文だけ先に受けたものです。機械を選ぶと、下の表に入ります。</p>${pend.length?pend.map(itemPend).join(''):'<p class="none">ありません</p>'}</div>
+  </div></section>`;
+
+  const units=UNITS.filter(u=>UI.boardBranch==='すべて'||u.branch===UI.boardBranch);
+  let rows=`<div class="brow bhead" role="row"><div class="bname" role="columnheader">機械（置いてある営業所）</div>${days.map(d=>`<div class="bday ${dcls(d)} ${wcls(d)}" role="columnheader">${fmt(d)}${d===TODAY?'<em>今日</em>':d===TOMORROW?'<em>明日</em>':''}</div>`).join('')}</div>`;
+  KIND_ORDER.forEach(k=>{
+    const us=units.filter(u=>u.kind===k);
+    if(!us.length) return;
+    rows+=`<div class="bgroup"><span>${KINDS[k].icon} ${KINDS[k].name}</span></div>`;
+    us.forEach(u=>{
+      const bars=S.bookings.filter(b=>b.unitId===u.id&&!(b.end<start||b.start>last)).map(b=>{
+        const s=Math.max(0,diff(start,b.start)),e=Math.min(6,diff(start,b.end));
+        const cls=b.status==='点検'?'bar-maint':b.status==='貸出中'?'bar-out':b.status==='返却済'?'bar-back':'bar-plan';
+        const tag=b.status==='点検'?'点検中':b.status==='返却済'?'戻り済':b.status;
+        const who=b.status==='点検'?'点検':custName(b);
+        return `<button class="bar ${cls} ${e===s?'narrow':''} ${UI.flash===b.id?'is-flash':''}" style="grid-column:${s+2}/${e+3};--c:${custColor(b)}" data-act="openBooking" data-id="${b.id}" title="${esc(who)}・${esc(b.site)}・${rangeText(b.start,b.end)}・${tag}">${b.start<start?'<span class="cont" aria-hidden="true">◀</span>':''}<span class="bar-t"><b>${esc(who)}</b><span>${esc(b.site)}</span></span><span class="tag">${tag}</span>${b.end>last?'<span class="cont" aria-hidden="true">▶</span>':''}</button>`;
+      }).join('');
+      rows+=`<div class="brow ${UI.flashUnit===u.id?'is-flash':''}" role="row" data-unit="${u.id}"><div class="bname" role="rowheader"><span class="bicon" aria-hidden="true">${KINDS[u.kind].icon}</span><span><b>${unitLabel(u)}</b><span class="pill ${u.branch===MY_BRANCH?'mine':''}">${u.branch}</span></span></div>${days.map((d,i)=>`<div class="bcell ${dcls(d)}" style="grid-column:${i+2}"></div>`).join('')}${bars}</div>`;
+    });
+  });
+
+  html+=`<section class="boardwrap" aria-labelledby="boardH"><div class="board-head"><h2 class="h2" id="boardH">貸し出し表</h2>
+    <div class="weeknav"><button class="navbtn" data-act="week" data-id="-1">◀ 前の週</button><button class="navbtn" data-act="week" data-id="0">今日に戻る</button><button class="navbtn" data-act="week" data-id="1">次の週 ▶</button><span class="range-l">${fmt(start)}〜${fmt(last)}</span></div>
+    <div class="chips" role="group" aria-label="営業所で絞る">${['すべて',...BRANCHES].map(b=>chip('boardBranch',b,b==='すべて'?'全部の営業所':b,UI.boardBranch===b)).join('')}</div>
+  </div>
+  <div class="legend"><b>帯の見方</b><span class="lg"><i class="l-plan"></i>点線＝予定（まだ出していない）</span><span class="lg"><i class="l-out"></i>色つき＝貸出中</span><span class="lg"><i class="l-maint"></i>しま模様＝点検中</span><span class="lg"><i class="l-back"></i>うすい＝戻り済</span><span>帯の色はお客様ごと。帯を押すと、くわしく見られます。</span></div>
+  <p class="scroll-hint">👉 表は指で左右に動かせます</p>
+  <div class="board-scroll"><div class="board" role="table" aria-label="機械ごとの貸し出しの予定">${rows}</div></div>
+  </section>`;
+  return html;
+}
+
+/* ---------- 画面：注文を受ける ---------- */
+function draftStart(){const d=UI.draft;if(d.startMode===null)return null;if(d.startMode==='other')return d.startDate||null;return addDays(TODAY,d.startMode);}
+function missing(){
+  const d=UI.draft,m=[];
+  if(!d.cust||(d.cust==='other'&&!d.custOther.trim())) m.push('どのお客様');
+  if(!d.kind) m.push('何を貸す');
+  if(!draftStart()) m.push('いつから');
+  if(!d.days) m.push('何日間');
+  return m;
+}
+function viewOrder(){
+  const d=UI.draft;
+  const s=draftStart();
+  const custBtns=Object.entries(CUSTS).map(([id,c])=>chip('setCust',id,`<span class="dot" style="background:${c.color}"></span>${c.name}`,d.cust===id,'big withdot')).join('')+chip('setCust','other','＋ ほかのお客様',d.cust==='other','big');
+  const other=d.cust==='other'?`<label class="field"><span>お客様の名前</span><input id="custOther" type="text" value="${esc(d.custOther)}" placeholder="例：○○建設" autocomplete="off"></label>`:'';
+  const kinds=KIND_ORDER.map(k=>`<button class="ktile ${d.kind===k?'on':''}" data-act="setKind" data-id="${k}" aria-pressed="${d.kind===k?'true':'false'}"><span class="kicon" aria-hidden="true">${KINDS[k].icon}</span>${KINDS[k].name}</button>`).join('');
+  const starts=[0,1,2].map(n=>chip('setStart',String(n),`${['今日','明日','あさって'][n]}<small>${fmt(addDays(TODAY,n))}</small>`,d.startMode===n,'big')).join('')+chip('setStart','other','ほかの日<small>カレンダー</small>',d.startMode==='other','big');
+  const dateIn=d.startMode==='other'?`<input id="startDate" type="date" value="${esc(d.startDate)}" min="${TODAY}" aria-label="使い始める日">`:'';
+  const lens=[[1,'1日'],[2,'2日'],[3,'3日'],[5,'5日'],[7,'1週間'],[14,'2週間']].map(([n,l])=>chip('setDays',String(n),l,d.days===n,'big')).join('');
+  const range=s&&d.days?`<p class="range">📅 ${rangeText(s,addDays(s,d.days-1))}</p>`:'';
+  const done1=d.cust&&(d.cust!=='other'||d.custOther.trim()), done2=!!d.kind, done3=!!(s&&d.days);
+  return `<div class="order">
+    <div><h1 class="h1">注文を受ける</h1><p class="lead">電話やFAXを受けながら、上から順に押していきます。<b style="color:var(--ng)">必ず</b>の所だけ入れれば、先へ進めます。</p></div>
+    <section class="stepbox ${done1?'done':''}"><h2><span class="num">${done1?'✓':'1'}</span>どのお客様？<span class="req">必ず</span></h2><div class="chips">${custBtns}</div>${other}</section>
+    <section class="stepbox ${done2?'done':''}"><h2><span class="num">${done2?'✓':'2'}</span>何を貸す？<span class="req">必ず</span></h2><div class="ktiles">${kinds}</div></section>
+    <section class="stepbox ${done3?'done':''}"><h2><span class="num">${done3?'✓':'3'}</span>いつから・何日間？<span class="req">必ず</span></h2>
+      <div class="sub-q">いつから</div><div class="chips">${starts}${dateIn}</div>
+      <div class="sub-q">何日間</div><div class="chips">${lens}</div>${range}</section>
+    <section class="stepbox"><h2><span class="num">4</span>現場と渡し方<span class="opt">わかれば</span></h2>
+      <label class="field"><span>現場の名前</span><input id="site" type="text" value="${esc(d.site)}" placeholder="例：駅前ビル新築" autocomplete="off"></label>
+      <div class="sub-q">渡し方</div><div class="chips">${chip('setHow','届ける','🚚 現場へ届ける',d.how==='届ける','big')}${chip('setHow','取りに来る','🏢 お客様が取りに来る',d.how==='取りに来る','big')}</div>
+      <div class="sub-q">受けた方法</div><div class="chips">${chip('setVia','電話','📞 電話',d.via==='電話')}${chip('setVia','FAX','📠 FAX',d.via==='FAX')}${chip('setVia','来店','🏢 来店',d.via==='来店')}</div>
+    </section>
+    <div class="order-foot"><p id="missing" class="missing"></p><div class="foot-btns"><button id="goSearch" class="btn-primary xl" data-act="orderSearch">🔍 空いている機械を探す →</button><button id="goLater" class="btn-ghost" data-act="orderLater">機械はあとで決める（注文だけ残す）</button></div></div>
+  </div>`;
+}
+function updateOrderFooter(){
+  const m=missing(),el=$('#missing');if(!el)return;
+  if(m.length){el.textContent=`あと「${m.join('」「')}」を選ぶと、先へ進めます。`;el.className='missing';}
+  else{el.textContent='そろいました。下のボタンで、その日に使える機械を探します。';el.className='missing ok';}
+  $('#goSearch').disabled=m.length>0;$('#goLater').disabled=m.length>0;
+}
+
+/* ---------- 画面：機械を探す ---------- */
+function anyFilter(){const s=UI.search;return !!(s.q||s.branch!=='すべて'||(!UI.ctx&&s.kind!=='all')||s.onlyFree);}
+function viewSearch(){
+  const s=UI.search,c=UI.ctx;
+  let html='';
+  if(c){
+    html+=`<div class="ctx"><div><div class="ctx-label">${c.mode==='change'?'機械を変えます。いま探しているのは':'いま探しているのは'}</div><div class="ctx-main">${esc(custName(c))}さん ／ ${KINDS[c.kind].icon} ${KINDS[c.kind].name} ／ ${rangeText(c.start,c.end)}</div><div class="ctx-sub">この日に使える機械から、1つ選んでください。どの営業所の機械も選べます。</div></div><button class="btn-ghost" data-act="cancelCtx">やめる</button></div>`;
+  }else{
+    html+=`<h1 class="h1">機械を探す</h1><p class="lead">種類や営業所、使う日を押して絞りこめます。どの営業所の機械も、ここで探せます。</p>`;
+  }
+  html+=`<div class="filters">
+    <div class="searchbar"><span aria-hidden="true">🔍</span><input id="q" type="search" value="${esc(s.q)}" placeholder="名前や番号で探す（例：発電機、45、2号機）" aria-label="名前や番号で探す" autocomplete="off"></div>
+    ${c?'':`<div class="frow"><span class="flabel">種類</span><div class="chips">${chip('setKindF','all','すべて',s.kind==='all')}${KIND_ORDER.map(k=>chip('setKindF',k,`${KINDS[k].icon} ${KINDS[k].name}`,s.kind===k)).join('')}</div></div>`}
+    <div class="frow"><span class="flabel">置いてある<br>営業所</span><div class="chips">${['すべて',...BRANCHES].map(b=>chip('setBranchF',b,b,s.branch===b)).join('')}</div></div>
+    ${c?'':`<div class="frow"><span class="flabel">使う日</span><div class="chips">${[0,1,2].map(n=>chip('setFrom',String(n),`${['今日','明日','あさって'][n]} <small>${fmt(addDays(TODAY,n))}</small>`,s.from===addDays(TODAY,n))).join('')}<input id="sFrom" type="date" value="${s.from}" min="${TODAY}" aria-label="ほかの日を選ぶ"></div></div>
+    <div class="frow"><span class="flabel">何日間</span><div class="chips">${[[1,'1日'],[2,'2日'],[3,'3日'],[7,'1週間']].map(([n,l])=>chip('setDaysF',String(n),l,s.days===n)).join('')}</div></div>`}
+    <div class="frow"><span class="flabel"></span><div class="chips"><button class="toggle ${s.onlyFree?'on':''}" data-act="toggleFree" aria-pressed="${s.onlyFree?'true':'false'}">${s.onlyFree?'☑':'☐'} 空いている機械だけ見る</button>${anyFilter()?'<button class="linkbtn" data-act="clearF">× 条件を全部はずす</button>':''}</div></div>
+  </div>
+  <div id="results"></div>`;
+  return html;
+}
+function norm(t){return String(t).toLowerCase().replace(/[０-９]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0)).replace(/①/g,'1').replace(/②/g,'2').replace(/③/g,'3').replace(/\s+/g,'');}
+function searchRows(){
+  const s=UI.search,c=UI.ctx;
+  const from=c?c.start:s.from,to=c?c.end:addDays(s.from,s.days-1);
+  const kind=c?c.kind:s.kind;
+  const except=c&&c.bookingId?c.bookingId:null;
+  const len=diff(from,to)+1;
+  let rows=UNITS.filter(u=>kind==='all'||u.kind===kind)
+    .filter(u=>s.branch==='すべて'||u.branch===s.branch)
+    .filter(u=>!s.q||norm(`${KINDS[u.kind].name}${u.name}${u.no}${u.n}号機${u.branch}`).includes(norm(s.q)))
+    .map(u=>{const info=unitInfo(u,from,to,except);return {u,info,next:info.free?null:nextFreeStart(u,from,len,except)};});
+  const total=rows.length,freeN=rows.filter(r=>r.info.free).length;
+  if(s.onlyFree) rows=rows.filter(r=>r.info.free);
+  const ui=u=>UNITS.indexOf(u);
+  rows.sort((a,b)=>{
+    if(s.sort==='branch') return (bIndex(a.u.branch)-bIndex(b.u.branch))||(ui(a.u)-ui(b.u));
+    const fa=a.info.free?0:1,fb=b.info.free?0:1;
+    if(fa!==fb) return fa-fb;
+    const na=a.next||'9999',nb=b.next||'9999';
+    if(na!==nb) return na<nb?-1:1;
+    return (bIndex(a.u.branch)-bIndex(b.u.branch))||(ui(a.u)-ui(b.u));
+  });
+  return {rows,total,freeN,from,to,except};
+}
+function ucard(x,r,i){
+  const {u,info,next}=x,c=UI.ctx;
+  const cur=c&&c.mode==='change'?bookingById(c.bookingId):null;
+  const isCur=cur&&cur.unitId===u.id;
+  let ws=addDays(r.from,-1);if(ws<TODAY)ws=TODAY;
+  const strip=[...Array(7)].map((_,k)=>{
+    const d=addDays(ws,k),b=occupant(u.id,d,r.except),req=d>=r.from&&d<=r.to;
+    const cls=b?(b.status==='点検'?'sd-maint':'sd-busy'):'sd-free';
+    const what=b?(b.status==='点検'?'点検中':`${custName(b)}さん`):'空き';
+    return `<span class="sd ${cls} ${req?'sd-req':''}" style="${b&&b.status!=='点検'?`--c:${custColor(b)}`:''}" title="${fmt(d)}：${esc(what)}"><small>${parse(d).getDate()}</small></span>`;
+  }).join('');
+  let btn;
+  if(c){
+    if(isCur) btn='<button class="btn-ghost w" disabled>いまの機械です</button>';
+    else if(info.free) btn=`<button class="btn-primary w" data-act="choose" data-id="${u.id}">✓ この機械にする</button>`;
+    else btn='<button class="btn-ghost w" disabled>この日は使えません</button>';
+  }else btn=`<button class="btn-ghost w" data-act="viewOnBoard" data-id="${u.id}">📋 貸し出し表で見る</button>`;
+  return `<article class="ucard ${info.free?'is-free':'is-busy'}" style="--i:${i}">
+    <div class="uc-top"><span class="uc-ic" aria-hidden="true">${KINDS[u.kind].icon}</span><div><h3 class="uc-name">${unitLabel(u)}</h3><div class="uc-br">📍 ${u.branch}${u.branch===MY_BRANCH?'（この営業所）':''}</div></div></div>
+    <p class="uc-st ${info.free?'ok':'ng'}">${info.free?'◎ 空いています':'× '+esc(info.text)}</p>
+    ${!info.free&&next?`<p class="uc-next">→ ${fmt(next)}からなら空いています</p>`:''}
+    <div class="strip"><span class="strip-l">${fmt(ws)}からの空き具合：<b>太い枠</b>が使いたい日。そこが全部白なら使えます</span><div class="sds">${strip}</div></div>
+    ${btn}
+  </article>`;
+}
+function renderResults(){
+  const el=$('#results');if(!el)return;
+  const r=searchRows(),s=UI.search,c=UI.ctx;
+  const when=c?'この日':(r.from===r.to?fmt(r.from):`${fmt(r.from)}〜${fmt(r.to)}`);
+  const count=s.onlyFree?`<p class="count">空いている機械が <b>${r.rows.length}</b>台 見つかりました</p>`:`<p class="count"><b>${r.rows.length}</b>台 見つかりました <span class="sub">（${when}に空いているのは ${r.freeN}台）</span></p>`;
+  let html=`<div class="rhead">${count}<div class="chips sorttabs" role="group" aria-label="並べ方">${chip('setSort','free','空いている順',s.sort==='free')}${chip('setSort','branch','営業所順',s.sort==='branch')}</div></div>`;
+  if(!r.rows.length){
+    const narrowed=s.q||s.branch!=='すべて'||(!c&&s.kind!=='all');
+    if(!narrowed&&s.onlyFree){
+      html+=`<div class="empty"><div class="empty-ic" aria-hidden="true">🔍</div><p class="empty-t">${c?'この日に空いている機械がありません':'空いている機械がありません'}</p><p>「空いている機械だけ」をはずすと、いつから空くかが見られます。</p><button class="btn-primary" data-act="toggleFree">空いていない機械も見る</button></div>`;
+    }else{
+      html+=`<div class="empty"><div class="empty-ic" aria-hidden="true">🔍</div><p class="empty-t">条件に合う機械がありません</p><button class="btn-primary" data-act="relax">条件を1つゆるめる</button></div>`;
+    }
+  }else{
+    html+=`<div class="slegend"><span><i style="background:#fff"></i>空き</span><span><i style="background:#7c8ad9"></i>貸出・予約あり（色はお客様）</span><span><i style="background:repeating-linear-gradient(135deg,#E5E7EB 0 3px,#C9CDD3 3px 6px)"></i>点検</span></div>`;
+    html+=`<div class="ugrid">${r.rows.map((x,i)=>ucard(x,r,i)).join('')}</div>`;
+  }
+  el.innerHTML=html;
+}
+
+/* ---------- 小窓 ---------- */
+function renderDialog(){
+  const box=$('#dlg');const d=UI.dialog;
+  if(!d){box.innerHTML='';return;}
+  let inner='';
+  if(d.type==='booking'){
+    const b=bookingById(d.id);if(!b){UI.dialog=null;box.innerHTML='';return;}
+    const u=b.unitId?unitById(b.unitId):null;
+    const title=b.status==='点検'?`点検（${unitLabel(u)}）`:`${esc(custName(b))}さん　${esc(b.site)}`;
+    const rows=[
+      ['機械',u?`${KINDS[u.kind].icon} ${unitLabel(u)}（${u.branch}）`:`${KINDS[b.kind].icon} ${KINDS[b.kind].name}（まだ決まっていません）`],
+      ['使う日',rangeText(b.start,b.end)]
+    ];
+    if(b.status!=='点検'){
+      rows.push(['渡し方',`${b.how==='届ける'?'🚚 現場へ届ける':'🏢 お客様が取りに来る'}${b.time?'　'+esc(b.time):''}`]);
+      rows.push(['受けた方法',esc(b.via||'—')]);
+    }
+    rows.push(['いまの状態',statusLabel(b)]);
+    let acts='';
+    if(b.status==='予定'&&b.unitId) acts+=`<button class="btn-primary xl" data-act="markOut" data-id="${b.id}">🚚 出しました（貸出中にする）</button><button class="btn-ghost" data-act="changeUnit" data-id="${b.id}">機械を変える</button>`;
+    if(b.status==='予定'&&!b.unitId) acts+=`<button class="btn-primary xl" data-act="pick" data-id="${b.id}">機械を選ぶ →</button>`;
+    if(b.status==='貸出中') acts+=`<button class="btn-primary xl" data-act="markBack" data-id="${b.id}">↩️ 戻ってきました</button>`;
+    acts+='<button class="btn-ghost" data-act="closeDialog">閉じる</button>';
+    inner=`<h2 id="dlgT">${title}</h2><dl class="dl">${rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl><div class="d-actions">${acts}</div>`;
+  }else if(d.type==='confirm'){
+    const u=unitById(d.unitId),c=UI.ctx;
+    const src=c.mode==='new'?c:bookingById(c.bookingId);
+    const rows=[
+      ['お客様',`${esc(custName(src))}さん`],
+      ['現場',esc(src.site||'（現場名なし）')],
+      ['貸す機械',`${KINDS[u.kind].icon} ${unitLabel(u)}`],
+      ['置いてある所',`${u.branch}${u.branch===MY_BRANCH?'（この営業所）':''}`],
+      ['使う日',rangeText(src.start,src.end)],
+      ['渡し方',src.how==='届ける'?'🚚 現場へ届ける':'🏢 お客様が取りに来る']
+    ];
+    const share=u.branch!==MY_BRANCH?`<p class="note share">📢 この機械は<b>${u.branch}</b>にあります。${u.branch}の人も、この貸し出し表で同じ内容を見られます。</p>`:'';
+    const label=c.mode==='change'?'✓ この機械に変える':'✓ この内容で受ける';
+    inner=`<h2 id="dlgT">${c.mode==='change'?'機械を変えます':'この内容で注文を受けます'}</h2><dl class="dl">${rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>${share}<div class="d-actions"><button class="btn-primary xl" data-act="commit" data-id="${u.id}">${label}</button><button class="btn-ghost" data-act="closeDialog">戻る</button></div>`;
+  }else if(d.type==='reset'){
+    inner=`<h2 id="dlgT">見本を最初に戻しますか？</h2><p>入れた注文や「出しました」「戻ってきました」が消えて、最初の見本の状態に戻ります。</p><div class="d-actions"><button class="btn-danger" data-act="doReset">最初に戻す</button><button class="btn-ghost" data-act="closeDialog">やめる</button></div>`;
+  }
+  box.innerHTML=`<div class="overlay" data-act="overlay"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgT">${inner}</div></div>`;
+  const f=box.querySelector('.d-actions button');if(f)f.focus();
+}
+
+/* ---------- 描く ---------- */
+function render(){
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-current',t.dataset.view===UI.view?'page':'false'));
+  const main=$('#main');
+  main.innerHTML=UI.view==='board'?viewBoard():UI.view==='order'?viewOrder():viewSearch();
+  if(UI.view==='search') renderResults();
+  if(UI.view==='order') updateOrderFooter();
+  renderDialog();
+  const f=main.querySelector('.is-flash');
+  if(f){
+    if(f.classList.contains('bar')){const sc=main.querySelector('.board-scroll');if(sc){const r=f.getBoundingClientRect(),sr=sc.getBoundingClientRect();if(r.left<sr.left+262||r.right>sr.right)sc.scrollLeft+=r.left-sr.left-290;}}
+    f.scrollIntoView({block:'center',behavior:'smooth'});
+    UI.flash=null;UI.flashUnit=null;
+  }
+}
+function go(view){UI.view=view;UI.dialog=null;$('#toast').hidden=true;render();window.scrollTo({top:0});}
+
+/* ---------- お知らせと元に戻す ---------- */
+function snapshot(){undoSnap=JSON.stringify(S.bookings);}
+function toast(msg,canUndo){
+  const t=$('#toast');
+  t.innerHTML=`<span>${msg}</span>${canUndo?'<button data-act="undo">元に戻す</button>':''}`;
+  t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{t.hidden=true;},canUndo?10000:4000);
+}
+
+/* ---------- 操作 ---------- */
+const A={
+  nav:t=>{const v=t.dataset.view;if(v==='board')UI.ctx=null;if(v==='search'&&!UI.ctx)UI.search=Object.assign(newSearch(),{q:UI.search.q,kind:UI.search.kind,branch:UI.search.branch});go(v);},
+  askReset:()=>{UI.dialog={type:'reset'};renderDialog();},
+  doReset:()=>{S=seed();save();UI.ctx=null;UI.draft=newDraft();UI.search=newSearch();UI.weekOffset=0;UI.boardBranch='すべて';UI.dialog=null;undoSnap=null;UI.view='board';render();toast('見本を最初の状態に戻しました。',false);},
+  hideGuide:()=>{S.guideHidden=true;save();render();},
+  week:t=>{const n=Number(t.dataset.id);UI.weekOffset=n===0?0:UI.weekOffset+n;render();},
+  boardBranch:t=>{UI.boardBranch=t.dataset.id;render();},
+  openBooking:t=>{UI.dialog={type:'booking',id:t.dataset.id};renderDialog();},
+  closeDialog:()=>{UI.dialog=null;renderDialog();},
+  overlay:(t,e)=>{if(e.target===t){UI.dialog=null;renderDialog();}},
+  markOut:t=>{const b=bookingById(t.dataset.id);snapshot();b.status='貸出中';b.outAt=TODAY;save();UI.dialog=null;UI.flash=b.id;render();toast(`${esc(custName(b))}さんの ${unitLabel(unitById(b.unitId))} を「貸出中」にしました。`,true);},
+  markBack:t=>{const b=bookingById(t.dataset.id);snapshot();b.status='返却済';b.returnedAt=TODAY;if(b.end>TODAY)b.end=TODAY;save();UI.dialog=null;UI.flash=b.id;render();toast(`${unitLabel(unitById(b.unitId))} が ${unitById(b.unitId).branch} に戻りました。`,true);},
+  pick:t=>{const b=bookingById(t.dataset.id);UI.ctx={mode:'assign',bookingId:b.id,kind:b.kind,cust:b.cust,custName:b.custName,start:b.start,end:b.end};UI.search=Object.assign(newSearch(),{onlyFree:true});go('search');},
+  changeUnit:t=>{const b=bookingById(t.dataset.id);UI.ctx={mode:'change',bookingId:b.id,kind:kindOf(b),cust:b.cust,custName:b.custName,start:b.start,end:b.end};UI.search=Object.assign(newSearch(),{onlyFree:true});go('search');},
+  cancelCtx:()=>{const back=UI.ctx&&UI.ctx.mode==='new'?'order':'board';UI.ctx=null;UI.search=newSearch();go(back);},
+  /* 注文 */
+  setCust:t=>{UI.draft.cust=t.dataset.id;render();if(t.dataset.id==='other'){const i=$('#custOther');if(i)i.focus();}},
+  setKind:t=>{UI.draft.kind=t.dataset.id;render();},
+  setStart:t=>{const v=t.dataset.id;UI.draft.startMode=v==='other'?'other':Number(v);render();if(v==='other'){const i=$('#startDate');if(i)i.focus();}},
+  setDays:t=>{UI.draft.days=Number(t.dataset.id);render();},
+  setHow:t=>{UI.draft.how=t.dataset.id;render();},
+  setVia:t=>{UI.draft.via=t.dataset.id;render();},
+  orderSearch:()=>{
+    if(missing().length)return;
+    const d=UI.draft,s=draftStart();
+    UI.ctx={mode:'new',kind:d.kind,cust:d.cust,custName:d.custOther.trim(),site:d.site.trim(),start:s,end:addDays(s,d.days-1),how:d.how,via:d.via};
+    UI.search=Object.assign(newSearch(),{onlyFree:true});go('search');
+  },
+  orderLater:()=>{
+    if(missing().length)return;
+    const d=UI.draft,s=draftStart();snapshot();
+    const b={id:'n'+Date.now(),unitId:null,kind:d.kind,cust:d.cust,custName:d.custOther.trim(),site:d.site.trim()||'（現場名なし）',start:s,end:addDays(s,d.days-1),how:d.how,time:'',status:'予定',via:d.via};
+    S.bookings.push(b);save();UI.draft=newDraft();UI.flash=b.id;UI.view='board';render();
+    toast(`注文を残しました。「機械が決まっていない注文」に入っています。`,true);
+  },
+  /* 探す */
+  setKindF:t=>{UI.search.kind=t.dataset.id;render();},
+  setBranchF:t=>{UI.search.branch=t.dataset.id;render();},
+  setFrom:t=>{UI.search.from=addDays(TODAY,Number(t.dataset.id));render();},
+  setDaysF:t=>{UI.search.days=Number(t.dataset.id);render();},
+  toggleFree:()=>{UI.search.onlyFree=!UI.search.onlyFree;render();},
+  setSort:t=>{UI.search.sort=t.dataset.id;render();},
+  clearF:()=>{const s=UI.search;s.q='';s.branch='すべて';if(!UI.ctx)s.kind='all';s.onlyFree=false;render();},
+  relax:()=>{const s=UI.search;if(s.q)s.q='';else if(s.branch!=='すべて')s.branch='すべて';else if(!UI.ctx&&s.kind!=='all')s.kind='all';else s.onlyFree=false;render();},
+  choose:t=>{UI.dialog={type:'confirm',unitId:t.dataset.id};renderDialog();},
+  viewOnBoard:t=>{UI.boardBranch='すべて';UI.weekOffset=0;UI.flashUnit=t.dataset.id;go('board');},
+  commit:t=>{
+    const u=unitById(t.dataset.id),c=UI.ctx;snapshot();
+    let b;
+    if(c.mode==='new'){
+      b={id:'n'+Date.now(),unitId:u.id,kind:c.kind,cust:c.cust,custName:c.custName,site:c.site||'（現場名なし）',start:c.start,end:c.end,how:c.how,time:'',status:'予定',via:c.via};
+      S.bookings.push(b);UI.draft=newDraft();
+    }else{b=bookingById(c.bookingId);b.unitId=u.id;}
+    save();
+    const msg=c.mode==='change'?`${esc(custName(b))}さんの機械を ${unitLabel(u)} に変えました。`:`${esc(custName(b))}さんの注文を受けました（${unitLabel(u)}・${fmt(b.start)}から）。`;
+    UI.ctx=null;UI.dialog=null;UI.search=newSearch();UI.boardBranch='すべて';
+    UI.weekOffset=Math.max(0,Math.floor(diff(TODAY,b.start)/7));UI.flash=b.id;UI.view='board';
+    render();toast(msg+(u.branch!==MY_BRANCH?` ${u.branch}にも同じ表で伝わります。`:''),true);
+  },
+  undo:()=>{if(!undoSnap)return;S.bookings=JSON.parse(undoSnap);undoSnap=null;save();UI.dialog=null;render();toast('元に戻しました。',false);}
+};
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');if(!t||t.disabled)return;
+  const f=A[t.dataset.act];if(f)f(t,e);
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='q'){UI.search.q=t.value;renderResults();}
+  else if(t.id==='site'){UI.draft.site=t.value;}
+  else if(t.id==='custOther'){UI.draft.custOther=t.value;updateOrderFooter();}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='startDate'){UI.draft.startDate=t.value;render();}
+  else if(t.id==='sFrom'&&t.value){UI.search.from=t.value;render();}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&UI.dialog){UI.dialog=null;renderDialog();}});
+
+load();render();
+})();
+</script>
+</body>
+</html>
